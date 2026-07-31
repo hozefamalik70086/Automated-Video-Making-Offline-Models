@@ -24,12 +24,12 @@
     "character": "a slim and smart athletic body blue eyes toon gir."
   },
   "render": {
-    "video_width": 640,
-    "video_height": 360,
-    "fps": 25,
-    "image_width": 1080,
-    "image_height": 720,
-    "image_steps": 20,
+    "video_width": 1280,
+    "video_height": 720,
+    "fps": 30,
+    "image_width": 1920,
+    "image_height": 1080,
+    "image_steps": 40,
     "video_motion_boost": "",
     "camera_move": "auto",
     "video_base_strength": 1,

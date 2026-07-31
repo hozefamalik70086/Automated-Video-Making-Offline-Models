@@ -233,6 +233,49 @@ def stop_run() -> None:
         flag.set()
 
 
+def run_char_setup(no_refs: bool = False, timeout: int = 1800) -> dict:
+    """Run characters.py --setup (blocking) and return its captured output.
+
+    Runs in the request thread (the server is threaded), so the dashboard
+    can trigger lock/reference generation and show the full log.
+    """
+    cmd = [PYTHON, os.path.join(BASE_DIR, "characters.py"),
+           "--config", "config.json", "--setup"]
+    if no_refs:
+        cmd.append("--no-refs")
+    try:
+        out = subprocess.run(
+            cmd, cwd=BASE_DIR, capture_output=True, text=True,
+            timeout=timeout,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        text = ((out.stdout or "") + (out.stderr or "")).strip()
+        return {"ok": out.returncode == 0, "exit_code": out.returncode,
+                "output": text or "(no output)"}
+    except subprocess.TimeoutExpired as exc:
+        partial = exc.stdout or b""
+        if isinstance(partial, bytes):
+            partial = partial.decode("utf-8", "replace")
+        return {"ok": False, "exit_code": -1,
+                "output": str(partial).strip() +
+                f"\n[char] timed out after {timeout}s"}
+    except Exception as exc:
+        return {"ok": False, "exit_code": -1, "output": str(exc)}
+
+
+def clear_log() -> None:
+    """Empty the shared director.log and the in-memory console queue."""
+    cfg = _read_config()
+    out_dir = cfg.get("director", {}).get("output_dir", "output")
+    log_path = os.path.join(BASE_DIR, out_dir, "director.log")
+    try:
+        with open(log_path, "w", encoding="utf-8"):
+            pass
+    except Exception:
+        pass
+    with _run_lock:
+        _run["stdout"].clear()
+
+
 # ---------------------------------------------------------------- HTTP
 class Handler(BaseHTTPRequestHandler):
     def _json(self, obj, code=200):
@@ -355,6 +398,20 @@ class Handler(BaseHTTPRequestHandler):
                        200 if not msg else 409)
         elif path == "/api/stop":
             stop_run()
+            self._json({"ok": True})
+        elif path == "/api/char_setup":
+            cfg = data.get("config")
+            if isinstance(cfg, dict):
+                try:
+                    _write_config(cfg)
+                except Exception as exc:
+                    self._json({"error": str(exc)}, 500)
+                    return
+            no_refs = bool(data.get("no_refs"))
+            result = run_char_setup(no_refs=no_refs)
+            self._json(result, 200 if result["ok"] else 500)
+        elif path == "/api/clear_log":
+            clear_log()
             self._json({"ok": True})
         elif path == "/api/video_score":
             name = str(data.get("file", "")).replace("\\", "/")

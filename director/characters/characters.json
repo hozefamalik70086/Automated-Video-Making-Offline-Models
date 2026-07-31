@@ -1,0 +1,179 @@
+[
+  {
+    "char_id": "char_001",
+    "name": "Red Umbrella",
+    "speaking": false,
+    "scene_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "visual_descriptor": "A clearly visible Red Umbrella with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_001_ref.png",
+    "ref_seed": 3472334123,
+    "ref_prompt": "A clearly visible Red Umbrella with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:00:05"
+  },
+  {
+    "char_id": "char_002",
+    "name": "Toddler",
+    "speaking": false,
+    "scene_ids": [
+      4
+    ],
+    "visual_descriptor": "A clearly visible Toddler with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_002_ref.png",
+    "ref_seed": 3034220711,
+    "ref_prompt": "A clearly visible Toddler with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:00:38"
+  },
+  {
+    "char_id": "char_003",
+    "name": "Jogger",
+    "speaking": false,
+    "scene_ids": [
+      6
+    ],
+    "visual_descriptor": "A clearly visible Jogger with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_003_ref.png",
+    "ref_seed": 1806958275,
+    "ref_prompt": "A clearly visible Jogger with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:01:01"
+  },
+  {
+    "char_id": "char_004",
+    "name": "Businessman",
+    "speaking": false,
+    "scene_ids": [
+      8
+    ],
+    "visual_descriptor": "A clearly visible Businessman with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_004_ref.png",
+    "ref_seed": 3840668313,
+    "ref_prompt": "A clearly visible Businessman with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:01:27"
+  },
+  {
+    "char_id": "char_005",
+    "name": "Dog",
+    "speaking": false,
+    "scene_ids": [
+      10
+    ],
+    "visual_descriptor": "A clearly visible Dog with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_005_ref.png",
+    "ref_seed": 2473126548,
+    "ref_prompt": "A clearly visible Dog with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:01:50"
+  },
+  {
+    "char_id": "char_006",
+    "name": "Street Musician",
+    "speaking": false,
+    "scene_ids": [
+      11,
+      12
+    ],
+    "visual_descriptor": "A clearly visible Street Musician with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_006_ref.png",
+    "ref_seed": 3349438867,
+    "ref_prompt": "A clearly visible Street Musician with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:02:12"
+  },
+  {
+    "char_id": "char_007",
+    "name": "Little Girl",
+    "speaking": true,
+    "scene_ids": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "visual_descriptor": "A clearly visible Little Girl with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_007_ref.png",
+    "ref_seed": 1935942299,
+    "ref_prompt": "A clearly visible Little Girl with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-AnaNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 03:02:32"
+  },
+  {
+    "char_id": "char_008",
+    "name": "Mother",
+    "speaking": false,
+    "scene_ids": [
+      16,
+      17,
+      18
+    ],
+    "visual_descriptor": "A clearly visible Mother with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_008_ref.png",
+    "ref_seed": 757985082,
+    "ref_prompt": "A clearly visible Mother with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:05:59"
+  },
+  {
+    "char_id": "char_009",
+    "name": "Grandmother",
+    "speaking": false,
+    "scene_ids": [
+      22,
+      23,
+      24
+    ],
+    "visual_descriptor": "A clearly visible Grandmother with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail.",
+    "voice_descriptor": "",
+    "master_ref_image": "characters\\refs\\char_009_ref.png",
+    "ref_seed": 2989585856,
+    "ref_prompt": "A clearly visible Grandmother with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 03:06:58"
+  }
+]

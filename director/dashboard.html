@@ -129,6 +129,22 @@
   .toast.show{opacity:1; transform:none}
   .toast.ok{border-left-color:var(--accent2)}
   .toast.err{border-left-color:var(--danger)}
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(2,8,14,.72); display:flex; align-items:center;
+    justify-content:center; z-index:200; padding:20px;
+  }
+  .modal-overlay[hidden]{display:none}
+  .modal{
+    background:var(--bg3); border:1px solid var(--line); border-radius:10px;
+    width:min(760px, 94vw); max-height:80vh; display:flex; flex-direction:column;
+    box-shadow:0 12px 40px rgba(0,0,0,.6);
+  }
+  .modal-head{display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; border-bottom:1px solid var(--line); font-size:13.5px}
+  pre.char-output{
+    margin:0; padding:12px 14px; overflow:auto; white-space:pre-wrap; word-break:break-word;
+    font-family:Consolas,monospace; font-size:12px; color:var(--txt); background:#05080c;
+  }
   .section-title{font-size:17px; font-weight:700; margin:4px 0 14px; display:flex; align-items:center; gap:10px}
   .section-title .sub{font-size:12.5px; color:var(--dim); font-weight:400}
 </style>
@@ -537,6 +553,41 @@
           <input type="text" data-path="audio.font" placeholder="C:\Windows\Fonts\arial.ttf">
         </div>
       </div>
+      <div class="card">
+        <h3>Characters (identity locking)</h3>
+        <p class="desc">Phases 0&ndash;4: the director extracts the cast from the story, writes a descriptor lock per character, renders a locked reference image, and injects a consistency anchor into every image/video prompt so faces stay identical across scenes. Settings map to the <code>characters</code> block of <code>config.json</code>.</p>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Enable character locking</div>
+            <div class="t-sub">extract + lock the cast in every run</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="characters.enabled"><span class="slider"></span></label>
+        </div>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Auto-generate reference images</div>
+            <div class="t-sub">render each lock in ComfyUI on first use</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="characters.auto_generate_refs"><span class="slider"></span></label>
+        </div>
+        <div class="field">
+          <label>Library directory</label>
+          <input type="text" data-path="characters.library_dir" placeholder="characters">
+        </div>
+        <div class="field">
+          <label>Reference workflow template</label>
+          <input type="text" data-path="characters.ref_template" placeholder="workflow_scene_template.json">
+        </div>
+        <div class="field">
+          <label>Consistency threshold</label>
+          <input type="number" data-path="characters.consistency_threshold" min="0" max="1" step="0.05">
+        </div>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn ghost" id="btn-char-setup">⚡ Run character setup</button>
+          <button class="btn ghost" id="btn-char-setup-norefs">⚡ Setup (no refs)</button>
+        </div>
+        <div class="note">Runs <code>python characters.py --setup</code> with the current config &mdash; extracts the cast from the story, writes descriptor locks (via Ollama or a built-in fallback) and renders reference images in ComfyUI. Output appears in a popup. Turn <b>auto-generate reference images</b> off to use text-only locks.</div>
+      </div>
     </div>
   </section>
 
@@ -576,7 +627,10 @@
 
     <div class="grid">
       <div class="card">
-        <h3>Live console</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+          <h3>Live console</h3>
+          <button class="btn ghost" id="btn-clear-console" style="padding:2px 10px; font-size:12px">🗑 Clear</button>
+        </div>
         <div class="console" id="console"><span class="ts">— waiting for output —</span></div>
       </div>
       <div class="card">
@@ -598,6 +652,13 @@
   </section>
 </div>
 
+<div class="modal-overlay" id="char-modal" hidden>
+  <div class="modal">
+    <div class="modal-head"><b>⚡ Character setup output</b><button class="btn ghost" id="char-modal-close" style="padding:2px 12px">✕</button></div>
+    <pre class="char-output" id="char-output"></pre>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -611,7 +672,7 @@ const DEFAULTS = {
   llm: {
     backend: "ollama",
     ollama_url: "http://127.0.0.1:11434",
-    ollama_model: "qwen3:4b",
+    ollama_model: "qwen3.5:latest",
     openai_base_url: "http://127.0.0.1:1234/v1",
     openai_api_key: "not-needed",
     openai_model: "qwen3-14b",
@@ -665,12 +726,20 @@ const DEFAULTS = {
     rate: "+0%",
     subtitles: true,
     font: "C:\\Windows\\Fonts\\arial.ttf"
+  },
+  characters: {
+    enabled: true,
+    auto_generate_refs: true,
+    library_dir: "characters",
+    ref_template: "workflow_scene_template.json",
+    consistency_threshold: 0.85
   }
 };
 
 let config = JSON.parse(JSON.stringify(DEFAULTS));
 let connected = false;   // controller server available?
 let lastLogLen = 0;
+let lastStdout = "";     // last console tail seen (used by the Clear button)
 
 /* ================= helpers ================= */
 const $ = s => document.querySelector(s);
@@ -836,6 +905,37 @@ $("#btn-stop").addEventListener("click", async()=>{
   refresh();
 });
 
+/* ================= character setup ================= */
+function showCharOutput(text){
+  $("#char-output").textContent = text || "(no output)";
+  $("#char-modal").hidden = false;
+}
+$("#char-modal-close").addEventListener("click",()=>{ $("#char-modal").hidden = true; });
+$("#char-modal").addEventListener("click",(e)=>{ if(e.target.id==="char-modal") $("#char-modal").hidden=true; });
+async function runCharSetup(noRefs){
+  collect();
+  if(!connected){ toast("Start dashboard_server.py to run character setup","err"); return; }
+  toast("Character setup running — this may take a minute…","ok");
+  const r=await api("/api/char_setup",{method:"POST",body:JSON.stringify({config, no_refs:noRefs})});
+  if(r.ok){ toast("Character setup finished","ok"); showCharOutput(r.data.output||""); }
+  else toast("Character setup failed: "+(r.data.error||r.status),"err");
+}
+$("#btn-char-setup").addEventListener("click",()=>runCharSetup(false));
+$("#btn-char-setup-norefs").addEventListener("click",()=>runCharSetup(true));
+
+/* ================= clear console ================= */
+$("#btn-clear-console").addEventListener("click", async()=>{
+  $("#console").innerHTML='<span class="ts">— log cleared —</span>';
+  if(connected){
+    const r=await api("/api/clear_log",{method:"POST"});
+    toast(r.ok?"Console log cleared":"Clear failed — old lines may return","ok");
+  } else {
+    toast("Console cleared (client only)","ok");
+  }
+  // baseline so the next refresh doesn't re-render stale lines
+  lastLogLen = lastStdout.length;
+});
+
 /* ================= health & status polling ================= */
 async function refresh(){
   const h=await api("/api/health");
@@ -844,6 +944,7 @@ async function refresh(){
   showOffline(false);
   $("#server-note").classList.add("hidden");
   const s=h.data.status||{};
+  lastStdout = s.stdout||"";
   setChip("chip-comfy", s.comfyui);
   setChip("chip-ollama", s.ollama);
   const run=!!s.running;
@@ -894,6 +995,17 @@ function renderReport(report){
   const box=$("#results");
   const scenes=report.scenes||[];
   if(!scenes.length){ box.innerHTML='<div class="empty">Report has no scenes yet.</div>'; return; }
+  // locked cast (from director's report.characters)
+  let castHtml="";
+  const cast=report.characters||[];
+  if(cast.length){
+    const names=cast.map(c=>
+      `<code style="color:var(--accent)">${c.name}</code>`+(c.voice?` <span style="color:var(--dim)">(${c.voice})</span>`:"")
+    ).join(" &middot; ");
+    castHtml=`<div class="note" style="margin-bottom:10px"><b>🔒 Locked cast:</b> ${names}`+
+      (cast.some(c=>!c.master_ref_image)?' <span style="color:var(--dim)">(text-only locks)</span>':'')+
+      `</div>`;
+  }
   let rows="";
   scenes.forEach(s=>{
     const qc=s.qc||{};
@@ -911,7 +1023,7 @@ function renderReport(report){
   });
   const film=report.final_film||"";
   const nPass=scenes.filter(s=>s.qc_passed).length;
-  box.innerHTML=`<table>
+  box.innerHTML=castHtml+`<table>
     <tr><th>Scene</th><th>QC</th><th>Attempts</th><th>Motion</th><th>Frozen</th><th>Black</th><th>Video prompt</th></tr>
     ${rows}
     <tr><td colspan="7" style="color:var(--dim)">QC summary: <b style="color:var(--accent2)">${nPass}</b>/${scenes.length} passed</td></tr>
