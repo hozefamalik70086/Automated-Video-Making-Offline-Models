@@ -1,0 +1,7 @@
+# Director app runtime dependencies (Python 3.10+)
+requests>=2.31
+numpy>=1.26
+imageio>=2.34
+imageio-ffmpeg>=0.4.9
+# Optional: voice-over narration (narrate.py). Skip if you don't need audio.
+edge-tts>=6.1.12

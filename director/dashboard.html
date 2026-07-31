@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Director Control Room</title>
+<style>
+  :root{
+    --bg:#0d1117; --bg2:#161b22; --bg3:#1c212b; --line:#2d333b;
+    --txt:#e6edf3; --dim:#8b949e; --accent:#58a6ff; --accent2:#3fb950;
+    --warn:#d29922; --danger:#f85149; --chip:#21262d;
+    --r:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 500px at 20% -10%, #16223a 0%, var(--bg) 55%);
+    color:var(--txt); font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size:14px; line-height:1.5;
+  }
+  /* ---------- header ---------- */
+  header{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    padding:14px 22px; background:var(--bg2); border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:50;
+  }
+  header .logo{font-size:20px; font-weight:700; letter-spacing:.5px}
+  header .logo span{color:var(--accent)}
+  .chips{margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px; padding:5px 12px;
+    background:var(--chip); border:1px solid var(--line); border-radius:999px;
+    font-size:12.5px; color:var(--dim); white-space:nowrap;
+  }
+  .chip .dot{width:9px; height:9px; border-radius:50%; background:var(--dim)}
+  .chip.ok{color:var(--accent2)} .chip.ok .dot{background:var(--accent2)}
+  .chip.bad{color:var(--danger)} .chip.bad .dot{background:var(--danger)}
+  .chip.run .dot{background:var(--warn); animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.25}}
+  .clock{font-variant-numeric:tabular-nums; color:var(--dim); font-size:12.5px}
+  /* ---------- layout ---------- */
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 22px 60px}
+  nav{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px}
+  nav button{
+    background:var(--bg2); color:var(--dim); border:1px solid var(--line);
+    border-radius:8px; padding:8px 16px; cursor:pointer; font-size:13.5px; font-weight:600;
+  }
+  nav button:hover{color:var(--txt)}
+  nav button.active{background:var(--accent); color:#04121f; border-color:var(--accent)}
+  .panel{display:none}
+  .panel.active{display:block}
+  /* ---------- cards ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px}
+  .card{
+    background:var(--bg2); border:1px solid var(--line); border-radius:var(--r);
+    padding:16px 18px;
+  }
+  .card h3{margin:0 0 4px; font-size:15px}
+  .card .desc{color:var(--dim); font-size:12.5px; margin:0 0 12px}
+  .card.wide{grid-column:1 / -1}
+  /* ---------- fields ---------- */
+  .field{margin-bottom:14px}
+  .field label{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; font-weight:600; margin-bottom:5px}
+  .field label .hint{font-weight:400; color:var(--dim); font-size:11.5px; text-align:right}
+  .field input[type=text], .field input[type=number], .field textarea, .field select{
+    width:100%; background:var(--bg3); color:var(--txt); border:1px solid var(--line);
+    border-radius:7px; padding:8px 10px; font-size:13.5px; font-family:inherit;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{
+    outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(88,166,255,.2);
+  }
+  .field textarea{min-height:64px; resize:vertical; font-family:Consolas,monospace; font-size:12.5px}
+  .field .range-row{display:flex; align-items:center; gap:12px}
+  .field input[type=range]{flex:1; accent-color:var(--accent)}
+  .field input[type=range] + output{min-width:48px; text-align:right; font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700}
+  .toggle{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px dashed var(--line)}
+  .toggle:last-child{border-bottom:none}
+  .toggle .t-label{font-size:13.5px; font-weight:600}
+  .toggle .t-sub{color:var(--dim); font-size:12px}
+  .switch{position:relative; width:44px; height:24px; flex:none}
+  .switch input{opacity:0; width:0; height:0}
+  .slider{position:absolute; inset:0; background:var(--chip); border:1px solid var(--line); border-radius:999px; cursor:pointer; transition:.2s}
+  .slider:before{content:""; position:absolute; width:18px; height:18px; left:2px; top:2px; background:var(--dim); border-radius:50%; transition:.2s}
+  .switch input:checked + .slider{background:var(--accent); border-color:var(--accent)}
+  .switch input:checked + .slider:before{transform:translateX(20px); background:#fff}
+  .btn{
+    background:var(--accent); color:#04121f; border:none; border-radius:8px;
+    padding:9px 16px; font-size:13.5px; font-weight:700; cursor:pointer; transition:.15s;
+  }
+  .btn:hover{filter:brightness(1.12)}
+  .btn.ghost{background:var(--bg3); color:var(--txt); border:1px solid var(--line); font-weight:600}
+  .btn.green{background:var(--accent2)}
+  .btn.red{background:var(--danger); color:#fff}
+  .btn:disabled{opacity:.45; cursor:not-allowed}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  /* ---------- log console ---------- */
+  .console{
+    background:#05080c; border:1px solid var(--line); border-radius:var(--r);
+    padding:12px 14px; height:260px; overflow:auto; font-family:Consolas,monospace;
+    font-size:12px; line-height:1.55; white-space:pre-wrap; word-break:break-word;
+  }
+  .console .ts{color:var(--dim)} .console .ok{color:var(--accent2)} .console .err{color:var(--danger)}
+  .console .warn{color:var(--warn)}
+  /* ---------- results table ---------- */
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  th,td{padding:8px 10px; text-align:left; border-bottom:1px solid var(--line)}
+  th{color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.4px}
+  .badge{padding:2px 10px; border-radius:999px; font-size:11.5px; font-weight:700}
+  .badge.pass{background:rgba(63,185,80,.15); color:var(--accent2)}
+  .badge.fail{background:rgba(248,81,73,.15); color:var(--danger)}
+  .badge.wait{background:rgba(210,153,34,.15); color:var(--warn)}
+  video{width:100%; max-width:640px; border-radius:8px; background:#000; display:block; margin-top:8px}
+  .empty{color:var(--dim); font-style:italic; padding:14px 4px}
+  /* ---------- misc ---------- */
+  .note{background:rgba(88,166,255,.08); border:1px solid rgba(88,166,255,.25); border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--dim)}
+  .hidden{display:none}
+  details{border:1px solid var(--line); border-radius:8px; background:var(--bg2); padding:10px 14px; margin-top:12px}
+  summary{cursor:pointer; font-weight:600; font-size:13.5px}
+  pre.json-preview{
+    background:#05080c; border:1px solid var(--line); border-radius:8px; padding:12px;
+    max-height:320px; overflow:auto; font-family:Consolas,monospace; font-size:11.5px; margin:8px 0 0;
+  }
+  .toast{
+    position:fixed; bottom:22px; right:22px; background:var(--bg3); border:1px solid var(--line);
+    border-left:4px solid var(--accent); border-radius:8px; padding:12px 16px; z-index:100;
+    box-shadow:0 8px 24px rgba(0,0,0,.5); transform:translateY(10px); opacity:0;
+    transition:.25s; pointer-events:none; max-width:340px; font-size:13px;
+  }
+  .toast.show{opacity:1; transform:none}
+  .toast.ok{border-left-color:var(--accent2)}
+  .toast.err{border-left-color:var(--danger)}
+  .section-title{font-size:17px; font-weight:700; margin:4px 0 14px; display:flex; align-items:center; gap:10px}
+  .section-title .sub{font-size:12.5px; color:var(--dim); font-weight:400}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🎬 Director <span>Control Room</span></div>
+  <div class="chips">
+    <span class="chip" id="chip-comfy"><span class="dot"></span>ComfyUI</span>
+    <span class="chip" id="chip-ollama"><span class="dot"></span>LLM (Ollama)</span>
+    <span class="chip" id="chip-run"><span class="dot"></span>Pipeline idle</span>
+    <span class="chip" id="chip-server"><span class="dot"></span>Controller: standalone</span>
+    <span class="clock" id="clock"></span>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- tabs -->
+  <nav id="tabs">
+    <button data-tab="tab-story" class="active">🎬 Story &amp; LLM</button>
+    <button data-tab="tab-render">🖼️ Render &amp; Quality</button>
+    <button data-tab="tab-qc">✅ QC &amp; Review</button>
+    <button data-tab="tab-director">⚙️ Director &amp; ComfyUI</button>
+    <button data-tab="tab-custom">✍️ Custom Story</button>
+    <button data-tab="tab-run">▶️ Run &amp; Monitor</button>
+  </nav>
+
+  <!-- ================= STORY / LLM ================= -->
+  <section class="panel active" id="tab-story">
+    <div class="section-title">Story &amp; LLM <span class="sub">how the film is written</span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Story parameters</h3>
+        <p class="desc">Genre, length and where the script comes from.</p>
+        <div class="field">
+          <label>Genre <span class="hint">e.g. cinematic sci-fi adventure</span></label>
+          <input type="text" data-path="story.genre">
+        </div>
+        <div class="field">
+          <label>Number of scenes <span class="hint">custom — type any value (1–30)</span></label>
+          <input type="number" data-path="story.scenes" min="1" max="30" step="1">
+        </div>
+        <div class="field">
+          <label>Seconds per scene <span class="hint">custom — type any value (1–60)</span></label>
+          <input type="number" data-path="story.seconds_per_scene" min="1" max="60" step="1">
+        </div>
+        <div class="note">More scenes and longer seconds = longer render time (roughly 3–4 min per scene on the RTX 4080). LTX-2.3 is most stable around 5–8 seconds per scene; very long clips (30–60s) need more VRAM and take several minutes each.</div>
+        <div class="field">
+          <label>Custom story file <span class="hint">optional bypass of the LLM</span></label>
+          <input type="text" data-path="story.custom_story_file" placeholder="custom_story.txt">
+        </div>
+        <div class="field">
+          <label>Character (global) <span class="hint">same subject in every scene</span></label>
+          <input type="text" data-path="story.character" placeholder="e.g. a young woman with a cybernetic forearm in a matte-black spacesuit">
+        </div>
+        <div class="note">If the custom story file contains scene text (not just comments), it is used instead of the LLM. Leaving it as an all-comment template makes the text model write the story.</div>
+      </div>
+
+      <div class="card">
+        <h3>Text model (LLM)</h3>
+        <p class="desc">Backend + model used to write the story.</p>
+        <div class="field">
+          <label>Backend</label>
+          <select data-path="llm.backend">
+            <option value="ollama">ollama (local)</option>
+            <option value="openai">openai-compatible</option>
+            <option value="none">none (custom story only)</option>
+          </select>
+        </div>
+        <div class="field" data-show="ollama">
+          <label>Ollama model</label>
+          <input type="text" data-path="llm.ollama_model" placeholder="qwen3:4b">
+        </div>
+        <div class="field" data-show="ollama">
+          <label>Ollama URL</label>
+          <input type="text" data-path="llm.ollama_url" placeholder="http://127.0.0.1:11434">
+        </div>
+        <div class="field" data-show="ollama">
+          <label>Keep-alive</label>
+          <input type="text" data-path="llm.keep_alive" placeholder="30m">
+        </div>
+        <div class="field" data-show="openai">
+          <label>OpenAI base URL</label>
+          <input type="text" data-path="llm.openai_base_url">
+        </div>
+        <div class="field" data-show="openai">
+          <label>OpenAI model</label>
+          <input type="text" data-path="llm.openai_model">
+        </div>
+        <div class="field">
+          <label>Temperature</label>
+          <div class="range-row">
+            <input type="range" data-path="llm.temperature" min="0" max="1.5" step="0.05">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Max tokens</label>
+          <input type="number" data-path="llm.max_tokens" min="256" max="8192" step="64">
+        </div>
+        <div class="field">
+          <label>Retry attempts <span class="hint">re-try on empty/invalid output</span></label>
+          <div class="range-row">
+            <input type="range" data-path="llm.max_attempts" min="1" max="10" step="1">
+            <output></output>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RENDER / QUALITY ================= -->
+  <section class="panel" id="tab-render">
+    <div class="section-title">Render &amp; Quality <span class="sub">image → video settings (LTX-2.3)</span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Video output</h3>
+        <p class="desc">Final video resolution and frame rate.</p>
+        <div class="field">
+          <label>Width <span class="hint">output px</span></label>
+          <div class="range-row">
+            <input type="range" data-path="render.video_width" min="256" max="1280" step="8">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Height</label>
+          <div class="range-row">
+            <input type="range" data-path="render.video_height" min="144" max="720" step="8">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>FPS</label>
+          <div class="range-row">
+            <input type="range" data-path="render.fps" min="12" max="60" step="1">
+            <output></output>
+          </div>
+        </div>
+        <div class="note">Rendering at 640×360 ≈ 2.5 min/scene on the RTX 4080 laptop. Higher res = slower but crisper.</div>
+      </div>
+
+      <div class="card">
+        <h3>Keyframe image</h3>
+        <p class="desc">Text-to-image (still) that starts each video.</p>
+        <div class="field">
+          <label>Image width</label>
+          <div class="range-row">
+            <input type="range" data-path="render.image_width" min="512" max="1920" step="8">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Image height</label>
+          <div class="range-row">
+            <input type="range" data-path="render.image_height" min="512" max="1080" step="8">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Image steps</label>
+          <div class="range-row">
+            <input type="range" data-path="render.image_steps" min="8" max="40" step="1">
+            <output></output>
+          </div>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h3>Motion prompt boost</h3>
+        <p class="desc">Optional text appended to every video prompt. WARNING: it must agree with the prompt wording — appending "dynamic motion" to a "slow/gentle" prompt makes output static (verified in testing). Prefer fixing prompts at the source (LLM/fallback).</p>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Enable motion boost</div>
+            <div class="t-sub">append text to every video prompt</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="boost-toggle"><span class="slider"></span></label>
+        </div>
+        <div class="field">
+          <label>Boost text</label>
+          <textarea id="boost-text" placeholder="continuous visible motion…"></textarea>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h3>Camera move</h3>
+        <p class="desc">Forces a cinematic camera instruction to be prepended to every video prompt (overrides whatever the story suggested). "auto" keeps the story's own camera; "none" adds nothing.</p>
+        <div class="field">
+          <label>Shot / camera move</label>
+          <select data-path="render.camera_move">
+            <option value="auto">auto — keep the story's own camera</option>
+            <option value="none">none — no forced camera</option>
+            <option value="dolly_in">dolly in</option>
+            <option value="push_in">push in</option>
+            <option value="orbit">orbit</option>
+            <option value="orbit_ccw">orbit counter-clockwise</option>
+            <option value="pan_left">pan left</option>
+            <option value="pan_right">pan right</option>
+            <option value="tilt_up">tilt up</option>
+            <option value="tilt_down">tilt down</option>
+            <option value="handheld">handheld</option>
+            <option value="tracking">tracking shot</option>
+            <option value="crane_up">crane up</option>
+            <option value="zoom_in">zoom in</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h3>LTX-2.3 two-pass quality knobs</h3>
+        <p class="desc">Advanced: base pass (strength 0.7, 8-step sigmas) then refine pass (strength 1.0, 3-step sigmas). These map to the workflow nodes and are applied automatically.</p>
+        <div class="grid" style="grid-template-columns:1fr 1fr; gap:18px">
+          <div>
+            <div class="field">
+              <label>Base pass strength</label>
+              <div class="range-row">
+                <input type="range" data-path="render.video_base_strength" min="0.2" max="1" step="0.05">
+                <output></output>
+              </div>
+            </div>
+            <div class="field">
+              <label>Base pass sigmas <span class="hint">comma-separated</span></label>
+              <input type="text" data-path="render.video_base_sigmas" placeholder="1.0, 0.99375, …">
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label>Refine pass strength</label>
+              <div class="range-row">
+                <input type="range" data-path="render.video_refine_strength" min="0.2" max="1" step="0.05">
+                <output></output>
+              </div>
+            </div>
+            <div class="field">
+              <label>Refine pass sigmas</label>
+              <input type="text" data-path="render.video_refine_sigmas" placeholder="0.85, 0.7250, …">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= QC ================= -->
+  <section class="panel" id="tab-qc">
+    <div class="section-title">QC &amp; Review <span class="sub">auto pass/fail + reshoot loop</span></div>
+    <div class="grid">
+      <div class="card wide">
+        <div class="toggle">
+          <div>
+            <div class="t-label">QC enabled</div>
+            <div class="t-sub">measure motion &amp; frame quality after each scene</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="qc.enabled"><span class="slider"></span></label>
+        </div>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Auto-continue</div>
+            <div class="t-sub">proceed to next scene automatically after QC</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="director.auto_continue"><span class="slider"></span></label>
+        </div>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Manual review</div>
+            <div class="t-sub">pause and ask a human to approve each scene (run in a terminal)</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="director.manual_review"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Motion quality</h3>
+        <p class="desc">Higher motion_std = more visible movement. Low values mean a static/frozen clip.</p>
+        <div class="field">
+          <label>Min motion std <span class="hint">below this → FAIL</span></label>
+          <div class="range-row">
+            <input type="range" data-path="qc.min_motion_std" min="0" max="8" step="0.1">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Max frozen frames %</label>
+          <div class="range-row">
+            <input type="range" data-path="qc.max_frozen_frames_pct" min="0" max="100" step="1">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Max black frames %</label>
+          <div class="range-row">
+            <input type="range" data-path="qc.max_black_frames_pct" min="0" max="100" step="1">
+            <output></output>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Duration &amp; attempts</h3>
+        <p class="desc">Video must last long enough; retry with new seeds on failure.</p>
+        <div class="field">
+          <label>Min duration (s)</label>
+          <div class="range-row">
+            <input type="range" data-path="qc.min_duration_seconds" min="0.5" max="10" step="0.1">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Duration tolerance (s)</label>
+          <div class="range-row">
+            <input type="range" data-path="qc.duration_tolerance_seconds" min="0" max="2" step="0.05">
+            <output></output>
+          </div>
+        </div>
+        <div class="field">
+          <label>Min frames</label>
+          <input type="number" data-path="qc.min_frames" min="1" max="600" step="1">
+        </div>
+        <div class="field">
+          <label>Max attempts (reshoots)</label>
+          <div class="range-row">
+            <input type="range" data-path="qc.max_attempts" min="1" max="6" step="1">
+            <output></output>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DIRECTOR / COMFYUI ================= -->
+  <section class="panel" id="tab-director">
+    <div class="section-title">Director &amp; ComfyUI <span class="sub">backend wiring</span></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Output</h3>
+        <div class="field">
+          <label>Output directory</label>
+          <input type="text" data-path="director.output_dir" placeholder="output">
+        </div>
+      </div>
+      <div class="card">
+        <h3>Workflow files</h3>
+        <p class="desc">Generated by build_workflow.py from your Desktop workflow JSON.</p>
+        <div class="field">
+          <label>Template</label>
+          <input type="text" data-path="director.workflow_template">
+        </div>
+        <div class="field">
+          <label>Knobs</label>
+          <input type="text" data-path="director.workflow_knobs">
+        </div>
+      </div>
+      <div class="card">
+        <h3>ComfyUI connection</h3>
+        <div class="field">
+          <label>URL</label>
+          <input type="text" data-path="comfyui.url" placeholder="http://127.0.0.1:8188">
+        </div>
+        <div class="field">
+          <label>API timeout (s)</label>
+          <input type="number" data-path="comfyui.timeout_seconds" min="5" max="300" step="5">
+        </div>
+        <div class="field">
+          <label>Render timeout (s)</label>
+          <input type="number" data-path="comfyui.render_timeout_seconds" min="300" max="7200" step="60">
+        </div>
+      </div>
+      <div class="card">
+        <h3>Audio / narration</h3>
+        <p class="desc">Post-processor (runs after the film is stitched). Synthesizes speech from each scene's audio line, muxes it into the video, and optionally burns subtitles. Requires the optional <code>edge-tts</code> package; failures never break the base pipeline.</p>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Enable narration</div>
+            <div class="t-sub">voice + subtitles over the final film</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="audio.enabled"><span class="slider"></span></label>
+        </div>
+        <div class="field">
+          <label>Engine</label>
+          <select data-path="audio.engine">
+            <option value="edge-tts">edge-tts (online voices)</option>
+            <option value="none">none</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Voice</label>
+          <input type="text" data-path="audio.voice" placeholder="en-US-GuyNeural">
+        </div>
+        <div class="field">
+          <label>Rate</label>
+          <input type="text" data-path="audio.rate" placeholder="+0%">
+        </div>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Burn subtitles</div>
+            <div class="t-sub">drawtext from the audio line</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="audio.subtitles"><span class="slider"></span></label>
+        </div>
+        <div class="field">
+          <label>Subtitle font</label>
+          <input type="text" data-path="audio.font" placeholder="C:\Windows\Fonts\arial.ttf">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CUSTOM STORY ================= -->
+  <section class="panel" id="tab-custom">
+    <div class="section-title">Custom Story Editor <span class="sub">optional manual script</span></div>
+    <div class="card wide">
+      <p class="desc">Format: blocks separated by a line of three or more dashes <code>---</code>. Each block can have <code>Image: ...</code> and <code>Video: ...</code> lines (motion-focused!). Lines starting with <code>#</code> are comments.</p>
+      <div class="field">
+        <label>Story text</label>
+        <textarea id="custom-story" style="min-height:260px; font-family:Consolas,monospace; font-size:12.5px"></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn ghost" id="btn-story-save">💾 Save to custom story file</button>
+        <button class="btn ghost" id="btn-story-sample">Load sample</button>
+      </div>
+      <div class="note" style="margin-top:10px">The active story source is set in the <b>Story &amp; LLM</b> tab via <code>story.custom_story_file</code>. The default <code>custom_story.txt</code> is all comments so the LLM writes the story. Filling it here with real scenes bypasses the LLM.</div>
+    </div>
+  </section>
+
+  <!-- ================= RUN / MONITOR ================= -->
+  <section class="panel" id="tab-run">
+    <div class="section-title">Run &amp; Monitor <span class="sub">start / stop / watch the pipeline</span></div>
+
+    <div class="card wide">
+      <div class="btn-row" style="margin-bottom:14px">
+        <button class="btn green" id="btn-run">▶ Run full film</button>
+        <button class="btn ghost" id="btn-run-scene">▶ Render scene #<input type="number" id="scene-num" value="1" min="1" max="12" style="width:56px; margin:0 2px; background:var(--bg3); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:3px 6px"></button>
+        <button class="btn red" id="btn-stop">⏹ Stop</button>
+        <span style="flex:1"></span>
+        <button class="btn ghost" id="btn-save">💾 Save config</button>
+        <button class="btn ghost" id="btn-download">⬇ Download config.json</button>
+        <button class="btn ghost" id="btn-copy">📋 Copy JSON</button>
+      </div>
+      <div class="note" id="server-note">Standalone mode: settings + JSON export work here. Start <code>dashboard_server.py</code> to enable one-click run, live console and status chips.</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Live console</h3>
+        <div class="console" id="console"><span class="ts">— waiting for output —</span></div>
+      </div>
+      <div class="card">
+        <h3>Scenes &amp; QC</h3>
+        <div id="results">
+          <div class="empty">No report yet. Run the pipeline to see QC results.</div>
+        </div>
+        <details>
+          <summary>Final film</summary>
+          <video id="film-player" controls></video>
+        </details>
+      </div>
+    </div>
+
+    <details style="margin-top:14px">
+      <summary>Live config.json preview</summary>
+      <pre class="json-preview" id="json-preview"></pre>
+    </details>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= config schema & defaults ================= */
+const DEFAULTS = {
+  comfyui: {
+    url: "http://127.0.0.1:8188",
+    timeout_seconds: 30,
+    render_timeout_seconds: 3600
+  },
+  llm: {
+    backend: "ollama",
+    ollama_url: "http://127.0.0.1:11434",
+    ollama_model: "qwen3:4b",
+    openai_base_url: "http://127.0.0.1:1234/v1",
+    openai_api_key: "not-needed",
+    openai_model: "qwen3-14b",
+    temperature: 0.8,
+    max_tokens: 2048,
+    max_attempts: 5,
+    keep_alive: "30m"
+  },
+  story: {
+    custom_story_file: "custom_story.txt",
+    genre: "cinematic sci-fi adventure",
+    scenes: 8,
+    seconds_per_scene: 6,
+    character: ""
+  },
+  render: {
+    video_width: 640,
+    video_height: 360,
+    fps: 25,
+    image_width: 1080,
+    image_height: 720,
+    image_steps: 20,
+    video_motion_boost: "",
+    camera_move: "auto",
+    video_base_strength: 0.7,
+    video_base_sigmas: "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0",
+    video_refine_strength: 1.0,
+    video_refine_sigmas: "0.85, 0.7250, 0.4219, 0.0"
+  },
+  qc: {
+    enabled: true,
+    max_attempts: 3,
+    duration_tolerance_seconds: 0.6,
+    min_duration_seconds: 4.0,
+    max_black_frames_pct: 15.0,
+    max_frozen_frames_pct: 25.0,
+    min_motion_std: 1.2,
+    min_frames: 40
+  },
+  director: {
+    auto_continue: true,
+    manual_review: false,
+    output_dir: "output",
+    workflow_template: "workflow_scene_template.json",
+    workflow_knobs: "workflow_knobs.json"
+  },
+  audio: {
+    enabled: false,
+    engine: "edge-tts",
+    voice: "en-US-GuyNeural",
+    rate: "+0%",
+    subtitles: true,
+    font: "C:\\Windows\\Fonts\\arial.ttf"
+  }
+};
+
+let config = JSON.parse(JSON.stringify(DEFAULTS));
+let connected = false;   // controller server available?
+let lastLogLen = 0;
+
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const deepGet = (o,p) => p.split(".").reduce((a,k)=>a==null?a:a[k], o);
+const deepSet = (o,p,v) => { const ks=p.split("."); let t=o;
+  for(let i=0;i<ks.length-1;i++){ if(t[ks[i]]==null) t[ks[i]]={}; t=t[ks[i]]; }
+  t[ks[ks.length-1]]=v; };
+
+function toast(msg, type="") {
+  const t=$("#toast"); t.textContent=msg; t.className="toast show "+type;
+  clearTimeout(t._h); t._h=setTimeout(()=>t.className="toast",2600);
+}
+
+/* ================= render form values ================= */
+function collect() {
+  document.querySelectorAll("[data-path]").forEach(el=>{
+    const path=el.dataset.path; let v;
+    if(el.type==="checkbox") v=el.checked;
+    else if(el.type==="range") v=parseFloat(el.value);
+    else if(el.type==="number") v=el.value===""?0:parseFloat(el.value);
+    else v=el.value;
+    deepSet(config,path,v);
+  });
+  // motion boost → render.video_motion_boost
+  config.render.video_motion_boost = $("#boost-toggle").checked ? $("#boost-text").value : "";
+}
+
+function renderJSON(){
+  collect();
+  $("#json-preview").textContent = JSON.stringify(config,null,2);
+}
+
+function applyConfig(cfg){
+  config = JSON.parse(JSON.stringify(cfg||DEFAULTS));
+  document.querySelectorAll("[data-path]").forEach(el=>{
+    const v=deepGet(config,el.dataset.path);
+    if(v===undefined) return;
+    if(el.type==="checkbox") el.checked=!!v;
+    else if(el.type==="range") el.value=v;
+    else if(el.type==="number") el.value=v;
+    else el.value=v;
+    if(el.type==="range") updateOutput(el);
+  });
+  // motion boost
+  const b=config.render.video_motion_boost||"";
+  $("#boost-toggle").checked = !!b;
+  $("#boost-text").value = b;
+  updateBackendVisibility();
+  renderJSON();
+}
+
+function updateOutput(range){
+  const out=range.parentElement.querySelector("output");
+  if(out){ let v=parseFloat(range.value); out.textContent=(v%1===0)?v.toFixed(0):v.toFixed(2); }
+}
+
+function updateBackendVisibility(){
+  const backend=config.llm.backend||"ollama";
+  document.querySelectorAll("[data-show]").forEach(el=>{
+    el.style.display = (backend==="none") ? "none" :
+      (el.dataset.show===backend) ? "" : "none";
+  });
+}
+
+/* ================= tabs ================= */
+document.querySelectorAll("#tabs button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    b.classList.add("active");
+    $("#"+b.dataset.tab).classList.add("active");
+  });
+});
+
+/* ================= custom story ================= */
+function sampleStory(){
+  return [
+    "# Scene 1 — keep motion in the VIDEO line!",
+    "Image: A lone explorer in a matte-black spacesuit on a grey alien plain under a pale sun",
+    "Video: The camera dollies forward as dust swirls around the boots, her suit lights flicker, distant rocks tumble",
+    "---",
+    "# Scene 2",
+    "Image: The explorer kneels at a rusted monolith, glyphs glowing cyan",
+    "Video: The camera orbits slowly while the glyphs pulse brighter and sparks drift upward on the wind",
+    "---",
+    "# Scene 3",
+    "Image: A dark control chamber, screens alive with static and a single figure at the console",
+    "Video: Push-in as the figure turns sharply, screens strobe, cables sway, smoke curls across the lens",
+    "---",
+    "# Scene 4",
+    "Image: The explorer and the figure face each other as the chamber begins to crack open to alien sky",
+    "Video: Handheld tilt up as debris falls, the light floods in, both turn and sprint toward the breach"
+  ].join("\n");
+}
+$("#btn-story-sample").addEventListener("click",()=>$("#custom-story").value=sampleStory());
+
+$("#btn-story-save").addEventListener("click", async()=>{
+  collect();
+  const text = $("#custom-story").value;
+  const file = config.story.custom_story_file;
+  if(connected){
+    const r = await fetch("/api/custom_story",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({file,text})});
+    const d = await r.json().catch(()=>({}));
+    toast(d.ok?("Saved → "+file):("Error: "+d.error),"saved"? "ok":"err");
+  } else {
+    // standalone: download the story file
+    const blob=new Blob([text],{type:"text/plain"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=file.split("/").pop()||"custom_story.txt"; a.click();
+    toast("Downloaded story file — place it in director/ as "+file,"ok");
+  }
+});
+
+/* ================= controller API ================= */
+async function api(path, opts={}){
+  try{
+    const r = await fetch(path, Object.assign({headers:{"Content-Type":"application/json"}},opts));
+    return {ok:r.ok, status:r.status, data: await r.json().catch(()=>({}))};
+  }catch(e){ return {ok:false, status:0, data:{error:String(e)}}; }
+}
+
+$("#btn-save").addEventListener("click", async()=>{
+  collect();
+  if(connected){
+    const r=await api("/api/config",{method:"POST",body:JSON.stringify(config)});
+    r.ok?toast("Config saved to config.json","ok"):toast("Save failed: "+(r.data.error||r.status),"err");
+  } else {
+    toast("Standalone mode — use Download/Copy to export config.json","err");
+  }
+});
+$("#btn-download").addEventListener("click",()=>{
+  collect();
+  const blob=new Blob([JSON.stringify(config,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="config.json"; a.click(); toast("Downloaded config.json","ok");
+});
+$("#btn-copy").addEventListener("click", async()=>{
+  collect();
+  try{ await navigator.clipboard.writeText(JSON.stringify(config,null,2)); toast("Copied to clipboard","ok"); }
+  catch(e){ toast("Clipboard blocked — use Download","err"); }
+});
+
+$("#btn-run").addEventListener("click", async()=>{
+  collect();
+  if(!connected){ toast("Start dashboard_server.py to run the pipeline","err"); return; }
+  const r=await api("/api/run",{method:"POST",body:JSON.stringify({config, scene:null})});
+  if(r.ok) toast("Pipeline started","ok"); else toast("Run failed: "+(r.data.error||r.status),"err");
+  refresh();
+});
+$("#btn-run-scene").addEventListener("click", async()=>{
+  collect();
+  if(!connected){ toast("Start dashboard_server.py to run the pipeline","err"); return; }
+  const scene=parseInt($("#scene-num").value||"1",10);
+  const r=await api("/api/run",{method:"POST",body:JSON.stringify({config, scene})});
+  if(r.ok) toast("Rendering scene #"+scene,"ok"); else toast("Run failed: "+(r.data.error||r.status),"err");
+  refresh();
+});
+$("#btn-stop").addEventListener("click", async()=>{
+  if(!connected){ return; }
+  const r=await api("/api/stop",{method:"POST"});
+  toast(r.ok?"Stop requested":"Stop failed","ok");
+  refresh();
+});
+
+/* ================= health & status polling ================= */
+async function refresh(){
+  const h=await api("/api/health");
+  if(!h.ok && h.status===0){ connected=false; setChips(null); return; }
+  connected=true;
+  $("#server-note").classList.add("hidden");
+  const s=h.data.status||{};
+  setChip("chip-comfy", s.comfyui);
+  setChip("chip-ollama", s.ollama);
+  const run=!!s.running;
+  const c=$("#chip-run");
+  c.classList.toggle("run",run);
+  c.childNodes[1].textContent = run?"● Pipeline running":"● Pipeline idle";
+
+  // console tail
+  if(s.stdout && s.stdout.length!==lastLogLen){
+    lastLogLen=s.stdout.length;
+    const con=$("#console");
+    con.innerHTML="";
+    s.stdout.split("\n").slice(-400).forEach(ln=>{
+      const d=document.createElement("div");
+      let txt=ln.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+      if(/error|fail|exception/i.test(ln)) d.className="err";
+      else if(/ok|pass|saved|done/i.test(ln)) d.className="ok";
+      else if(/warn|retry/i.test(ln)) d.className="warn";
+      d.innerHTML=txt||"&nbsp;";
+      con.appendChild(d);
+    });
+    con.scrollTop=con.scrollHeight;
+  }
+
+  // report
+  if(s.report){ renderReport(s.report); }
+}
+function setChip(id, val){
+  const el=$("#"+id);
+  if(val===undefined){ el.className="chip"; return; }
+  el.className="chip "+(val?"ok":"bad");
+  const label=el.childNodes[1].textContent.split(":")[0];
+  el.childNodes[1].textContent=label+": "+(val?"online":"offline");
+}
+function setChips(status){
+  // standalone mode
+  setChip("chip-comfy", undefined); setChip("chip-ollama", undefined);
+  const c=$("#chip-run"); c.classList.remove("run");
+  c.childNodes[1].textContent="● Controller: standalone";
+}
+
+function renderReport(report){
+  const box=$("#results");
+  const scenes=report.scenes||[];
+  if(!scenes.length){ box.innerHTML='<div class="empty">Report has no scenes yet.</div>'; return; }
+  let rows="";
+  scenes.forEach(s=>{
+    const qc=s.qc||{};
+    const cls=s.qc_passed?"pass":(s.qc_passed===false?"fail":"wait");
+    const label=s.qc_passed?"PASS":(s.qc_passed===false?"FAIL":"—");
+    rows+=`<tr>
+      <td>#${s.scene}</td>
+      <td><span class="badge ${cls}">${label}</span></td>
+      <td>${s.attempts||0} try</td>
+      <td>${qc.motion_std!=null?Number(qc.motion_std).toFixed(2):"—"}</td>
+      <td>${qc.frozen_frames_pct!=null?Number(qc.frozen_frames_pct).toFixed(1)+"%":"—"}</td>
+      <td>${qc.black_frames_pct!=null?Number(qc.black_frames_pct).toFixed(1)+"%":"—"}</td>
+      <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="${s.video_prompt||""}">${(s.video_prompt||"").slice(0,42)}…</td>
+    </tr>`;
+  });
+  const film=report.final_film||"";
+  const nPass=scenes.filter(s=>s.qc_passed).length;
+  box.innerHTML=`<table>
+    <tr><th>Scene</th><th>QC</th><th>Attempts</th><th>Motion</th><th>Frozen</th><th>Black</th><th>Video prompt</th></tr>
+    ${rows}
+    <tr><td colspan="7" style="color:var(--dim)">QC summary: <b style="color:var(--accent2)">${nPass}</b>/${scenes.length} passed</td></tr>
+  </table>`;
+  const player=$("#film-player");
+  // report.final_film is "output\final_film.mp4" (relative to BASE_DIR) —
+  // strip the leading "output/" and normalize backslashes so the URL is
+  // /output/final_film.mp4 (matches the server's /output/<file> route).
+  const filmClean = String(film).replace(/^output[\\\/]/i, "").replace(/\\/g, "/");
+  if(filmClean){ player.src="/output/"+filmClean; player.style.display="block"; }
+  else { player.style.display="none"; }
+}
+
+/* ================= init ================= */
+(async function init(){
+  document.querySelectorAll("input[type=range]").forEach(r=>{
+    r.addEventListener("input",()=>{ updateOutput(r); renderJSON(); });
+  });
+  document.querySelectorAll("[data-path]").forEach(el=>{
+    el.addEventListener("input",renderJSON);
+    el.addEventListener("change",()=>{ if(el.type==="checkbox") updateBackendVisibility(); });
+  });
+  document.querySelectorAll("#boost-toggle,#boost-text").forEach(el=>{
+    el.addEventListener("input",renderJSON);
+  });
+  // try to load config from controller server
+  const r=await api("/api/config");
+  if(r.ok && r.data.config){
+    connected=true;
+    $("#chip-server").classList.add("ok");
+    $("#chip-server").childNodes[1].textContent="Controller: online";
+    applyConfig(r.data.config); updateBackendVisibility();
+  }
+  else { applyConfig(DEFAULTS); updateBackendVisibility(); }
+  setInterval(()=>{$("#clock").textContent=new Date().toLocaleTimeString();},1000);
+  if(connected){ setInterval(refresh,1500); refresh(); }
+  renderJSON();
+})();
+</script>
+</body>
+</html>

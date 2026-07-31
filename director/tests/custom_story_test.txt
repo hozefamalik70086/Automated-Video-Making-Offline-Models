@@ -1,0 +1,5 @@
+IMAGE: A red robot walking on a sunny beach at golden hour
+VIDEO: The robot strides forward, waves crashing in the background, camera follows, 5 seconds
+---
+IMAGE: A spaceship flying over misty mountains at dawn
+VIDEO: The spaceship banks left, clouds parting, slow aerial tracking shot, 5 seconds

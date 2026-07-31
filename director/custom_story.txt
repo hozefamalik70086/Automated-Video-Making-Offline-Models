@@ -1,0 +1,29 @@
+# CUSTOM STORY - optional "director bypass".
+#
+# If this file contains any non-comment text, the Director uses THIS as the
+# story and does NOT contact the LLM (the AI story writer). Leave this file as
+# all-comment lines (like now) to use the AI story writer instead.
+#
+# FORMAT:
+#   Each scene is a block. Separate scenes with a line of exactly three
+#   dashes (---) on its own line.
+#
+#   Inside a block you may optionally use:
+#     IMAGE:  <detailed prompt for the image / first frame>
+#     VIDEO:  <motion prompt for the video clip>
+#   Plain lines (no prefix) are used for BOTH image and video.
+#
+#   IMPORTANT: video prompts MUST describe continuous, specific motion from the
+#   first frame (a camera move + moving elements). Static/slow wording like
+#   "still", "slow", "gentle sway" produces frozen video that fails QC.
+#
+# EXAMPLE (2 scenes) - uncomment the lines below to use this instead of the AI:
+#
+# IMAGE: A desert rover cresting a dune at golden hour, cinematic wide shot
+# VIDEO: The camera tracks beside the rover as it drives down the dune, dust
+#   trailing behind, wheels kicking sand, 5 seconds
+# ---
+# IMAGE: Close-up of the rover's cracked window, sunset flare
+# VIDEO: The camera arcs around the window as dust drifts past, reflections
+#   shifting on the glass, 5 seconds
+

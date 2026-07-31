@@ -1,0 +1,85 @@
+{
+ "knobs": {
+  "image_prompt": [
+   "6",
+   "text"
+  ],
+  "image_seed": [
+   "9",
+   "seed"
+  ],
+  "video_prompt": [
+   "34",
+   "text"
+  ],
+  "video_seed": [
+   "13",
+   "noise_seed"
+  ],
+  "save_prefix": [
+   "50",
+   "filename_prefix"
+  ],
+  "video_width": [
+   [
+    "26",
+    "resize_type.width"
+   ],
+   [
+    "28",
+    "values.a"
+   ]
+  ],
+  "video_height": [
+   [
+    "26",
+    "resize_type.height"
+   ],
+   [
+    "29",
+    "values.a"
+   ]
+  ],
+  "video_duration": [
+   "49",
+   "values.a"
+  ],
+  "video_fps": [
+   [
+    "33",
+    "values.a"
+   ],
+   [
+    "49",
+    "values.b"
+   ]
+  ],
+  "video_base_strength": [
+   "31",
+   "strength"
+  ],
+  "video_base_sigmas": [
+   "37",
+   "sigmas"
+  ],
+  "video_refine_strength": [
+   "24",
+   "strength"
+  ],
+  "video_refine_sigmas": [
+   "17",
+   "sigmas"
+  ]
+ },
+ "meta": {
+  "output_video_node": "50",
+  "first_frame_source": "11",
+  "quality_nodes": {
+   "base_inplace": "31",
+   "base_sigmas": "37",
+   "refine_inplace": "24",
+   "refine_sigmas": "17"
+  },
+  "note": "Scene render graph flattened from the user's Desktop workflow. Edit build_workflow.py and re-run to rebuild."
+ }
+}

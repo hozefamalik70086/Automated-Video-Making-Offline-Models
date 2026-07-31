@@ -1,0 +1,40 @@
+{
+  "comfyui": {
+    "url": "http://127.0.0.1:8899",
+    "timeout_seconds": 30
+  },
+  "llm": {
+    "backend": "none"
+  },
+  "story": {
+    "custom_story_file": "tests/DOES_NOT_EXIST.txt",
+    "genre": "test",
+    "scenes": 4,
+    "seconds_per_scene": 5
+  },
+  "render": {
+    "video_width": 480,
+    "video_height": 280,
+    "fps": 25,
+    "image_width": 1080,
+    "image_height": 720,
+    "image_steps": 20
+  },
+  "qc": {
+    "enabled": true,
+    "max_attempts": 3,
+    "duration_tolerance_seconds": 0.6,
+    "min_duration_seconds": 4.0,
+    "max_black_frames_pct": 15.0,
+    "max_frozen_frames_pct": 25.0,
+    "min_motion_std": 2.0,
+    "min_frames": 40
+  },
+  "director": {
+    "auto_continue": true,
+    "manual_review": false,
+    "output_dir": "tests/output_test",
+    "workflow_template": "workflow_scene_template.json",
+    "workflow_knobs": "workflow_knobs.json"
+  }
+}
