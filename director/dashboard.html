@@ -146,6 +146,10 @@
 </header>
 
 <div class="wrap">
+  <!-- offline banner: shown when the controller server is not reachable -->
+  <div id="offline-banner" style="display:none; background:var(--bg3); border:1px solid var(--line); border-left:4px solid #e5484d; border-radius:10px; padding:10px 14px; margin:0 0 14px; font-size:13.5px; line-height:1.55">
+    🔌 <b>Controller server not running.</b> Double-click <code>start_dashboard.bat</code> in the <code>director</code> folder — it starts the server and opens this page automatically. (Or run <code>python dashboard_server.py --open</code>.) Settings editing &amp; JSON export still work below.
+  </div>
   <!-- tabs -->
   <nav id="tabs">
     <button data-tab="tab-story" class="active">🎬 Story &amp; LLM</button>
@@ -567,7 +571,7 @@
         <button class="btn ghost" id="btn-download">⬇ Download config.json</button>
         <button class="btn ghost" id="btn-copy">📋 Copy JSON</button>
       </div>
-      <div class="note" id="server-note">Standalone mode: settings + JSON export work here. Start <code>dashboard_server.py</code> to enable one-click run, live console and status chips.</div>
+      <div class="note" id="server-note">🔌 Server not running. Double-click <code>start_dashboard.bat</code> in this folder — it starts the server and opens the dashboard automatically. Or run <code>python dashboard_server.py --open</code>.</div>
     </div>
 
     <div class="grid">
@@ -835,8 +839,9 @@ $("#btn-stop").addEventListener("click", async()=>{
 /* ================= health & status polling ================= */
 async function refresh(){
   const h=await api("/api/health");
-  if(!h.ok && h.status===0){ connected=false; setChips(null); return; }
+  if(!h.ok && h.status===0){ connected=false; setChips(null); showOffline(true); return; }
   connected=true;
+  showOffline(false);
   $("#server-note").classList.add("hidden");
   const s=h.data.status||{};
   setChip("chip-comfy", s.comfyui);
@@ -878,6 +883,11 @@ function setChips(status){
   setChip("chip-comfy", undefined); setChip("chip-ollama", undefined);
   const c=$("#chip-run"); c.classList.remove("run");
   c.childNodes[1].textContent="● Controller: standalone";
+  showOffline(true);
+}
+function showOffline(on){
+  const b=$("#offline-banner");
+  if(b) b.style.display = on ? "block" : "none";
 }
 
 function renderReport(report){
@@ -934,8 +944,9 @@ function renderReport(report){
     $("#chip-server").classList.add("ok");
     $("#chip-server").childNodes[1].textContent="Controller: online";
     applyConfig(r.data.config); updateBackendVisibility();
+    showOffline(false);
   }
-  else { applyConfig(DEFAULTS); updateBackendVisibility(); }
+  else { applyConfig(DEFAULTS); updateBackendVisibility(); showOffline(true); }
   setInterval(()=>{$("#clock").textContent=new Date().toLocaleTimeString();},1000);
   if(connected){ setInterval(refresh,1500); refresh(); }
   renderJSON();

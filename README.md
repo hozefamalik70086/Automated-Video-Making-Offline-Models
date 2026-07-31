@@ -87,6 +87,7 @@ Or launch the control room:
 python director/dashboard_server.py --open
 # → http://127.0.0.1:8765
 ```
+> 💻 **Windows users:** just double-click **`director/start_dashboard.bat`** — it starts the server and opens the dashboard automatically (and simply reopens the page if the server is already running).
 
 ### 4. Score the output
 ```bash
