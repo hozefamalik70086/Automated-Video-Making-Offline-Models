@@ -1,73 +1,126 @@
-Shot List (24 clips × 5 seconds each = 2 minutes)
-Clip 1
+# CUSTOM STORY - optional "director bypass".
+#
+# If this file contains any non-comment text, the Director uses THIS as the
+# story and does NOT contact the LLM (the AI story writer). Leave this file as
+# all-comment lines to use the AI story writer instead.
+#
+# FORMAT:
+#   Each scene is a block. Separate scenes with a line of exactly three
+#   dashes (---) on its own line.
+#
+#   Inside a block you may optionally use:
+#     IMAGE:       <detailed prompt for the image / first frame>
+#     VIDEO:       <motion prompt for the video clip>
+#     CHARACTERS:  <comma-separated names of every character in the shot>
+#     VOICE:       <ambient / narration line to synthesize (edge-tts)>
+#     DIALOGUE:    <spoken line, always prefixed "Speaker: line">
+#   Plain lines (no prefix) are used for BOTH image and video.
+#   When CHARACTERS is present, a bare "Name: line" is treated as dialogue.
+#
+#   CHARACTERS names are how the pipeline LOCKS identity: the same name in
+#   every scene shares one visual descriptor + one voice (see characters.py).
+#
+#   IMPORTANT: video prompts MUST describe continuous, specific motion from the
+#   first frame (a camera move + moving elements). Static/slow wording like
+#   "still", "slow", "gentle sway" produces frozen video that fails QC.
+#
+# ------------------------------------------------------------------------
+# Shot List (24 clips x 5 seconds each = 2 minutes)
+
+# Clip 1
+CHARACTERS: Red Umbrella
 Wide shot. The red umbrella leans against a lonely park bench. A gust of wind ruffles the canopy. The first raindrops spot the fabric.
-
-Clip 2
+---
+# Clip 2
+CHARACTERS: Red Umbrella
 Close-up. The umbrella’s handle rattles against the bench slats. Suddenly the wind catches it—the umbrella lifts and rolls out of frame.
-
-Clip 3
+---
+# Clip 3
+CHARACTERS: Red Umbrella
 Low angle, tracking with the umbrella. The umbrella tumbles and spins across a carpet of wet orange leaves, its red a vivid slash against the grey.
-
-Clip 4
+---
+# Clip 4
+CHARACTERS: Red Umbrella, Toddler
 Medium shot. A toddler reaches out a chubby hand as the umbrella cartwheels past. Fingertips graze the fabric but miss. The child’s face shows wonder, not sadness.
-
-Clip 5
+---
+# Clip 5
+CHARACTERS: Red Umbrella
 Upward tilt. The umbrella snags on the branch of a bare tree. It flaps wildly for a moment, like a trapped bird, the city skyline blurred behind it.
-
-Clip 6
+---
+# Clip 6
+CHARACTERS: Red Umbrella, Jogger
 Sidewalk level. A jogger’s bright trainers splash through a puddle, just centimetres from the umbrella now lying open on the ground. The runner doesn’t break stride.
-
-Clip 7
+---
+# Clip 7
+CHARACTERS: Red Umbrella
 Macro shot. The wind releases the umbrella from the branch. It drops into frame and skids across wet tarmac, metal tips scraping, coming to rest half-open.
-
-Clip 8
+---
+# Clip 8
+CHARACTERS: Red Umbrella, Businessman
 Overhead. A businessman in a sharp suit steps neatly over the umbrella, phone pressed to his ear, his polished shoe barely missing the red fabric.
-
-Clip 9
+---
+# Clip 9
+CHARACTERS: Red Umbrella
 Slow motion. Rain begins to fall harder. Droplets bounce and slide across the taut red nylon, each one glistening before it rolls off the edge.
-
-Clip 10
+---
+# Clip 10
+CHARACTERS: Red Umbrella, Dog
 Medium shot. A stray dog sniffs the umbrella’s handle, tail wagging once. It sneezes, then trots away, its nails clicking on the pavement.
-
-Clip 11
+---
+# Clip 11
+CHARACTERS: Red Umbrella, Street Musician
 Street corner. A street musician with a worn guitar case sees the rain. He picks up the red umbrella, opens it fully, and props it over his guitar. He plays three soft chords and smiles.
-
-Clip 12
+---
+# Clip 12
+CHARACTERS: Red Umbrella, Street Musician
 Static wide. The musician finishes his song, carefully closes the umbrella, and leans it against a graffiti-covered wall. He walks away, leaving it behind again.
-
-Clip 13
+---
+# Clip 13
+CHARACTERS: Red Umbrella
 Reflective puddle shot. The umbrella lies beside a puddle that mirrors flickering neon signs and passing headlights. The red canopy shimmers on the water’s surface.
-
-Clip 14
+---
+# Clip 14
+CHARACTERS: Red Umbrella, Little Girl
 Eye-level. A little girl in a bright yellow raincoat and polka-dot boots spots the umbrella. She walks over, kneels, and picks it up, her face lighting up with a gap-toothed smile.
-
-Clip 15
+---
+# Clip 15
+CHARACTERS: Red Umbrella, Little Girl
 Slow-motion spin. The girl twirls the open umbrella above her head. Water droplets fly off in a sparkling arc. Her laughter is silent but palpable.
-
-Clip 16
+---
+# Clip 16
+CHARACTERS: Red Umbrella, Little Girl, Mother
 Tracking shot, behind. The girl walks hand-in-hand with her mother. The red umbrella bobs above them, a moving spot of colour against the grey city.
-
-Clip 17
+---
+# Clip 17
+CHARACTERS: Red Umbrella, Little Girl, Mother
 Through a bakery window. The pair pauses outside. Condensation fogs the glass. The girl presses her nose to the window, the umbrella tilting, while warm bread glows inside.
-
-Clip 18
+---
+# Clip 18
+CHARACTERS: Red Umbrella, Little Girl, Mother
 Subway entrance. They descend stairs. The umbrella drips a trail of water onto the steps. The mother folds it and hands it to the girl, who hugs it like a doll.
-
-Clip 19
+---
+# Clip 19
+CHARACTERS: Red Umbrella, Little Girl
 Train interior. The girl sits on a flip-down seat, the closed red umbrella across her lap. She traces patterns on the wet fabric with her finger. The train rocks gently.
-
-Clip 20
+---
+# Clip 20
+CHARACTERS: Red Umbrella, Little Girl
 Station platform. They exit the train. The girl insists on carrying the umbrella herself, dragging its tip slightly along the ground, making a thin line on the concrete.
-
-Clip 21
+---
+# Clip 21
+CHARACTERS: Red Umbrella, Little Girl
 Emerging into a night market. Lanterns hang overhead. The girl holds the umbrella high like a torch. Steam rises from food stalls. Everything feels warm and golden.
-
-Clip 22
+---
+# Clip 22
+CHARACTERS: Red Umbrella, Little Girl, Grandmother
+DIALOGUE: Little Girl: Grandma, look what I found!
 Quiet porch. An elderly woman in a rocking chair sits under a bare bulb. The girl runs to her, proudly presenting the red umbrella. The grandmother’s wrinkled hands receive it.
-
-Clip 23
+---
+# Clip 23
+CHARACTERS: Red Umbrella, Little Girl, Grandmother
 Two-shot, from behind. The grandmother opens the umbrella and holds it over both of them on the porch, even though there’s no rain now. They sit together, looking at the stars.
-
-Clip 24
+---
+# Clip 24
+CHARACTERS: Red Umbrella, Grandmother
 Final close-up. The red umbrella rests against the rocking chair, indoors now. A small, brightly patterned patch—clearly sewn by a child—covers a tiny tear. A ray of morning sunlight warms the fabric. Hold.
 

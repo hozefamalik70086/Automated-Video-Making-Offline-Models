@@ -42,6 +42,7 @@ os.makedirs(MOCK_OUT, exist_ok=True)
 
 HISTORY: dict = {}
 ATTEMPTS: dict = {}
+IMG_ATTEMPTS: dict = {}
 LOCK = threading.Lock()
 
 # model filenames used by the flattened scene template (verified in --check)
@@ -93,6 +94,13 @@ def write_video(path: str, good: bool) -> None:
             f[100:180, x:x + 120] = 200
         frames.append(f)
     imageio.mimsave(path, frames, fps=fps)
+
+
+def write_image(path: str) -> None:
+    """Write a deterministic synthetic PNG (for SaveImage / char-ref workflows)."""
+    img = np.full((720, 1080, 3), 60, dtype=np.uint8)
+    img[200:520, 300:780] = 180  # block in the middle so it isn't blank
+    imageio.imwrite(path, img)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -150,32 +158,53 @@ class Handler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(length) or b"{}")
         workflow = body.get("prompt", {})
 
-        prefix, node_id = "scene", None
+        # Detect the save node: SaveVideo -> scene clip, SaveImage -> char ref
+        prefix, node_id, output_kind = "scene", None, "video"
         for nid, node in workflow.items():
-            if node.get("class_type") == "SaveVideo":
+            cls = node.get("class_type")
+            if cls == "SaveVideo":
                 prefix = node.get("inputs", {}).get("filename_prefix", "scene")
                 node_id = nid
+                output_kind = "video"
                 break
+            if cls == "SaveImage":
+                prefix = node.get("inputs", {}).get("filename_prefix", "img")
+                node_id = nid
+                output_kind = "image"
         m = re.search(r"scene_(\d+)", str(prefix))
         scene = int(m.group(1)) if m else 1
 
-        with LOCK:
-            ATTEMPTS[scene] = ATTEMPTS.get(scene, 0) + 1
-            attempt = ATTEMPTS[scene]
-        good = attempt >= 2  # 1st attempt always bad -> triggers director retry
-        fname = f"scene_{scene:02d}_attempt{attempt}.mp4"
-        write_video(os.path.join(MOCK_OUT, fname), good)
+        if output_kind == "image":
+            # character-reference workflows — always succeed, separate counter
+            with LOCK:
+                IMG_ATTEMPTS[prefix] = IMG_ATTEMPTS.get(prefix, 0) + 1
+                attempt = IMG_ATTEMPTS[prefix]
+            safe = re.sub(r"[^A-Za-z0-9_\-]+", "_", prefix)
+            fname = f"{safe}_attempt{attempt}.png"
+            write_image(os.path.join(MOCK_OUT, fname))
+            outputs = {str(node_id): {"images": [
+                {"filename": fname, "subfolder": "", "type": "output"}]}}
+        else:
+            with LOCK:
+                ATTEMPTS[scene] = ATTEMPTS.get(scene, 0) + 1
+                attempt = ATTEMPTS[scene]
+            good = attempt >= 2  # 1st attempt always bad -> triggers retry
+            fname = f"scene_{scene:02d}_attempt{attempt}.mp4"
+            write_video(os.path.join(MOCK_OUT, fname), good)
+            outputs = {str(node_id): {"videos": [
+                {"filename": fname, "subfolder": "", "type": "output"}]}}
 
         pid = str(uuid.uuid4())
         with LOCK:
             HISTORY[pid] = {
                 "status": {"status_str": "success", "completed": True,
                            "messages": []},
-                "outputs": {str(node_id): {"videos": [{
-                    "filename": fname, "subfolder": "", "type": "output"}]}},
+                "outputs": outputs,
             }
+        kind = output_kind
         print(f"[mock] prompt {pid} scene {scene} attempt {attempt} "
-              f"-> {'good' if good else 'BAD'}")
+              f"({kind}) -> "
+              f"{'good' if kind == 'image' or good else 'BAD'}")
         self._json(200, {"prompt_id": pid, "number": len(HISTORY),
                          "node_errors": []})
 

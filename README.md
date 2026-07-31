@@ -45,6 +45,7 @@ The orchestrator is a plain Python app that talks to ComfyUI's HTTP API — beca
 | `director/` | The main Python app (orchestrator + dashboard). |
 | `director/director.py` | The Director orchestrator — main entry point. |
 | `director/storywriter.py` | Story generation: custom story → LLM → template fallback. |
+| `director/characters.py` | **Character-locked cast library** — extract characters, write visual/voice descriptors (LLM), render master reference images (ComfyUI), per-character voice, consistency report. |
 | `director/qc.py` | Quality Control: duration, black/frozen frames, motion. |
 | `director/video_score.py` | 0–100 "film score" analyzer (motion, flicker, sharpness, exposure…). |
 | `director/comfy_api.py` | Minimal ComfyUI HTTP client (submit / poll / download). |
@@ -96,6 +97,49 @@ python director/video_score.py --dir director/output   # scores all clips + film
 
 ---
 
+## 🎭 Character locking (script → consistent characters)
+
+The pipeline can **lock every character's appearance and voice** so the same
+face, outfit and voice appear identically in every scene (the classic
+*character-consistency* problem in AI video):
+
+1. **Extract the cast** — from each scene's `CHARACTERS:` list (custom story)
+or the LLM story's `characters_present`/`dialogue` fields.
+2. **Write descriptors** — a local LLM (Ollama) writes a rich visual
+descriptor + voice descriptor per character (stored in
+`director/characters/characters.json`).
+3. **Render a master reference** — each character gets a neutral-pose
+reference image via the same Z-Image-Turbo T2I graph (saved under
+`director/characters/refs/`). Returning characters **reuse** their lock by
+name, so identity stays stable across runs and stories.
+4. **Inject into every scene** — each scene's image prompt gets the locked
+descriptor + a consistency anchor; the video prompt gets a same-cast note.
+5. **Per-character voices** — speaking characters are assigned a locked
+edge-tts voice; `narrate.py` uses that voice for each scene's `DIALOGUE:` line.
+6. **Consistency report** — `output/consistency_report.json` records which
+scenes each character appears in, whether the locked descriptor actually
+reached the prompt, and (if a face library is installed) embedding similarity.
+
+### Custom story tags
+```
+CHARACTERS: Little Girl, Red Umbrella      # who is in the shot (identity lock)
+DIALOGUE:   Little Girl: Grandma, look!    # spoken line -> character voice
+VOICE:      gentle rain and distant traffic # ambient/narration line
+```
+
+### CLI
+```bash
+python director/characters.py --list                         # show locked cast
+python director/characters.py --setup --no-refs              # descriptors only
+python director/characters.py --setup                        # + master refs (ComfyUI)
+python director/characters.py --consistency director/output  # consistency report
+python director/director.py --no-characters                  # bypass locking
+```
+
+Set `characters.enabled=false` in `config.json` to disable locking entirely.
+
+---
+
 ## 🛠️ Configuration (`director/config.json`)
 
 Everything is editable — from the dashboard or the file:
@@ -105,6 +149,7 @@ Everything is editable — from the dashboard or the file:
 - `render` — resolution, fps, camera move, LTX two-pass quality sigmas.
 - `qc` — pass/fail thresholds (duration, black %, frozen %, min motion) and max re-shoot attempts.
 - `audio` — optional edge-tts narration + subtitles.
+- `characters` — character locking: `enabled`, `auto_generate_refs`, `library_dir`, `ref_template`, `consistency_threshold`.
 
 > **Tip:** per-scene duration is always taken from `story.seconds_per_scene` — the dashboard setting is authoritative.
 

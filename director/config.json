@@ -61,5 +61,12 @@
     "rate": "+0%",
     "subtitles": true,
     "font": "C:\\\\Windows\\\\Fonts\\\\arial.ttf"
+  },
+  "characters": {
+    "enabled": true,
+    "auto_generate_refs": true,
+    "library_dir": "characters",
+    "ref_template": "workflow_scene_template.json",
+    "consistency_threshold": 0.85
   }
 }

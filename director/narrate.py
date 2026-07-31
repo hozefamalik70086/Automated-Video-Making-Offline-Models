@@ -23,6 +23,7 @@ The script already uses imageio-ffmpeg's bundled ffmpeg binary.
 import argparse
 import json
 import os
+import re
 import sys
 import time
 import traceback
@@ -74,11 +75,25 @@ def make_narration(report: dict, cfg: dict, out_dir: str) -> list:
     """Synthesize one mp3 per scene (or None if unavailable/empty).
 
     Returns a list parallel to report["scenes"] of mp3 paths or None.
+    Speaking characters (scene DIALOGUE) use their LOCKED per-character
+    edge-tts voice; scenes without dialogue fall back to the global narrator
+    voice on their audio_lines.
     """
     audio = cfg.get("audio", {})
     engine = audio.get("engine", "edge-tts")
-    voice = audio.get("voice", "en-US-GuyNeural")
-    rate = audio.get("rate", "+0%")
+    global_voice = audio.get("voice", "en-US-GuyNeural")
+    global_rate = audio.get("rate", "+0%")
+
+    # Character library (best-effort): supplies per-character voice locks.
+    charlib = None
+    try:
+        if (cfg.get("characters", {}).get("enabled", True)
+                and BASE_DIR and os.path.isdir(BASE_DIR)):
+            from characters import CharacterLibrary
+            charlib = CharacterLibrary(cfg, BASE_DIR)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  [narrate] character library unavailable: {exc}")
+        charlib = None
 
     try:
         import edge_tts  # type: ignore
@@ -90,12 +105,21 @@ def make_narration(report: dict, cfg: dict, out_dir: str) -> list:
     results = []
     for i, sc in enumerate(report.get("scenes", []), start=1):
         text = (sc.get("audio_lines") or "").strip()
+        voice, rate = global_voice, global_rate
+        dialogue = (sc.get("dialogue") or "").strip()
+        if dialogue and charlib is not None and charlib.enabled:
+            voice_lock = charlib.voice_for_scene(sc)
+            if voice_lock and voice_lock.get("voice"):
+                voice = voice_lock["voice"]
+                rate = voice_lock.get("rate") or global_rate
+            # drop the "Speaker: " prefix -> just the spoken line
+            text = re.sub(r"^\s*[^:|]{1,40}[|:]\s*", "", dialogue).strip()
         if not text:
             results.append(None)
             continue
         out = os.path.join(out_dir, "_narration", f"scene_{i:02d}.mp3")
         try:
-            print(f"  [narrate] synth scene {i}: {text[:70]}…")
+            print(f"  [narrate] synth scene {i} ({voice}): {text[:70]}…")
             if engine != "edge-tts":
                 results.append(None)
                 continue

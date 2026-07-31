@@ -1,0 +1,11 @@
+# char-lock mock story (for tests/config_mock_char.json)
+# Small story that exercises character extraction + locks + per-scene injection.
+CHARACTERS: Red Umbrella
+The red umbrella lies on wet pavement as the first raindrops fall.
+---
+CHARACTERS: Red Umbrella, Little Girl
+DIALOGUE: Little Girl: I found it!
+The little girl in a bright yellow raincoat kneels and picks up the red umbrella, smiling.
+---
+CHARACTERS: Red Umbrella, Little Girl
+The girl carries the open umbrella down the street, water droplets spinning off it.

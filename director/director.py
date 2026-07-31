@@ -33,6 +33,7 @@ import time
 from typing import Optional
 
 from comfy_api import ComfyUI, ComfyUIError
+from characters import CharacterLibrary, CONSISTENCY_ANCHOR
 from qc import QualityChecker
 from storywriter import StoryWriter
 
@@ -124,6 +125,7 @@ class Director:
         )
         self.qc = QualityChecker(config)
         self.writer = StoryWriter(config, BASE_DIR)
+        self.chars = CharacterLibrary(config, BASE_DIR)
         dir_cfg = config["director"]
         self.output_dir = os.path.join(BASE_DIR, dir_cfg.get("output_dir", "output"))
         os.makedirs(self.output_dir, exist_ok=True)
@@ -205,6 +207,15 @@ class Director:
             image_prompt = f"{char}, {image_prompt}"
             if not video_prompt.lower().startswith(char.lower()):
                 video_prompt = f"{char}, {video_prompt}"
+        # Per-scene LOCKED character descriptors (Phase 3): append each
+        # character's master visual descriptor + a consistency anchor to the
+        # image prompt, and a short "same characters" note to the video prompt.
+        image_blocks, video_note = [], ""
+        if getattr(self, "chars", None) and self.chars.enabled:
+            image_blocks, video_note = self.chars.scene_character_blocks(scene)
+        if image_blocks:
+            image_prompt = (image_prompt.rstrip(" .,") + ". "
+                            + " ".join(image_blocks) + " " + CONSISTENCY_ANCHOR)
         # Optional cinematic camera move: guarantees visible motion.
         camera = str(self.render_cfg.get("camera_move", "auto") or "auto")
         cam_phrase = CAMERA_MOVES.get(camera.strip().lower(), "")
@@ -212,6 +223,8 @@ class Director:
             video_prompt = cam_phrase + video_prompt.lstrip()
         if self.motion_boost:
             video_prompt = f"{video_prompt.rstrip()}, {self.motion_boost}"
+        if video_note and video_note not in video_prompt:
+            video_prompt = f"{video_prompt.rstrip(' .,')}. {video_note}"
         return {
             "image_prompt": image_prompt,
             "image_seed": random.randint(0, 2**32 - 1),
@@ -243,9 +256,11 @@ class Director:
         qc_enabled = bool(self.qc_cfg.get("enabled", True))
         expected = float(self.cfg["story"]["seconds_per_scene"])
         out_name = f"scene_{scene_idx:02d}.mp4"
+        locked_prompts = None
 
         for attempt in range(1, max_attempts + 1):
             values = self._scene_values(scene, scene_idx)
+            locked_prompts = (values["image_prompt"], values["video_prompt"])
             wf = apply_knobs(self.template, self.knobs, values)
             print(f"\n--- scene {scene_idx} | attempt {attempt}/{max_attempts} ---")
             print(f"  image: {scene['image_prompt'][:80]}...")
@@ -272,19 +287,19 @@ class Director:
             print(f"  downloaded -> {os.path.relpath(dest, BASE_DIR)}")
 
             if not qc_enabled:
-                return dest, attempt, None
+                return dest, attempt, None, locked_prompts
             result = self.qc.analyze(dest, expected)
             print(f"  QC: {'PASS' if result.passed else 'FAIL'}")
             print(f"       {result.summary()}")
             if result.passed:
-                return dest, attempt, result
+                return dest, attempt, result, locked_prompts
             print("  QC FAILED: " + "; ".join(result.reasons) +
-                  " — re-shooting with new seeds")
+                  " - re-shooting with new seeds")
         # exhausted attempts: keep last file, record failure
         last = os.path.join(self.output_dir, out_name)
         if os.path.exists(last):
-            return last, max_attempts, None
-        return "", max_attempts, None
+            return last, max_attempts, None, locked_prompts
+        return "", max_attempts, None, locked_prompts
 
     def _find_output(self, prompt_id: str) -> Optional[dict]:
         files = self.comfy.output_files(prompt_id)
@@ -350,6 +365,21 @@ class Director:
         scenes = story["scenes"]
         print(f"\n== DIRECTOR shooting: {title!r} ({len(scenes)} scenes) ==")
 
+        # Character locking (Phase 0/1/2): extract cast, write descriptors,
+        # render master references (cached per character, reused by name).
+        if not self.cfg.get("characters", {}).get("enabled", True):
+            print("[char] character locking disabled (characters.enabled=false)")
+        else:
+            try:
+                self.chars.ensure_locks(
+                    story,
+                    generate_refs=bool(self.cfg.get("characters", {}).get(
+                        "auto_generate_refs", True)),
+                )
+            except Exception as exc:  # noqa: BLE001
+                print(f"[char] library setup failed, continuing with "
+                      f"prompt-only: {exc}")
+
         if only_scene is not None:
             if not (0 <= only_scene < len(scenes)):
                 print(f"!! scene index {only_scene} out of range "
@@ -367,16 +397,22 @@ class Director:
             idx = base_idx + i
             print(f"\n{'='*60}\nSCENE {idx+1}: {scene['video_prompt'][:60]}…\n"
                   f"{'='*60}")
-            path, attempts, qc_result = self.render_scene(scene, idx)
+            path, attempts, qc_result, locked = self.render_scene(scene, idx)
             passed = qc_result is not None and qc_result.passed
+            locked_img, locked_vid = (locked if locked
+                                      else (scene["image_prompt"],
+                                            scene["video_prompt"]))
             results.append({
                 "scene": idx + 1,
                 "attempts": attempts,
                 "qc_passed": passed,
                 "qc": qc_result.metrics if qc_result else {"unchecked": True},
                 "file": os.path.relpath(path, BASE_DIR) if path else "",
-                "image_prompt": scene["image_prompt"],
-                "video_prompt": scene["video_prompt"],
+                "image_prompt": locked_img,
+                "video_prompt": locked_vid,
+                "source_image_prompt": scene["image_prompt"],
+                "characters_present": scene.get("characters_present", []),
+                "dialogue": scene.get("dialogue"),
                 "audio_lines": scene.get("audio_lines", ""),
             })
             if manual_review and passed:
@@ -386,6 +422,7 @@ class Director:
         report = {
             "story_title": title,
             "config": self.cfg,
+            "characters": self.chars.summary(),
             "scenes": results,
         }
         report_path = os.path.join(self.output_dir, "report.json")
@@ -401,6 +438,14 @@ class Director:
         else:
             print(f"\n== scene rendered -> {results[0]['file']}")
 
+        # Phase 4: cross-scene consistency review
+        if self.chars.enabled:
+            try:
+                self.chars.write_consistency_report(story, results,
+                                                    self.output_dir)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[char] consistency report failed: {exc}")
+
         print(f"== report saved -> {os.path.relpath(report_path, BASE_DIR)}")
         n_pass = sum(1 for r in results if r["qc_passed"])
         print(f"== QC summary: {n_pass}/{len(results)} scenes passed QC")
@@ -414,9 +459,13 @@ def main(argv=None) -> None:
                         help="run environment/model check only")
     parser.add_argument("--scene", type=int, default=None,
                         help="render only one scene index (0-based)")
+    parser.add_argument("--no-characters", action="store_true",
+                        help="disable character locking for this run")
     args = parser.parse_args(argv)
 
     config = load_json(args.config)
+    if args.no_characters:
+        config.setdefault("characters", {})["enabled"] = False
     log_path = _install_log_tee(config)
     print(f"== log -> {os.path.relpath(log_path, BASE_DIR)}")
     director = Director(config)

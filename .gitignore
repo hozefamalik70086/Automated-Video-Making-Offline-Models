@@ -14,6 +14,8 @@ env/
 
 # ---------- Generated videos / renders (any output* folder) ----------
 **/output*/
+**/_mock_output/
+**/_frames/
 *.mp4
 *.avi
 *.mov
@@ -21,6 +23,10 @@ env/
 *.mkv
 *.wav
 *.log
+
+# ---------- Character-library generated artifacts (refs + mock test lib) ----------
+**/characters/refs/
+**/.char_lib_mock/
 
 # ---------- OS / editor ----------
 .DS_Store

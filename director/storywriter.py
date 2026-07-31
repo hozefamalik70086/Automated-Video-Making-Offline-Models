@@ -35,6 +35,8 @@ Schema:
    {"id": 1,
     "image_prompt": "detailed text-to-image prompt for the opening frame (subject, lighting, camera angle, style)",
     "video_prompt": "text-to-video motion prompt that starts FROM the image_prompt scene (movement, action, camera motion, 5 seconds)",
+    "characters_present": ["Little Girl", "Red Umbrella"],
+    "dialogue": "Little Girl: Look what I found!" | null,
     "audio_lines": "short on-screen/ambient line or sound description",
     "duration_seconds": 5},
    ...
@@ -43,6 +45,12 @@ Rules:
 - Each scene must be a new shot that continues the story.
 - image_prompt and video_prompt must describe the SAME scene.
 - Keep prompts clear, concrete, and cinematic; avoid copyrighted characters.
+- characters_present: EVERY character visibly in the shot, by name.
+- Reuse the SAME character name in every scene that character appears - the
+  pipeline uses these names to lock identity (appearance + voice).
+- dialogue: ONLY spoken words, always prefixed with the speaker name like
+  "Name: line"; use null when nobody speaks.
+- audio_lines: on-screen/ambient sound or narration description (not dialogue).
 - VIDEO prompts are the most important: they MUST describe continuous, SPECIFIC,
   visible motion from the very first frame — a camera move (pan, orbit, dolly,
   tilt, handheld drift, push-in) PLUS moving subjects/elements (waves, wind,
@@ -65,6 +73,8 @@ FALLBACK_STORY = {
                           "and spray the rocks, the keeper's coat whips in the "
                           "wind, the lantern flame flickers hard, drifting fog, "
                           "5 seconds"),
+         "characters_present": ["Lighthouse Keeper", "Lantern"],
+         "dialogue": None,
          "audio_lines": "Wind and crashing waves",
          "duration_seconds": 5},
         {"id": 2,
@@ -74,6 +84,8 @@ FALLBACK_STORY = {
                           "climbing, the lantern swings with each step, dust "
                           "motes drift in the warm light, coat tails sway, "
                           "5 seconds"),
+         "characters_present": ["Lighthouse Keeper", "Lantern"],
+         "dialogue": None,
          "audio_lines": "Creaking wood, soft footsteps",
          "duration_seconds": 5},
         {"id": 3,
@@ -83,6 +95,8 @@ FALLBACK_STORY = {
                           "roars, beams sweep across the sea, rain streaks down "
                           "the glass, steam and smoke billow, the keeper shields "
                           "his eyes, 5 seconds"),
+         "characters_present": ["Lighthouse Keeper", "Lantern"],
+         "dialogue": None,
          "audio_lines": "The roar of the lamp igniting",
          "duration_seconds": 5},
         {"id": 4,
@@ -91,6 +105,8 @@ FALLBACK_STORY = {
          "video_prompt": ("The camera drifts forward as the ship glides toward "
                           "the rotating beam, waves roll and sparkle, clouds "
                           "race across the moon, the beam sweeps past, 5 seconds"),
+         "characters_present": ["Ship"],
+         "dialogue": None,
          "audio_lines": "Faint ship horn, sea breeze",
          "duration_seconds": 5},
     ],
@@ -122,10 +138,17 @@ class StoryWriter:
         n = max(1, int(self.num_scenes))
         for i in range(n):
             s = src[i % len(src)] if src else {}
+            cp = s.get("characters_present") or []
+            if isinstance(cp, str):
+                cp = [cp]
+            cp = [str(x).strip() for x in cp if str(x).strip()]
+            dialogue = str(s.get("dialogue") or "").strip() or None
             scenes.append({
                 "id": i + 1,
                 "image_prompt": str(s.get("image_prompt", "")).strip(),
                 "video_prompt": str(s.get("video_prompt", "")).strip(),
+                "characters_present": cp,
+                "dialogue": dialogue,
                 "audio_lines": str(s.get("audio_lines", "")).strip(),
                 "duration_seconds": float(self.seconds),
             })
@@ -164,6 +187,9 @@ class StoryWriter:
         ).strip()
         return content if content else None
 
+    _NON_DIALOGUE = {"image", "video", "characters", "dialogue", "voice",
+                     "shot", "clip", "scene", "audio", "sound", "camera"}
+
     def _parse_custom(self, text: str) -> dict:
         text = "\n".join(
             ln for ln in text.splitlines() if not ln.strip().startswith("#")
@@ -175,6 +201,10 @@ class StoryWriter:
         scenes = []
         for idx, block in enumerate(blocks, start=1):
             image_prompt, video_prompt = None, None
+            audio_lines = ""
+            dialogue = None
+            characters = []
+            declared_chars = False
             lines = [ln for ln in block.splitlines() if ln.strip()]
             rest = []
             for ln in lines:
@@ -183,7 +213,31 @@ class StoryWriter:
                     image_prompt = ln.split(":", 1)[1].strip()
                 elif low.startswith("video:"):
                     video_prompt = ln.split(":", 1)[1].strip()
+                elif low.startswith("characters:"):
+                    declared_chars = True
+                    characters = [x.strip() for x in
+                                  ln.split(":", 1)[1].split(",") if x.strip()]
+                elif low.startswith("dialogue:"):
+                    dialogue = ln.split(":", 1)[1].strip()
+                    mspk = re.match(r"^\s*([^:|]{1,40})[|:]", dialogue)
+                    if mspk and mspk.group(1).strip() not in characters:
+                        characters.append(mspk.group(1).strip())
+                elif low.startswith("voice:"):
+                    audio_lines = ln.split(":", 1)[1].strip()
                 else:
+                    m = re.match(r"^([A-Za-z][A-Za-z '\-.]{1,40}):\s+(.+)$",
+                                 ln.strip())
+                    if (declared_chars and m
+                            and m.group(1).strip().lower()
+                            not in self._NON_DIALOGUE):
+                        # "Name: line" inside a block that declares characters
+                        name = m.group(1).strip()
+                        # keep the "Speaker: text" form so _dialogue_speaker()
+                        # / voice locks resolve the speaker consistently
+                        dialogue = f"{name}: {m.group(2).strip()}"
+                        if name not in characters:
+                            characters.append(name)
+                        continue
                     rest.append(ln.strip())
             body = " ".join(rest).strip()
             if image_prompt is None:
@@ -194,7 +248,9 @@ class StoryWriter:
                 "id": idx,
                 "image_prompt": image_prompt,
                 "video_prompt": video_prompt,
-                "audio_lines": "",
+                "characters_present": characters,
+                "dialogue": dialogue,
+                "audio_lines": audio_lines,
                 "duration_seconds": self.seconds,
             })
         return {"story_title": "Custom story", "scenes": scenes}
@@ -236,12 +292,15 @@ class StoryWriter:
         char = str(self.cfg.get("story", {}).get("character", "") or "").strip()
         if char:
             user_prompt += (
-                f"Use the SAME main character '{char}' in every scene. "
+                f"Use the SAME main character '{char}' in every scene and list "
+                "them in every scene's characters_present. "
             )
         user_prompt += (
             "Return ONLY the strict JSON object: "
             '{"story_title": "...", "scenes": [{"id":1, '
             '"image_prompt": "...", "video_prompt": "...", '
+            '"characters_present": ["..."], '
+            '"dialogue": "Name: line" or null, '
             '"audio_lines": "...", "duration_seconds": '
             f'{int(self.seconds)}}}, ...]}}'
         )
