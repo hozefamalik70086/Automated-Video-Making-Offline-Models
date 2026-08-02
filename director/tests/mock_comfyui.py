@@ -83,9 +83,10 @@ def build_object_info() -> dict:
 INFO = build_object_info()
 
 
-def write_video(path: str, good: bool) -> None:
-    """Write a 5s @25fps synthetic clip. good=False -> black/static (QC fail)."""
-    w, h, fps, n = 480, 288, 25, 125
+def write_video(path: str, good: bool, fps: int = 25, n: int = 125) -> None:
+    """Write a synthetic clip at ``fps`` with ``n`` frames.
+    good=False -> black/static (QC fail)."""
+    w, h = 480, 288
     frames = []
     for i in range(n):
         f = np.zeros((h, w, 3), dtype=np.uint8)
@@ -94,6 +95,47 @@ def write_video(path: str, good: bool) -> None:
             f[100:180, x:x + 120] = 200
         frames.append(f)
     imageio.mimsave(path, frames, fps=fps)
+
+
+def video_params(workflow: dict) -> tuple:
+    """Extract (duration_seconds, fps) from the scene template's frame-count
+    math node (ComfyMathExpression 'a * b + 1': values.a = duration,
+    values.b = fps). Falls back to (5.0, 25)."""
+    duration, fps = 5.0, 25
+    for node in workflow.values():
+        if node.get("class_type") != "ComfyMathExpression":
+            continue
+        expr = str(node.get("inputs", {}).get("expression", ""))
+        if "*" in expr and "+" in expr and "b" in expr:
+            try:
+                duration = float(node["inputs"].get("values.a", 5.0))
+                fps = int(node["inputs"].get("values.b", 25))
+            except (TypeError, ValueError):
+                pass
+    return duration, fps
+
+
+def parse_multipart(body: bytes, ctype: str) -> dict:
+    """Minimal multipart/form-data parser: {name: {filename, content}}."""
+    import re as _re
+    m = _re.search(r'boundary="?([^";]+)"?', ctype)
+    boundary = m.group(1).encode() if m else None
+    if not boundary:
+        return {}
+    out = {}
+    for part in body.split(b"--" + boundary):
+        if not part.strip(b"\r\n-"):
+            continue
+        if b"\r\n\r\n" not in part:
+            continue
+        header_blob, content = part.split(b"\r\n\r\n", 1)
+        text = header_blob.decode("latin-1")
+        fm = _re.search(r'filename="([^"]+)"', text)
+        nm = _re.search(r'name="([^"]+)"', text)
+        key = nm.group(1) if nm else "file"
+        out[key] = {"filename": fm.group(1) if fm else None,
+                    "content": content.rstrip(b"\r\n")}
+    return out
 
 
 def write_image(path: str) -> None:
@@ -151,6 +193,9 @@ class Handler(BaseHTTPRequestHandler):
     # ------------------------------------------------------------- POST
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == "/upload/image":
+            self._handle_upload()
+            return
         if parsed.path != "/prompt":
             self._json(404, {"error": f"no mock route {parsed.path}"})
             return
@@ -190,7 +235,9 @@ class Handler(BaseHTTPRequestHandler):
                 attempt = ATTEMPTS[scene]
             good = attempt >= 2  # 1st attempt always bad -> triggers retry
             fname = f"scene_{scene:02d}_attempt{attempt}.mp4"
-            write_video(os.path.join(MOCK_OUT, fname), good)
+            dur, fps = video_params(workflow)
+            n = max(2, int(round(dur * fps)) + 1)
+            write_video(os.path.join(MOCK_OUT, fname), good, fps=fps, n=n)
             outputs = {str(node_id): {"videos": [
                 {"filename": fname, "subfolder": "", "type": "output"}]}}
 
@@ -207,6 +254,23 @@ class Handler(BaseHTTPRequestHandler):
               f"{'good' if kind == 'image' or good else 'BAD'}")
         self._json(200, {"prompt_id": pid, "number": len(HISTORY),
                          "node_errors": []})
+
+    def _handle_upload(self) -> None:
+        """Accept /upload/image (multipart) so frame-chaining can inject the
+        previous segment's last frame as a LoadImage input."""
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length)
+        ctype = self.headers.get("Content-Type", "")
+        parts = parse_multipart(body, ctype)
+        img = parts.get("image", {})
+        fname = img.get("filename")
+        if not fname:
+            self._json(400, {"error": "no image part"})
+            return
+        with open(os.path.join(MOCK_OUT, fname), "wb") as f:
+            f.write(img.get("content", b""))
+        print(f"[mock] upload {fname}")
+        self._json(200, {"name": fname, "subfolder": "", "type": "input"})
 
 
 def main() -> None:

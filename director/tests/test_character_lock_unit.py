@@ -32,6 +32,8 @@ os.chdir(BASE)
 
 from storywriter import StoryWriter, FALLBACK_STORY  # noqa: E402
 import characters as chars  # noqa: E402
+from director import Director  # noqa: E402
+from qc import QCResult  # noqa: E402
 
 PASS = 0
 FAIL = 0
@@ -81,33 +83,68 @@ def base_config() -> dict:
 #  storywriter custom story parsing
 # --------------------------------------------------------------------------- #
 def test_custom_story_parsing() -> None:
-    section("storywriter: custom story parsing (real custom_story.txt)")
+    section("storywriter: custom story parsing")
     cfg = base_config()
     cfg["story"]["custom_story_file"] = "custom_story.txt"
     cfg["story"]["scenes"] = 24
     sw = StoryWriter(cfg, BASE)
-    text = sw._read_custom()
-    check("custom_story.txt is used (non-empty)", bool(text))
-    parsed = sw._parse_custom(text)
+    # Deterministic fixture (3 scene blocks) — independent of live file state,
+    # because custom_story.txt may hold a free-form premise rather than a
+    # finished scene-block story.
+    fixture = (
+        "# test fixture\n"
+        "IMAGE: a cozy sunlit bedroom at noon, warm pastel light\n"
+        "VIDEO: slow dolly-in past drifting dust motes\n"
+        "CHARACTERS: Mia, Kofi\n"
+        "DIALOGUE: Mia: finally, a lazy afternoon\n"
+        "VOICE: gentle wind, birdsong\n"
+        "---\n"
+        "IMAGE: a rooftop garden with hanging plants swaying\n"
+        "VIDEO: overhead crane shot tilting down to the skyline\n"
+        "CHARACTERS: Kofi\n"
+        "---\n"
+        "A quiet kitchen in the evening. Mia stirs cocoa by lamplight.\n"
+        "CHARACTERS: Mia, Kofi\n"
+        "Kofi: the stars are out\n"
+    )
+    parsed = sw._parse_custom(fixture)
     scenes = parsed["scenes"]
-    check("24 scenes parsed", len(scenes) == 24, f"got {len(scenes)}")
+    check("3 scenes parsed from fixture", len(scenes) == 3,
+          f"got {len(scenes)}")
     # No 'Shot List' or 'Clip N' pollution in any prompt
     pollution = [s for s in scenes
                  if re.search(r"\b(shot list|clip\s+\d)\b",
                               (s["image_prompt"] + " " + s["video_prompt"]).lower())]
     check("no Shot List / Clip N pollution", not pollution,
           f"found {len(pollution)}")
-    # Scene 4 characters
-    check("scene 4 characters present",
-          scenes[3]["characters_present"] == ["Red Umbrella", "Toddler"],
-          repr(scenes[3]["characters_present"]))
-    # Scene 22 dialogue
-    check("scene 22 has dialogue",
-          (scenes[21]["dialogue"] or "").startswith("Little Girl:"),
-          repr(scenes[21]["dialogue"]))
-    check("scene 22 dialogue speaker added to characters",
-          "Little Girl" in scenes[21]["characters_present"],
-          repr(scenes[21]["characters_present"]))
+    # A scene that declares characters lists them
+    check("scene 2 declares characters",
+          bool(scenes[1]["characters_present"]),
+          repr(scenes[1]["characters_present"]))
+    # At least one scene carries dialogue
+    dia_idx = [i for i, s in enumerate(scenes, 1)
+               if (s.get("dialogue") or "").strip()]
+    check("at least one scene has dialogue", bool(dia_idx),
+          f"dialogue scene indexes: {dia_idx}")
+    # Dialogue speaker is added to that scene's characters
+    if dia_idx:
+        first = dia_idx[0] - 1
+        m = re.match(r"\s*([^:]+):", scenes[first]["dialogue"])
+        if m:
+            name = m.group(1).strip()
+            check("dialogue speaker added to characters",
+                  name in scenes[first]["characters_present"],
+                  f"{name!r} not in {scenes[first]['characters_present']!r}")
+        else:
+            check("dialogue speaker added to characters", False,
+                  f"cannot parse speaker from {scenes[first]['dialogue']!r}")
+    # Free-form body fills both image_prompt and video_prompt
+    check("free-form body fills image & video prompt",
+          scenes[2]["image_prompt"] == scenes[2]["video_prompt"],
+          repr((scenes[2]["image_prompt"], scenes[2]["video_prompt"])))
+    # Live custom_story.txt is still readable (state agnostic)
+    live = sw._read_custom()
+    check("custom_story.txt is read (non-empty)", bool(live))
     # Every scene declares characters
     empty = [i for i, s in enumerate(scenes, 1) if not s["characters_present"]]
     check("every scene declares CHARACTERS", not empty, f"empty: {empty}")
@@ -116,9 +153,57 @@ def test_custom_story_parsing() -> None:
     check("finalize keeps 24 scenes (config scenes=24)",
           len(fin["scenes"]) == 24, f"got {len(fin['scenes'])}")
     check("finalize preserves characters_present",
-          fin["scenes"][3]["characters_present"] == ["Red Umbrella", "Toddler"])
-    check("finalize preserves dialogue",
-          (fin["scenes"][21]["dialogue"] or "").startswith("Little Girl:"))
+          fin["scenes"][2]["characters_present"]
+          == scenes[2]["characters_present"],
+          repr(fin["scenes"][2]["characters_present"]))
+    if dia_idx:
+        first = dia_idx[0] - 1
+        check("finalize preserves dialogue",
+              (fin["scenes"][first].get("dialogue") or "")
+              == (scenes[first].get("dialogue") or ""),
+              repr(fin["scenes"][first].get("dialogue")))
+    else:
+        check("finalize preserves dialogue", True, "no dialogue scenes")
+
+
+def test_style_phrase_applies_to_both_prompts() -> None:
+    section("director: style phrase propagation")
+    cfg = base_config()
+    cfg["story"]["genre"] = "Studio Ghibli (hand-drawn, soft watercolor)"
+    cfg["story"]["character"] = ""
+    cfg["characters"]["enabled"] = False
+    director = Director(cfg)
+    scene = {
+        "image_prompt": "A quiet courtyard with a child under a tree",
+        "video_prompt": "The camera slowly pans left across the courtyard",
+    }
+    values = director._scene_values(scene, 1)
+    check("style phrase appended to image prompt",
+          "studio ghibli" in values["image_prompt"].lower(),
+          values["image_prompt"])
+    check("style phrase appended to video prompt",
+          "studio ghibli" in values["video_prompt"].lower(),
+          values["video_prompt"])
+
+
+def test_scene_count_selection() -> None:
+    section("director: scene-count selection")
+    cfg = base_config()
+    director = Director(cfg)
+    scenes = [{"image_prompt": "s1"}, {"image_prompt": "s2"}, {"image_prompt": "s3"}]
+    selected, base_idx = director._select_scenes(scenes, scene_count=2)
+    check("scene count returns first N scenes",
+          [s["image_prompt"] for s in selected] == ["s1", "s2"],
+          repr([s["image_prompt"] for s in selected]))
+    check("scene count keeps base index at zero",
+          base_idx == 0, str(base_idx))
+
+    selected, base_idx = director._select_scenes(scenes, only_scene=1, scene_count=2)
+    check("scene range starts at the chosen scene",
+          [s["image_prompt"] for s in selected] == ["s2", "s3"],
+          repr([s["image_prompt"] for s in selected]))
+    check("scene range preserves the start index",
+          base_idx == 1, str(base_idx))
 
 
 def test_custom_inline_dialogue() -> None:
@@ -144,6 +229,79 @@ def test_custom_inline_dialogue() -> None:
     parsed2 = sw._parse_custom(text2)
     check("no dialogue when no characters declared",
           parsed2["scenes"][0]["dialogue"] is None)
+
+
+def test_custom_story_multiline_dialogue() -> None:
+    section("storywriter: multi-line dialogue preserved (not truncated)")
+    cfg = base_config()
+    sw = StoryWriter(cfg, BASE)
+    text = (
+        "IMAGE: banquet hall at night, warm candlelight\n"
+        "VIDEO: slow dolly-in\n"
+        "CHARACTERS: ELIZA, ANNA\n"
+        "DIALOGUE: ELIZA: (Smiling sweetly) Oh! You know what they say.\n"
+        "ANNA: Eliza, that's uncalled for.\n"
+        "ELIZA: Uncalled for? It's just comedy!\n"
+        "---\n"
+    )
+    parsed = sw._parse_custom(text)
+    sc = parsed["scenes"][0]
+    dlg = sc["dialogue"] or ""
+    check("all 3 dialogue lines kept", dlg.count("\n") == 2, repr(dlg))
+    check("first line kept",
+          dlg.startswith("ELIZA: (Smiling sweetly)"), repr(dlg))
+    check("middle line kept",
+          "ANNA: Eliza, that's uncalled for." in dlg, repr(dlg))
+    check("last line kept",
+          "Uncalled for? It's just comedy!" in dlg, repr(dlg))
+    check("all speakers added to characters",
+          "ELIZA" in sc["characters_present"]
+          and "ANNA" in sc["characters_present"],
+          repr(sc["characters_present"]))
+
+
+def test_normalize_preserves_dialogue() -> None:
+    section("storywriter: _normalize keeps dialogue + characters_present")
+    cfg = base_config()
+    sw = StoryWriter(cfg, BASE)
+    data = {"story_title": "Wedding", "scenes": [{
+        "id": 1,
+        "image_prompt": "img",
+        "video_prompt": "vid",
+        "characters_present": ["ELIZA", "ANNA"],
+        "dialogue": "ELIZA: Hello there.",
+        "audio_lines": "crowd murmur",
+    }]}
+    out = sw._normalize(data)
+    sc = out["scenes"][0]
+    check("dialogue preserved", sc.get("dialogue") == "ELIZA: Hello there.",
+          repr(sc.get("dialogue")))
+    check("characters_present preserved",
+          sc.get("characters_present") == ["ELIZA", "ANNA"],
+          repr(sc.get("characters_present")))
+    out2 = sw._normalize({"scenes": [{"id": 1, "image_prompt": "i",
+                                       "video_prompt": "v"}]})
+    check("missing dialogue normalized to None",
+          out2["scenes"][0].get("dialogue") is None)
+
+
+def test_narrate_dialogue_text_and_prompt_guard() -> None:
+    section("narrate: per-line speaker strip + genre/prompt guard")
+    from narrate import _dialogue_text, _is_prompt_text
+    dlg = ("ELIZA: (Smiling) Oh! What a night.\n"
+           "ANNA: Eliza, that's uncalled for.\n"
+           "ELIZA: Uncalled for? It's just comedy!")
+    out = _dialogue_text(dlg)
+    check("every speaker prefix stripped, lines joined",
+          out == "(Smiling) Oh! What a night. Eliza, that's uncalled for. "
+                 "Uncalled for? It's just comedy!",
+          repr(out))
+    cfg = {"story": {"genre": "this girl standing still in the banquet hall"}}
+    check("prompt guard flags genre-like text",
+          _is_prompt_text("this girl standing still in the banquet hall and "
+                          "making fun of her friends", cfg) is True)
+    check("prompt guard passes real dialogue",
+          _is_prompt_text("Oh! What a lovely evening.", cfg) is False)
 
 
 def test_fallback_story_schema() -> None:
@@ -320,6 +478,7 @@ def test_consistency_report() -> None:
         lib.refs_dir = os.path.join(tmp, "refs")
         os.makedirs(lib.refs_dir, exist_ok=True)
         lib.library_path = os.path.join(tmp, "characters.json")
+        lib.library = []  # isolate from the real characters library
         lib.ensure_locks(story, generate_refs=False)
         red = next(l for l in lib.library if l["name"] == "Red Umbrella")
         full_desc = red["visual_descriptor"]
@@ -389,6 +548,244 @@ def test_director_scene_values() -> None:
 
 
 # --------------------------------------------------------------------------- #
+#  director: 1-second chunked rendering (high FPS + high res without hangs)
+# --------------------------------------------------------------------------- #
+def test_chunk_plan_and_chunk_scene_values() -> None:
+    section("director: chunk plan + chunk scene values")
+    import director as director_mod
+    cfg = base_config()
+    cfg["story"]["seconds_per_scene"] = 8
+    cfg["render"]["chunked"] = True
+    cfg["render"]["chunk_seconds"] = 1.0
+    d = director_mod.Director(cfg)
+    d.chars = type("FakeLib", (), {"enabled": False})()
+
+    check("8s scene -> 8 chunks", d._chunk_plan(8.0) == 8, str(d._chunk_plan(8.0)))
+    check("2.5s scene -> 3 chunks", d._chunk_plan(2.5) == 3, str(d._chunk_plan(2.5)))
+    check("1s scene -> 1 chunk", d._chunk_plan(1.0) == 1, str(d._chunk_plan(1.0)))
+
+    vals = d._scene_values({"image_prompt": "x", "video_prompt": "y"}, 0,
+                           duration=1.0, chunk_idx=2, chunk_total=8)
+    check("chunk duration in values", vals["video_duration"] == 1.0,
+          str(vals["video_duration"]))
+    check("chunk save prefix",
+          vals["save_prefix"] == "director/scene_00_c02",
+          vals["save_prefix"])
+
+    full = d._scene_values({"image_prompt": "x", "video_prompt": "y"}, 0)
+    check("full scene duration from config", full["video_duration"] == 8.0,
+          str(full["video_duration"]))
+    check("full scene prefix", full["save_prefix"] == "director/scene_00",
+          full["save_prefix"])
+
+
+def test_apply_chain_image() -> None:
+    section("director: frame-chaining workflow rewiring")
+    import director as director_mod
+    cfg = base_config()
+    d = director_mod.Director(cfg)
+
+    class FakeComfy:
+        def upload_image(self, path):
+            return {"name": "chain.png", "subfolder": "", "type": "input"}
+
+    d.comfy = FakeComfy()
+    wf = json.loads(json.dumps(d.template))  # deep copy of the real template
+    out = d._apply_chain_image(wf, "dummy.png")
+
+    load_nodes = [n for n in out.values() if n.get("class_type") == "LoadImage"]
+    check("LoadImage node added", len(load_nodes) == 1, repr(load_nodes))
+    check("LoadImage filename set",
+          bool(load_nodes) and load_nodes[0]["inputs"]["image"] == "chain.png",
+          repr(load_nodes))
+    # The video first-frame chain (node 26) now points at the LoadImage node.
+    rewired = out["26"]["inputs"]["input"]
+    check("node 26 rewired away from keyframe",
+          rewired[0] != "11" and str(rewired[0]).isdigit(), repr(rewired))
+    # The T2I keyframe subgraph (nodes 1..11) is dropped for continuation chunks.
+    check("T2I keyframe subgraph removed",
+          all(str(k) not in out for k in range(1, 12)),
+          "nodes 1-11 still present")
+
+
+def test_extract_last_frame() -> None:
+    section("director: extract exact last frame of a chunk")
+    import director as director_mod
+    import numpy as np
+    import imageio.v2 as imageio
+    cfg = base_config()
+    d = director_mod.Director(cfg)
+    tmp = tempfile.mkdtemp(prefix="chunk_last_")
+    try:
+        vid = os.path.join(tmp, "c.mp4")
+        frames = [np.full((64, 64, 3), i * 40, dtype=np.uint8) for i in range(5)]
+        imageio.mimsave(vid, frames, fps=5)
+        d.output_dir = tmp
+        png = d._extract_last_frame(vid, 0, 0)
+        check("last frame png produced", png and os.path.exists(png), repr(png))
+        if png:
+            last = imageio.imread(png)
+            check("png holds the final frame (value 160)",
+                  abs(int(np.mean(last)) - 160) <= 5,
+                  str(int(np.mean(last))))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_render_scene_chunked() -> None:
+    section("director: chunked render orchestration (3s scene -> 3x1s)")
+    import director as director_mod
+    cfg = base_config()
+    cfg["story"]["seconds_per_scene"] = 3
+    cfg["render"]["chunked"] = True
+    cfg["render"]["chunk_seconds"] = 1.0
+    cfg["render"]["chain_frames"] = True
+    cfg["qc"]["enabled"] = True
+    d = director_mod.Director(cfg)
+    d.chars = type("FakeLib", (), {"enabled": False})()
+
+    calls = []
+
+    def fake_segment(scene, scene_idx, duration, chunk_idx, chunk_total,
+                     chain_image):
+        calls.append((duration, chunk_idx, chunk_total, chain_image))
+        return (f"output/scene_{scene_idx:02d}_c{chunk_idx:02d}.mp4", 1,
+                QCResult(passed=True, metrics={"motion_std": 1.0}),
+                ("ip", "vp"))
+
+    def fake_extract(path, scene_idx, chunk_idx):
+        return (f"output/_chunk_frames/"
+                f"scene_{scene_idx:02d}_c{chunk_idx:02d}_last.png")
+
+    def fake_stitch(scene_idx, chunk_paths):
+        return f"output/scene_{scene_idx:02d}.mp4"
+
+    d._render_segment = fake_segment
+    d._extract_last_frame = fake_extract
+    d._stitch_chunks = fake_stitch
+
+    scene = {"image_prompt": "p", "video_prompt": "v"}
+    path, attempts, qc_result, locked = d.render_scene(scene, 2)
+
+    check("3 segments requested", len(calls) == 3, repr(calls))
+    check("each segment is 1s", all(c[0] == 1.0 for c in calls),
+          repr([c[0] for c in calls]))
+    check("chunk indices 0..2", [c[1] for c in calls] == [0, 1, 2],
+          repr([c[1] for c in calls]))
+    check("first segment starts from keyframe (no chain)",
+          calls[0][3] is None)
+    check("later segments chain from previous last frame",
+          calls[1][3] is not None and calls[2][3] is not None)
+    check("stitched scene path returned",
+          path == "output/scene_02.mp4", repr(path))
+    check("attempts summed across segments", attempts == 3, str(attempts))
+    check("aggregate qc marks chunked",
+          qc_result.metrics.get("chunked") is True,
+          repr(qc_result.metrics))
+    check("aggregate qc passed (all segments pass)",
+          qc_result.passed is True, repr(qc_result.reasons))
+
+
+def test_render_scene_chunked_fallback_to_single() -> None:
+    section("director: chunking off -> single-shot render")
+    import director as director_mod
+    cfg = base_config()
+    cfg["story"]["seconds_per_scene"] = 8
+    cfg["render"]["chunked"] = False
+    d = director_mod.Director(cfg)
+    d.chars = type("FakeLib", (), {"enabled": False})()
+
+    calls = []
+
+    def fake_segment(scene, scene_idx, duration, chunk_idx, chunk_total,
+                     chain_image):
+        calls.append((duration, chunk_idx, chunk_total, chain_image))
+        return (f"output/scene_{scene_idx:02d}.mp4", 1,
+                QCResult(passed=True, metrics={"motion_std": 1.0}),
+                ("ip", "vp"))
+
+    d._render_segment = fake_segment
+    d._stitch_chunks = lambda scene_idx, chunk_paths: ""
+
+    path, attempts, qc_result, locked = d.render_scene(
+        {"image_prompt": "p", "video_prompt": "v"}, 0)
+
+    check("single segment render", len(calls) == 1, repr(calls))
+    check("segment carries full scene duration", calls[0][0] == 8.0,
+          str(calls[0][0]))
+    check("no chunk index", calls[0][1] is None, repr(calls[0][1]))
+    check("result is the single clip",
+          path == "output/scene_00.mp4", repr(path))
+    check("no chunk aggregate", qc_result is None or not
+          qc_result.metrics.get("chunked"))
+
+
+def test_effective_scene_seconds_video_length() -> None:
+    section("director: total video length distributes across scenes")
+    import director as director_mod
+    cfg = base_config()
+    d = director_mod.Director(cfg)
+    check("no video_length -> seconds_per_scene",
+          d._effective_scene_seconds() == 5.0,
+          str(d._effective_scene_seconds()))
+    cfg["story"]["video_length"] = 60
+    cfg["story"]["scenes"] = 2
+    d2 = director_mod.Director(cfg)
+    check("60s total / 2 scenes -> 30s per scene",
+          d2._effective_scene_seconds() == 30.0,
+          str(d2._effective_scene_seconds()))
+    vals = d2._scene_values({"image_prompt": "x", "video_prompt": "y"}, 0)
+    check("scene values carry distributed duration",
+          vals["video_duration"] == 30.0, str(vals["video_duration"]))
+
+
+def test_segment_cap_prevents_oom() -> None:
+    section("director: max_segment_seconds hard cap (OOM protection)")
+    import director as director_mod
+    cfg = base_config()
+    cfg["story"]["seconds_per_scene"] = 60
+    cfg["render"]["chunked"] = True
+    cfg["render"]["chunk_seconds"] = 30.0       # user's broken setting
+    cfg["render"]["max_segment_seconds"] = 1.0   # safety cap
+    d = director_mod.Director(cfg)
+    d.chars = type("FakeLib", (), {"enabled": False})()
+
+    check("60s scene -> 60 segments when capped at 1s",
+          d._chunk_plan(60.0) == 60, str(d._chunk_plan(60.0)))
+    check("chunk_seconds=30 ignored: effective segment = 1s",
+          d._segment_seconds() == 1.0, str(d._segment_seconds()))
+
+    calls = []
+
+    def fake_segment(scene, scene_idx, duration, chunk_idx, chunk_total,
+                     chain_image):
+        calls.append((duration, chunk_idx, chunk_total, chain_image))
+        return (f"output/scene_{scene_idx:02d}_c{chunk_idx:02d}.mp4", 1,
+                QCResult(passed=True, metrics={"motion_std": 1.0}),
+                ("ip", "vp"))
+
+    def fake_extract(path, scene_idx, chunk_idx):
+        return (f"output/_chunk_frames/"
+                f"scene_{scene_idx:02d}_c{chunk_idx:02d}_last.png")
+
+    d._render_segment = fake_segment
+    d._extract_last_frame = fake_extract
+    d._stitch_chunks = lambda scene_idx, chunk_paths: \
+        f"output/scene_{scene_idx:02d}.mp4"
+
+    path, attempts, qc_result, locked = d.render_scene(
+        {"image_prompt": "p", "video_prompt": "v"}, 0)
+
+    check("60 segments rendered", len(calls) == 60, repr(len(calls)))
+    check("no generation longer than the 1s cap",
+          all(c[0] <= 1.0 + 1e-6 for c in calls),
+          repr([c[0] for c in calls]))
+    check("aggregate qc marks chunked",
+          qc_result.metrics.get("chunked") is True,
+          repr(qc_result.metrics))
+
+
+# --------------------------------------------------------------------------- #
 #  narrate.make_narration voice selection
 # --------------------------------------------------------------------------- #
 def test_narrate_voice_selection() -> None:
@@ -445,8 +842,8 @@ def test_narrate_voice_selection() -> None:
         check("mp3 for scene 1",
               os.path.exists(os.path.join(tmp, "_narration", "scene_01.mp3")))
         check("scene 1 result is a path", bool(out[0]))
-        check("scene 2 (audio line) also synthesized",
-              bool(out[1]) and "scene_02" in out[1], repr(out[1]))
+        check("scene 2 (audio line only) NOT spoken",
+              out[1] is None, repr(out[1]))
         check("scene 3 result None (no text)", out[2] is None)
     finally:
         if _orig_edge is None:
@@ -462,6 +859,9 @@ def main() -> None:
     print("Character-lock unit tests (offline, no GPU, no network)")
     test_custom_story_parsing()
     test_custom_inline_dialogue()
+    test_custom_story_multiline_dialogue()
+    test_normalize_preserves_dialogue()
+    test_narrate_dialogue_text_and_prompt_guard()
     test_fallback_story_schema()
     test_helpers()
     test_extract_characters()
@@ -470,6 +870,13 @@ def main() -> None:
     test_scene_blocks_and_voice()
     test_consistency_report()
     test_director_scene_values()
+    test_chunk_plan_and_chunk_scene_values()
+    test_apply_chain_image()
+    test_extract_last_frame()
+    test_render_scene_chunked()
+    test_render_scene_chunked_fallback_to_single()
+    test_effective_scene_seconds_video_length()
+    test_segment_cap_prevents_oom()
     test_narrate_voice_selection()
     print(f"\n{'='*60}\nPASS: {PASS}   FAIL: {FAIL}")
     if FAILURES:

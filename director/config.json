@@ -6,49 +6,54 @@
   },
   "llm": {
     "backend": "ollama",
-    "ollama_model": "qwen3:4b",
+    "ollama_model": "gemma4:latest",
     "ollama_url": "http://127.0.0.1:11434",
     "openai_base_url": "http://127.0.0.1:1234/v1",
     "openai_api_key": "not-needed",
-    "openai_model": "qwen3-14b",
-    "temperature": 0.8,
-    "max_tokens": 2048,
-    "max_attempts": 5,
+    "openai_model": "gemma4:latest",
+    "temperature": 1,
+    "max_tokens": 192000,
+    "max_attempts": 2,
     "keep_alive": "30m"
   },
   "story": {
     "custom_story_file": "custom_story.txt",
-    "genre": "The Red Umbrella  Logline: A lost red umbrella tumbles through a rainy city, witnessing fleeting moments of life, until it’s found by a child who gives it a loving, unexpected new home.",
-    "scenes": 24,
-    "seconds_per_scene": 6,
-    "character": "a slim and smart athletic body blue eyes toon gir."
+    "genre": "this girl standing still in the banquet hall and making fun of her unmarried friends to feel them jealous of her marriage. ",
+    "scenes": 12,
+    "seconds_per_scene": 10,
+    "character": "",
+    "video_length": 0
   },
   "render": {
-    "video_width": 1280,
-    "video_height": 720,
-    "fps": 30,
-    "image_width": 1920,
-    "image_height": 1080,
-    "image_steps": 40,
+    "video_width": 640,
+    "video_height": 480,
+    "fps": 25,
+    "image_width": 1280,
+    "image_height": 720,
+    "image_steps": 25,
     "video_motion_boost": "",
     "camera_move": "auto",
-    "video_base_strength": 1,
+    "video_base_strength": 0.55,
     "video_base_sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0",
-    "video_refine_strength": 1,
-    "video_refine_sigmas": "0.85, 0.7250, 0.4219, 0.0"
+    "video_refine_strength": 0.6,
+    "video_refine_sigmas": "0.85, 0.7250, 0.4219, 0.0",
+    "chunked": true,
+    "chunk_seconds": 1,
+    "max_segment_seconds": 1,
+    "chain_frames": true
   },
   "qc": {
-    "enabled": true,
-    "max_attempts": 6,
-    "duration_tolerance_seconds": 2,
-    "min_duration_seconds": 10,
-    "max_black_frames_pct": 100,
-    "max_frozen_frames_pct": 100,
-    "min_motion_std": 8,
-    "min_frames": 40
+    "enabled": false,
+    "max_attempts": 3,
+    "duration_tolerance_seconds": 0.3,
+    "min_duration_seconds": 0.7,
+    "max_black_frames_pct": 21,
+    "max_frozen_frames_pct": 20,
+    "min_motion_std": 5,
+    "min_frames": 25
   },
   "director": {
-    "auto_continue": true,
+    "auto_continue": false,
     "manual_review": false,
     "output_dir": "output",
     "workflow_template": "workflow_scene_template.json",
@@ -67,6 +72,6 @@
     "auto_generate_refs": true,
     "library_dir": "characters",
     "ref_template": "workflow_scene_template.json",
-    "consistency_threshold": 0.85
+    "consistency_threshold": 1
   }
 }

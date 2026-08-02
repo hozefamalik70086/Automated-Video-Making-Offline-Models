@@ -81,7 +81,9 @@ class QualityChecker:
                 yield gray
 
     # ------------------------------------------------------------- analyze
-    def analyze(self, path: str, expected_duration: float) -> QCResult:
+    def analyze(self, path: str, expected_duration: float,
+                min_frames: Optional[int] = None,
+                min_duration_seconds: Optional[float] = None) -> QCResult:
         cfg = self.cfg
         probe = self.probe(path)
         if probe is None:
@@ -96,10 +98,18 @@ class QualityChecker:
         if abs(probe["duration"] - expected_duration) > tol:
             reasons.append(f"duration {probe['duration']:.2f}s != "
                            f"{expected_duration:.2f}s (±{tol})")
-        if probe["duration"] < float(cfg.get("min_duration_seconds", 4.0)):
+        if min_duration_seconds is None:
+            min_duration_seconds = float(cfg.get("min_duration_seconds", 4.0))
+        if probe["duration"] < min_duration_seconds:
             reasons.append(f"duration {probe['duration']:.2f}s too short")
-        if probe["frames"] < int(cfg.get("min_frames", 40)):
-            reasons.append(f"only {probe['frames']} frames")
+        # Frame-count check. `min_frames` overrides the config threshold so
+        # short 1-second chunk clips (25-61 frames) aren't rejected by a
+        # threshold tuned for ~5s clips.
+        if min_frames is None:
+            min_frames = int(cfg.get("min_frames", 40))
+        if probe["frames"] < min_frames:
+            reasons.append(f"only {probe['frames']} frames "
+                           f"(< {min_frames})")
 
         # frame-level checks
         diffs: list[float] = []

@@ -113,6 +113,14 @@
   .empty{color:var(--dim); font-style:italic; padding:14px 4px}
   /* ---------- misc ---------- */
   .note{background:rgba(88,166,255,.08); border:1px solid rgba(88,166,255,.25); border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--dim)}
+  /* ---------- story writer ---------- */
+  .sw-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px}
+  .sw-tab{background:var(--bg3); color:var(--dim); border:1px solid var(--line); border-radius:8px; padding:6px 13px; font-size:12.5px; cursor:pointer; transition:.15s}
+  .sw-tab:hover{color:var(--txt); border-color:var(--accent)}
+  .sw-tab.active{background:var(--accent); color:#04121f; border-color:var(--accent); font-weight:700}
+  .sw-panel{display:none}
+  .sw-panel.active{display:block}
+  .sw-note{font-size:12px; color:var(--dim); margin-top:5px; line-height:1.45; background:rgba(230,180,80,.08); border-left:3px solid #e6b450; padding:5px 9px; border-radius:5px}
   .hidden{display:none}
   details{border:1px solid var(--line); border-radius:8px; background:var(--bg2); padding:10px 14px; margin-top:12px}
   summary{cursor:pointer; font-weight:600; font-size:13.5px}
@@ -173,6 +181,7 @@
     <button data-tab="tab-qc">✅ QC &amp; Review</button>
     <button data-tab="tab-director">⚙️ Director &amp; ComfyUI</button>
     <button data-tab="tab-custom">✍️ Custom Story</button>
+    <button data-tab="tab-storywriter">📝 Story Writer</button>
     <button data-tab="tab-run">▶️ Run &amp; Monitor</button>
   </nav>
 
@@ -195,7 +204,11 @@
           <label>Seconds per scene <span class="hint">custom — type any value (1–60)</span></label>
           <input type="number" data-path="story.seconds_per_scene" min="1" max="60" step="1">
         </div>
-        <div class="note">More scenes and longer seconds = longer render time (roughly 3–4 min per scene on the RTX 4080). LTX-2.3 is most stable around 5–8 seconds per scene; very long clips (30–60s) need more VRAM and take several minutes each.</div>
+        <div class="field">
+          <label>Total video length <span class="hint">s — when set, each scene = length ÷ scenes (scenes adjusted automatically). Leave 0 to use "Seconds per scene"</span></label>
+          <input type="number" data-path="story.video_length" min="0" max="600" step="5">
+        </div>
+        <div class="note">Want a 30 or 60 s video? Set the TOTAL length here and the pipeline divides it across your scenes automatically (e.g. 60 s ÷ 2 scenes = 30 s each). Every scene is then rendered as small 1-second chunks that are joined right after creation, so long videos render without running the GPU out of memory.</div>
         <div class="field">
           <label>Custom story file <span class="hint">optional bypass of the LLM</span></label>
           <input type="text" data-path="story.custom_story_file" placeholder="custom_story.txt">
@@ -266,18 +279,18 @@
     <div class="grid">
       <div class="card">
         <h3>Video output</h3>
-        <p class="desc">Final video resolution and frame rate.</p>
+        <p class="desc">Final video resolution and frame rate. Default is 1080×1920 (9:16 vertical — Reels / TikTok / Shorts).</p>
         <div class="field">
           <label>Width <span class="hint">output px</span></label>
           <div class="range-row">
-            <input type="range" data-path="render.video_width" min="256" max="1280" step="8">
+            <input type="range" data-path="render.video_width" min="256" max="1920" step="8">
             <output></output>
           </div>
         </div>
         <div class="field">
           <label>Height</label>
           <div class="range-row">
-            <input type="range" data-path="render.video_height" min="144" max="720" step="8">
+            <input type="range" data-path="render.video_height" min="256" max="1920" step="8">
             <output></output>
           </div>
         </div>
@@ -288,7 +301,29 @@
             <output></output>
           </div>
         </div>
-        <div class="note">Rendering at 640×360 ≈ 2.5 min/scene on the RTX 4080 laptop. Higher res = slower but crisper.</div>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Chunked rendering (1s segments)</div>
+            <div class="t-sub">render each scene as N×1s clips and join them after creation — avoids OOM / hangs at high FPS &amp; resolution</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="render.chunked"><span class="slider"></span></label>
+        </div>
+        <div class="field">
+          <label>Segment length <span class="hint">s — preferred length of each render chunk</span></label>
+          <input type="number" data-path="render.chunk_seconds" min="0.5" max="5" step="0.5">
+        </div>
+        <div class="field">
+          <label>Max segment length <span class="hint">s — hard cap; one generation never exceeds this (OOM protection)</span></label>
+          <input type="number" data-path="render.max_segment_seconds" min="0.5" max="10" step="0.5">
+        </div>
+        <div class="toggle">
+          <div>
+            <div class="t-label">Chain frames between segments</div>
+            <div class="t-sub">start each segment from the previous segment's last frame for continuous motion</div>
+          </div>
+          <label class="switch"><input type="checkbox" data-path="render.chain_frames"><span class="slider"></span></label>
+        </div>
+        <div class="note">The pipeline uses the SMALLER of "Segment length" and "Max segment length", so a long video can never submit one huge generation — that was the cause of ComfyUI stopping / "not enough memory". At 1080×1920 keep 1s; raise Max only if you lower resolution or have VRAM to spare.</div>
       </div>
 
       <div class="card">
@@ -304,7 +339,7 @@
         <div class="field">
           <label>Image height</label>
           <div class="range-row">
-            <input type="range" data-path="render.image_height" min="512" max="1080" step="8">
+            <input type="range" data-path="render.image_height" min="512" max="1920" step="8">
             <output></output>
           </div>
         </div>
@@ -518,7 +553,7 @@
       </div>
       <div class="card">
         <h3>Audio / narration</h3>
-        <p class="desc">Post-processor (runs after the film is stitched). Synthesizes speech from each scene's audio line, muxes it into the video, and optionally burns subtitles. Requires the optional <code>edge-tts</code> package; failures never break the base pipeline.</p>
+        <p class="desc">Post-processor (runs after the film is stitched). Synthesizes speech from each scene's <b>Dialogue</b> (ambient "audio" lines are sound cues and are never spoken), muxes it into the video, and optionally burns subtitles. Requires the optional <code>edge-tts</code> package; failures never break the base pipeline.</p>
         <div class="toggle">
           <div>
             <div class="t-label">Enable narration</div>
@@ -608,6 +643,29 @@
     </div>
   </section>
 
+  <!-- ================= STORY WRITER ================= -->
+  <section class="panel" id="tab-storywriter">
+    <div class="section-title">Story Writer <span class="sub">edit the generated story, one scene per tab</span></div>
+    <div class="card wide">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px">
+        <span style="font-size:13px; font-weight:600">Story title:</span>
+        <input type="text" id="sw-title" style="flex:1; min-width:220px; background:var(--bg3); color:var(--txt); border:1px solid var(--line); border-radius:7px; padding:8px 10px; font-size:13.5px" placeholder="Story title…">
+        <div class="btn-row">
+          <button class="btn ghost" id="btn-sw-load">🔄 Load from output</button>
+          <button class="btn green" id="btn-sw-save">💾 Save story</button>
+          <button class="btn" id="btn-sw-generate" title="Ask the LLM to write a NEW story from your genre / premise (set in the Story & LLM tab): it creates all scene prompts (image, video, characters, dialogue, audio) and stores them here + in custom_story.txt so the next run uses them. Replaces the current scenes (asks first).">✨ Generate story with LLM</button>
+          <button class="btn ghost" id="btn-sw-complete" title="Keep the current scenes; only fill missing details (a distinct motion video prompt + ambient audio line) for scenes where the video prompt is empty or identical to the image prompt.">🪄 Fill missing details</button>
+        </div>
+      </div>
+      <p class="desc" id="sw-status">Shows the last generated story (LLM or custom) from <code>output/story.json</code> (falls back to parsing <code>custom_story.txt</code>). Edit any scene, then Save — it is written back to <code>story.json</code> and exported to <code>custom_story.txt</code> so the next run uses your version.</p>
+      <div id="sw-progress" style="display:none; margin-top:10px; font-size:13px; line-height:1.55; color:var(--txt)"></div>
+    </div>
+    <div class="card wide">
+      <div class="sw-tabs" id="sw-tabs"></div>
+      <div id="sw-scene"></div>
+    </div>
+  </section>
+
   <!-- ================= RUN / MONITOR ================= -->
   <section class="panel" id="tab-run">
     <div class="section-title">Run &amp; Monitor <span class="sub">start / stop / watch the pipeline</span></div>
@@ -615,7 +673,12 @@
     <div class="card wide">
       <div class="btn-row" style="margin-bottom:14px">
         <button class="btn green" id="btn-run">▶ Run full film</button>
-        <button class="btn ghost" id="btn-run-scene">▶ Render scene #<input type="number" id="scene-num" value="1" min="1" max="12" style="width:56px; margin:0 2px; background:var(--bg3); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:3px 6px"></button>
+        <div class="btn ghost" id="btn-run-scene" style="display:flex; align-items:center; gap:6px; padding:0 10px">
+          <span>▶ Render</span>
+          <input type="number" id="scene-count" value="1" min="1" max="30" style="width:56px; background:var(--bg3); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:3px 6px">
+          <span>scene(s) from #</span>
+          <input type="number" id="scene-num" value="1" min="1" max="30" style="width:56px; background:var(--bg3); color:var(--txt); border:1px solid var(--line); border-radius:6px; padding:3px 6px">
+        </div>
         <button class="btn red" id="btn-stop">⏹ Stop</button>
         <span style="flex:1"></span>
         <button class="btn ghost" id="btn-save">💾 Save config</button>
@@ -686,21 +749,26 @@ const DEFAULTS = {
     genre: "cinematic sci-fi adventure",
     scenes: 8,
     seconds_per_scene: 6,
+    video_length: 0,
     character: ""
   },
   render: {
-    video_width: 640,
-    video_height: 360,
-    fps: 25,
+    video_width: 1080,
+    video_height: 1920,
+    fps: 30,
     image_width: 1080,
-    image_height: 720,
+    image_height: 1920,
     image_steps: 20,
     video_motion_boost: "",
     camera_move: "auto",
     video_base_strength: 0.7,
     video_base_sigmas: "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0",
     video_refine_strength: 1.0,
-    video_refine_sigmas: "0.85, 0.7250, 0.4219, 0.0"
+    video_refine_sigmas: "0.85, 0.7250, 0.4219, 0.0",
+    chunked: true,
+    chunk_seconds: 1.0,
+    max_segment_seconds: 1.0,
+    chain_frames: true
   },
   qc: {
     enabled: true,
@@ -854,6 +922,240 @@ $("#btn-story-save").addEventListener("click", async()=>{
   }
 });
 
+// Load the current custom story file into the editor (so what you see in the
+// editor matches what the server actually uses as the story / premise).
+async function loadCustomStoryEditor(){
+  try{
+    const r = await fetch("/api/custom_story");
+    const d = await r.json().catch(()=>({}));
+    if(d && d.text && !$("#custom-story").value) $("#custom-story").value = d.text;
+  }catch(e){}
+}
+
+/* ================= story writer ================= */
+let storyScenes = [];
+let currentSWScene = 1;
+let swDirty = false;
+let wasRunning = false;
+
+function swTemplate(){
+  return `
+  <div class="field"><label>Image prompt <span class="hint">first frame / keyframe</span></label>
+    <textarea data-sw="image_prompt" placeholder="Describe the first frame of the scene…"></textarea></div>
+  <div class="field"><label>Video prompt <span class="hint">continuous motion for the clip</span></label>
+    <textarea data-sw="video_prompt" placeholder="Describe camera move + motion…"></textarea>
+    <div class="sw-note" data-sw-note="video_same" style="display:none">⚠ Same as image prompt — click <b>✨ Complete with LLM</b> to generate a distinct motion prompt.</div></div>
+  <div class="field"><label>Characters present <span class="hint">comma separated</span></label>
+    <input type="text" data-sw="characters_present" placeholder="Red Umbrella, Little Girl"></div>
+  <div class="field"><label>Dialogue <span class="hint">"Name: line"</span></label>
+    <input type="text" data-sw="dialogue" placeholder="e.g. Name: line">
+    <div class="sw-note" data-sw-note="dialogue_empty" style="display:none">ℹ️ Empty — normal for scenes without spoken dialogue. Add one here if you want a voice line.</div></div>
+  <div class="field"><label>Audio (ambient sound cues) <span class="hint">not spoken — background sound only</span></label>
+    <textarea data-sw="audio_lines" placeholder="e.g. wind, birds, footsteps…"></textarea>
+    <div class="sw-note" data-sw-note="audio_empty" style="display:none">ℹ️ Ambient only — never read aloud. Only <b>Dialogue</b> is spoken as narration.</div></div>`;
+}
+
+function buildStoryTabs(count){
+  const tabs = $("#sw-tabs"); tabs.innerHTML = "";
+  for(let i=1;i<=count;i++){
+    const b = document.createElement("button");
+    b.className = "sw-tab"+(i===currentSWScene?" active":"");
+    b.textContent = "Scene "+i;
+    b.dataset.scene = i;
+    b.addEventListener("click", ()=>showSWScene(i));
+    tabs.appendChild(b);
+  }
+}
+function buildSceneEditors(count){
+  const box = $("#sw-scene"); box.innerHTML = "";
+  for(let i=1;i<=count;i++){
+    const d = document.createElement("div");
+    d.className = "sw-panel"+(i===currentSWScene?" active":"");
+    d.id = "sw-scene-"+i;
+    d.innerHTML = swTemplate();
+    d.querySelectorAll("[data-sw]").forEach(el=>el.addEventListener("input",()=>{ swDirty=true; updateSWNotes(d); }));
+    box.appendChild(d);
+  }
+}
+function fillSceneEditors(){
+  for(let i=1;i<=storyScenes.length;i++){
+    const s = storyScenes[i-1]||{};
+    const root = $("#sw-scene-"+i); if(!root) continue;
+    root.querySelector('[data-sw="image_prompt"]').value = s.image_prompt||"";
+    root.querySelector('[data-sw="video_prompt"]').value = s.video_prompt||"";
+    root.querySelector('[data-sw="characters_present"]').value = Array.isArray(s.characters_present)? s.characters_present.join(", ") : (s.characters_present||"");
+    root.querySelector('[data-sw="dialogue"]').value = s.dialogue||"";
+    root.querySelector('[data-sw="audio_lines"]').value = Array.isArray(s.audio_lines)? s.audio_lines.join("\n") : (s.audio_lines||"");
+    updateSWNotes(root);
+  }
+}
+function sceneFromDOM(root){
+  const chars = root.querySelector('[data-sw="characters_present"]').value.split(",").map(x=>x.trim()).filter(Boolean);
+  const audio = root.querySelector('[data-sw="audio_lines"]').value.split("\n").map(x=>x.trim()).filter(Boolean);
+  return {
+    image_prompt: root.querySelector('[data-sw="image_prompt"]').value,
+    video_prompt: root.querySelector('[data-sw="video_prompt"]').value,
+    characters_present: chars,
+    dialogue: root.querySelector('[data-sw="dialogue"]').value.trim()||null,
+    audio_lines: audio.length? audio.join("\n") : "",
+  };
+}
+function updateSWNotes(root){
+  const img = (root.querySelector('[data-sw="image_prompt"]').value||"").trim().toLowerCase();
+  const vid = (root.querySelector('[data-sw="video_prompt"]').value||"").trim().toLowerCase();
+  const same = !!vid && vid === img;
+  const vn = root.querySelector('[data-sw-note="video_same"]'); if(vn) vn.style.display = same? "block":"none";
+  const dia = (root.querySelector('[data-sw="dialogue"]').value||"").trim();
+  const dn = root.querySelector('[data-sw-note="dialogue_empty"]'); if(dn) dn.style.display = dia? "none":"block";
+  const aud = (root.querySelector('[data-sw="audio_lines"]').value||"").trim();
+  const an = root.querySelector('[data-sw-note="audio_empty"]'); if(an) an.style.display = aud? "none":"block";
+}
+function collectStoryScenes(){
+  const out = [];
+  for(let i=1;i<=storyScenes.length;i++){
+    const root = $("#sw-scene-"+i); if(!root) continue;
+    out.push(Object.assign({index:i}, sceneFromDOM(root)));
+  }
+  return out;
+}
+function showSWScene(i){
+  currentSWScene = i;
+  document.querySelectorAll("#sw-tabs .sw-tab").forEach(b=>b.classList.toggle("active", +b.dataset.scene===i));
+  document.querySelectorAll(".sw-panel").forEach(p=>p.classList.toggle("active", p.id==="sw-scene-"+i));
+}
+async function loadStory(){
+  const r = await api("/api/story");
+  const story = r.ok && r.data.story ? r.data.story : {};
+  $("#sw-title").value = story.story_title || "";
+  let scenes = Array.isArray(story.scenes) ? story.scenes : [];
+  if(!scenes.length){
+    const n = (config.story && config.story.scenes) || 1;
+    for(let i=1;i<=n;i++) scenes.push({index:i, image_prompt:"", video_prompt:"", characters_present:[], dialogue:null, audio_lines:""});
+  }
+  storyScenes = scenes;
+  buildStoryTabs(scenes.length);
+  buildSceneEditors(scenes.length);
+  fillSceneEditors();
+  swDirty = false;
+  $("#sw-status").textContent = scenes.length
+    ? ("Loaded "+scenes.length+" scene(s). Each scene has its own tab — edit and press Save. Saving writes output/story.json and exports custom_story.txt (next run uses your version, LLM bypassed).")
+    : ("No story found yet. Run the pipeline once to generate one, then press Load. Showing "+(config.story && config.story.scenes || 1)+" blank scene tab(s) per story.scenes.");
+}
+$("#btn-sw-load").addEventListener("click", ()=>{
+  if(swDirty && !confirm("Discard unsaved edits and reload from output?")) return;
+  loadStory();
+});
+$("#btn-sw-save").addEventListener("click", async ()=>{
+  const scenes = collectStoryScenes();
+  const story = { story_title: $("#sw-title").value.trim() || "Custom story", scenes };
+  if(!connected){ toast("Start dashboard_server.py to save the story","err"); return; }
+  const r = await api("/api/story", {method:"POST", body:JSON.stringify({story})});
+  if(r.ok){ toast("Story saved → output/story.json + custom_story.txt","ok"); swDirty=false; }
+  else toast("Save failed: "+(r.data.error||r.status),"err");
+});
+
+/* Story Writer LLM actions: GENERATE a fresh story from the genre, or
+   FILL missing details (distinct motion video prompt + audio) in the
+   current scenes. Both run on the server in a background thread and we
+   poll /api/story/complete_status for progress. */
+let swLLMTimer = null;
+function swEsc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function swButtons(){ return [$("#btn-sw-generate"), $("#btn-sw-complete")]; }
+async function cancelSWTask(){
+  const prog = $("#sw-progress");
+  prog.innerHTML = "⏹ Cancelling… (waiting for the current scene to finish, then it stops)";
+  await api("/api/story/cancel", {method:"POST", body:"{}"});
+}
+/* Attach the progress poller to the running server story task. Also used to
+   RE-ATTACH after a page reload, or when the user clicks Generate while a
+   task is already running server-side (previously a dead-end error). */
+function attachSWPoller(){
+  if(swLLMTimer) return;
+  const prog = $("#sw-progress");
+  const btns = swButtons();
+  btns.forEach(b=>{ if(b) b.disabled = true; });
+  prog.style.display = "block";
+  swLLMTimer = setInterval(async ()=>{
+    const st = await api("/api/story/complete_status");
+    const s = st.data || {};
+    let html = "";
+    if(s.warning) html += "<div style='color:#e6b450'>⚠ " + swEsc(s.warning) + "</div>";
+    if(s.model) html += "<div>Model: <code>" + swEsc(s.model) + "</code></div>";
+    if(s.state === "running"){
+      const label = s.mode === "generate" ? "Generating story" : "Completing";
+      html += "<div>⏳ " + label + " <b>" + s.done + "/" + s.total + "</b> scene(s) — " + swEsc(s.current||"") + "…</div>";
+      if(s.cancel){
+        html += "<div style='color:#e6b450'>⏹ Cancelling… waiting for the current scene</div>";
+      } else {
+        html += "<button id='btn-sw-cancel' style='margin-top:8px; padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:#3b2b2b; color:#e06c75; cursor:pointer'>✖ Cancel this task</button>";
+      }
+    } else if(s.state === "cancelled"){
+      html += "<div style='color:#e6b450'>⏹ Cancelled — the story was NOT overwritten. You can start again.</div>";
+    } else if(s.state === "done"){
+      if(s.mode === "generate"){
+        html += "<div>✅ Done — the LLM wrote a new <b>" + s.total + "</b>-scene story. Saved to output/story.json + custom_story.txt. The next run uses these scenes.</div>";
+      } else {
+        html += "<div>✅ Done — filled distinct motion prompts for <b>" + s.filled + "</b> scene(s). Saved to output/story.json + custom_story.txt.</div>";
+      }
+    }
+    if(s.errors && s.errors.length){
+      html += "<div style='color:#e06c75'>⚠ " + s.errors.length + " error(s):<br>" + s.errors.slice(0,8).map(swEsc).join("<br>") + (s.errors.length>8? "<br>…" : "") + "</div>";
+    }
+    prog.innerHTML = html || "…";
+    if(s.state !== "running"){
+      clearInterval(swLLMTimer); swLLMTimer = null;
+      btns.forEach(b=>{ if(b) b.disabled = false; });
+      if(s.state === "done"){ await loadStory(); }
+    }
+  }, 2000);
+}
+async function startLLMTask(path, body, startMsg){
+  if(!connected){ toast("Start dashboard_server.py to run this","err"); return; }
+  const prog = $("#sw-progress");
+  prog.style.display = "block";
+  prog.innerHTML = startMsg;
+  const r = await api(path, {method:"POST", body:JSON.stringify(body)});
+  if(!r.ok){
+    // 409 => a story task is already running on the server. Re-attach to it so
+    // its progress is visible and it can be cancelled (no more dead end).
+    const st = await api("/api/story/complete_status");
+    if((st.data||{}).state === "running"){ attachSWPoller(); return; }
+    prog.innerHTML = "❌ " + swEsc(r.data.error || r.data.message || r.status);
+    return;
+  }
+  attachSWPoller();
+}
+async function generateStory(){
+  const n = Math.max(1, Math.min(30, parseInt((config.story && config.story.scenes) || 24, 10) || 24));
+  let secs = parseFloat((config.story && config.story.seconds_per_scene) || 4) || 4;
+  const total = parseFloat((config.story && config.story.video_length) || 0) || 0;
+  if(total > 0){ secs = total / n; }   // total length distributes across scenes
+  secs = Math.max(1, Math.min(60, secs));
+  if(!confirm("Generate a NEW " + n + "-scene story from your genre / premise (set in the Story & LLM tab)? This REPLACES the current " + storyScenes.length + " scene(s). Continue?")) return;
+  await startLLMTask("/api/story/generate",
+    {params:{genre: (config.story && config.story.genre) || "", num_scenes: n, seconds: secs}},
+    "🪄 Asking the LLM to plan the story and its locations, then write a new " + n + "-scene story… (can take a few minutes)");
+}
+async function fillMissing(){
+  const scenes = collectStoryScenes();
+  const story = { story_title: $("#sw-title").value.trim() || "Custom story", scenes };
+  await startLLMTask("/api/story/complete", {story}, "🪄 Asking the LLM to fill missing details… (many scenes can take a few minutes)");
+}
+$("#btn-sw-generate").addEventListener("click", generateStory);
+$("#btn-sw-complete").addEventListener("click", fillMissing);
+/* Cancel button lives inside #sw-progress (re-rendered each poll) — use
+   event delegation so it keeps working across refreshes. */
+$("#sw-progress").addEventListener("click", (e)=>{
+  if(e.target && e.target.id === "btn-sw-cancel"){ cancelSWTask(); }
+});
+/* Re-attach to a story task still running on the server (e.g. after a page
+   reload or if a previous tab left one going) so progress is visible. */
+async function resumeSWTask(){
+  if(!connected) return;
+  const st = await api("/api/story/complete_status");
+  if((st.data||{}).state === "running"){ attachSWPoller(); }
+}
+
 /* ================= controller API ================= */
 async function api(path, opts={}){
   try{
@@ -887,15 +1189,16 @@ $("#btn-run").addEventListener("click", async()=>{
   collect();
   if(!connected){ toast("Start dashboard_server.py to run the pipeline","err"); return; }
   const r=await api("/api/run",{method:"POST",body:JSON.stringify({config, scene:null})});
-  if(r.ok) toast("Pipeline started","ok"); else toast("Run failed: "+(r.data.error||r.status),"err");
+  if(r.ok) toast("Pipeline started","ok"); else toast(r.data.message||("Run failed: "+(r.data.error||r.status)),"err");
   refresh();
 });
 $("#btn-run-scene").addEventListener("click", async()=>{
   collect();
   if(!connected){ toast("Start dashboard_server.py to run the pipeline","err"); return; }
   const scene=parseInt($("#scene-num").value||"1",10);
-  const r=await api("/api/run",{method:"POST",body:JSON.stringify({config, scene})});
-  if(r.ok) toast("Rendering scene #"+scene,"ok"); else toast("Run failed: "+(r.data.error||r.status),"err");
+  const sceneCount=parseInt($("#scene-count").value||"1",10);
+  const r=await api("/api/run",{method:"POST",body:JSON.stringify({config, scene, scene_count: sceneCount})});
+  if(r.ok) toast("Queuing " + sceneCount + " scene(s) starting at #" + scene,"ok"); else toast(r.data.message||("Run failed: "+(r.data.error||r.status)),"err");
   refresh();
 });
 $("#btn-stop").addEventListener("click", async()=>{
@@ -951,6 +1254,17 @@ async function refresh(){
   const c=$("#chip-run");
   c.classList.toggle("run",run);
   c.childNodes[1].textContent = run?"● Pipeline running":"● Pipeline idle";
+  // Reflect busy state on the Run/Render buttons so users don't click them
+  // while a pipeline is active (the server refuses concurrent runs with 409).
+  const btnRun=$("#btn-run"), btnScene=$("#btn-run-scene");
+  if(btnRun){ btnRun.disabled=run; btnRun.textContent=run?"⏳ Rendering… (pipeline busy)":"▶ Run full film"; }
+  if(btnScene){ btnScene.disabled=run; }
+  const sceneCountInput=$("#scene-count"), sceneNumInput=$("#scene-num");
+  if(sceneCountInput) sceneCountInput.disabled = run;
+  if(sceneNumInput) sceneNumInput.disabled = run;
+  // when a run finishes, refresh the Story Writer with the new LLM output
+  if(wasRunning && !run && !swDirty){ loadStory(); }
+  wasRunning = run;
 
   // console tail
   if(s.stdout && s.stdout.length!==lastLogLen){
@@ -1061,7 +1375,10 @@ function renderReport(report){
   else { applyConfig(DEFAULTS); updateBackendVisibility(); showOffline(true); }
   setInterval(()=>{$("#clock").textContent=new Date().toLocaleTimeString();},1000);
   if(connected){ setInterval(refresh,1500); refresh(); }
+  loadStory();
+  loadCustomStoryEditor();
   renderJSON();
+  resumeSWTask();
 })();
 </script>
 </body>

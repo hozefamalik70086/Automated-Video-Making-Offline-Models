@@ -6,11 +6,16 @@ Pipeline for a full production:
   2. Story               (custom_story.txt bypass  ->  LLM  ->  template fallback)
   3. Per scene:
        apply knobs (prompts + fresh seeds)
-       -> submit scene workflow to ComfyUI
-       -> wait for render
-       -> download the 5s clip
-       -> QUALITY CONTROL (duration / black / frozen / motion)
-       -> PASS   -> keep clip, move to next scene
+       -> render the scene — either as ONE clip (render.chunked=false) or as
+          N 1-second segments (render.chunked=true, default) which are joined
+          right after creation. Chunking keeps every individual LTX generation
+          tiny so high FPS + high resolution (e.g. 1080x1920 @ 30fps, 9:16)
+          stay within VRAM and never hang on long/high-fps renders.
+          With render.chain_frames, each segment continues the previous
+          segment's last frame for a continuous shot.
+       -> download the clip(s)
+       -> QUALITY CONTROL (duration / black / frozen / motion) per segment
+       -> PASS   -> keep clip, move to next scene/segment
        -> FAIL   -> re-shoot with new seeds (up to qc.max_attempts)
        -> (optional) manual human review pause
   4. Stitch all accepted clips into one film (ffmpeg concat)
@@ -25,8 +30,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import random
+import shutil
 import subprocess
 import sys
 import time
@@ -34,7 +41,7 @@ from typing import Optional
 
 from comfy_api import ComfyUI, ComfyUIError
 from characters import CharacterLibrary, CONSISTENCY_ANCHOR
-from qc import QualityChecker
+from qc import QualityChecker, QCResult
 from storywriter import StoryWriter
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -91,6 +98,22 @@ CAMERA_MOVES = {
 _DEFAULT_BASE_SIGMAS = ("1.0, 0.99375, 0.9875, 0.98125, 0.975, "
                         "0.909375, 0.725, 0.421875, 0.0")
 _DEFAULT_REFINE_SIGMAS = "0.85, 0.7250, 0.4219, 0.0"
+
+# Art-style keywords. If a scene's image prompt contains none of these, the
+# director appends the config genre as a style phrase so the scene does NOT
+# default to photorealistic (the LLM / custom story often only tags scene 1
+# with the style, making scenes 2+ come out as real humans).
+_ART_STYLE_HINTS = (
+    "watercolor", "oil painting", "anime", "ghibli", "pixar",
+    "3d render", "3d-render", "cgi", "photoreal", "photorealistic",
+    "realistic photo", "realistic photography", "cartoon", "claymation",
+    "pixel art", "concept art", "digital painting", "digital art",
+    "illustration", "in the style", "style of", "aesthetic", "hand-drawn",
+    "hand drawn", "acrylic", "gouache", "cel-shaded", "cel shaded",
+    "stop motion", "low poly", "voxel", "comic book", "manga",
+    "impressionist", "art nouveau", "art deco", "baroque", "ukiyo-e",
+    "chibi", "toon",
+)
 
 
 def load_json(rel: str) -> dict:
@@ -197,22 +220,55 @@ class Director:
         return problems
 
     # ------------------------------------------------------------- rendering
-    def _scene_values(self, scene: dict, scene_idx: int) -> dict:
+    def _genre_style_phrase(self) -> str:
+        """The user's chosen film style from config story.genre, cleaned."""
+        genre = str(self.cfg.get("story", {}).get("genre", "") or "").strip()
+        return genre.rstrip(" .,;")
+
+    def _ensure_style_phrase(self, prompt: str, sibling: str | None = None) -> str:
+        """Append the configured genre/style phrase when neither prompt carries an art-style hint."""
+        genre_style = self._genre_style_phrase()
+        if not genre_style:
+            return prompt
+        lower = prompt.lower()
+        if any(h in lower for h in _ART_STYLE_HINTS):
+            return prompt
+        if sibling and any(h in sibling.lower() for h in _ART_STYLE_HINTS):
+            return prompt
+        return f"{prompt.rstrip(' .,')}. {genre_style}"
+
+    def _scene_values(self, scene: dict, scene_idx: int,
+                      duration: Optional[float] = None,
+                      chunk_idx: Optional[int] = None,
+                      chunk_total: Optional[int] = None) -> dict:
         image_prompt = scene["image_prompt"]
         video_prompt = scene["video_prompt"]
-        # Optional global character descriptor: applied to the keyframe image
-        # (and video) so the same subject persists across every scene.
-        char = str(self.cfg.get("story", {}).get("character", "") or "").strip()
-        if char and not image_prompt.lower().startswith(char.lower()):
-            image_prompt = f"{char}, {image_prompt}"
-            if not video_prompt.lower().startswith(char.lower()):
-                video_prompt = f"{char}, {video_prompt}"
         # Per-scene LOCKED character descriptors (Phase 3): append each
         # character's master visual descriptor + a consistency anchor to the
         # image prompt, and a short "same characters" note to the video prompt.
         image_blocks, video_note = [], ""
-        if getattr(self, "chars", None) and self.chars.enabled:
+        chars_active = bool(getattr(self, "chars", None) and self.chars.enabled)
+        if chars_active:
             image_blocks, video_note = self.chars.scene_character_blocks(scene)
+        # Legacy global character descriptor: applied to the keyframe image
+        # (and video) so one subject persists across every scene. SKIPPED when
+        # character locking is active — the per-scene locked descriptors already
+        # carry identity, and prepending the global subject here would inject an
+        # unrelated character into every scene (e.g. a "toon girl" into a scene
+        # that only contains an umbrella).
+        if not chars_active:
+            char = str(self.cfg.get("story", {}).get("character", "") or "").strip()
+            if char and not image_prompt.lower().startswith(char.lower()):
+                image_prompt = f"{char}, {image_prompt}"
+                if not video_prompt.lower().startswith(char.lower()):
+                    video_prompt = f"{char}, {video_prompt}"
+        # Enforce a consistent art style on EVERY scene. The story/LLM often
+        # only tags scene 1 with the style; untagged scenes otherwise default
+        # to photorealistic (a real human). If neither prompt carries an
+        # explicit art-style keyword, append the config genre as the style
+        # phrase to both prompts so the motion clip preserves the same look.
+        image_prompt = self._ensure_style_phrase(image_prompt, video_prompt)
+        video_prompt = self._ensure_style_phrase(video_prompt, image_prompt)
         if image_blocks:
             image_prompt = (image_prompt.rstrip(" .,") + ". "
                             + " ".join(image_blocks) + " " + CONSISTENCY_ANCHOR)
@@ -230,11 +286,18 @@ class Director:
             "image_seed": random.randint(0, 2**32 - 1),
             "video_prompt": video_prompt,
             "video_seed": random.randint(0, 2**32 - 1),
-            "save_prefix": f"director/scene_{scene_idx:02d}",
-            # The dashboard seconds_per_scene is authoritative; per-scene
-            # duration_seconds from the story/LLM/fallback must NOT override it.
+            # Chunked scenes save each 1s segment under its own prefix so the
+            # per-segment clips survive alongside the joined scene file.
+            "save_prefix": (f"director/scene_{scene_idx:02d}"
+                            if chunk_idx is None
+                            else f"director/scene_{scene_idx:02d}_c{chunk_idx:02d}"),
+            # The dashboard seconds_per_scene (or story.video_length/scenes) is
+            # authoritative; per-scene duration_seconds from the story/LLM/
+            # fallback must NOT override it. With chunked rendering, `duration`
+            # is the single small segment length.
             "video_duration": float(
-                self.cfg["story"].get("seconds_per_scene", 5)),
+                duration if duration is not None
+                else self._effective_scene_seconds()),
             "video_width": int(self.render_cfg.get("video_width", 480)),
             "video_height": int(self.render_cfg.get("video_height", 280)),
             "video_fps": int(self.render_cfg.get("fps", 25)),
@@ -249,20 +312,140 @@ class Director:
                                     or "").strip() or _DEFAULT_REFINE_SIGMAS,
         }
 
+    # ------------------------------------------------------------- rendering
+    def _effective_scene_seconds(self) -> float:
+        """Per-scene render duration (seconds).
+
+        ``story.video_length`` (the total video length the user asks for) is
+        authoritative when set: each scene gets ``video_length / scenes`` so a
+        long runtime is automatically SPREAD across the scenes instead of every
+        scene becoming the full length. Falls back to ``seconds_per_scene``.
+        """
+        story = self.cfg.get("story", {})
+        total = float(story.get("video_length") or 0)
+        if total and total > 0:
+            n = max(1, int(story.get("scenes", 1)))
+            return total / n
+        return float(story.get("seconds_per_scene", 5))
+
+    def _segment_seconds(self) -> float:
+        """Effective single-generation length (seconds).
+
+        The user's ``render.chunk_seconds`` is the *preferred* segment length,
+        but it is always capped by the hard safety ceiling
+        ``render.max_segment_seconds``. A single LTX generation therefore NEVER
+        grows huge regardless of the config — this is what prevents OOM /
+        "not enough memory" at 30-60s scenes on the RTX 4080."""
+        chunk = max(0.1, float(self.render_cfg.get("chunk_seconds", 1.0)))
+        cap = max(0.1, float(self.render_cfg.get("max_segment_seconds", 1.0)))
+        return min(chunk, cap)
+
+    def _chunk_plan(self, total_seconds: float) -> int:
+        """Number of segments for a scene of this length."""
+        return max(1, int(math.ceil(total_seconds / self._segment_seconds())))
+
     def render_scene(self, scene: dict, scene_idx: int) -> tuple:
         """Render one scene with QC retry loop.
-        Returns (video_path, attempts, qc_result)."""
+
+        With ``render.chunked`` enabled, a scene longer than the effective
+        segment length is split into several small segments (each at most
+        ``min(chunk_seconds, max_segment_seconds)``), rendered as its own tiny
+        LTX generation (high FPS + high resolution become feasible because
+        every individual generation is small — this prevents OOM at 30-60s
+        scenes), then the accepted segments are joined into ``scene_XX.mp4``.
+        ``chain_frames`` makes each segment start from the previous segment's
+        last frame so the joined shot looks continuous instead of restarted.
+        The scene duration comes from ``_effective_scene_seconds()``.
+
+        Returns (video_path, attempts, qc_result, locked_prompts).
+        """
+        total_seconds = self._effective_scene_seconds()
+        chunked = bool(self.render_cfg.get("chunked", False))
+        segment_seconds = self._segment_seconds()
+
+        # Single-shot path (chunking disabled or scene fits in one segment).
+        if not chunked or total_seconds <= segment_seconds + 1e-6:
+            return self._render_segment(scene, scene_idx, duration=total_seconds,
+                                        chunk_idx=None, chunk_total=1,
+                                        chain_image=None)
+
+        # ---- chunked path: N small segments, joined after creation ----------
+        num_chunks = max(1, int(math.ceil(total_seconds / segment_seconds)))
+        fps = int(self.render_cfg.get("fps", 25))
+        vw = int(self.render_cfg.get("video_width", 480))
+        vh = int(self.render_cfg.get("video_height", 280))
+        print(f"\n[chunk] scene {scene_idx} = {total_seconds}s -> "
+              f"{num_chunks} x {segment_seconds:g}s segments @ {fps}fps "
+              f"({vw}x{vh})")
+
+        chunk_paths: list = []
+        chunk_results: list = []
+        locked = None
+        total_attempts = 0
+        chain_image: Optional[str] = None
+        for c in range(num_chunks):
+            start = c * segment_seconds
+            dur = min(segment_seconds, total_seconds - start)
+            print(f"\n  [chunk] segment {c + 1}/{num_chunks} "
+                  f"({start:.2f}s–{start + dur:.2f}s)")
+            path, attempts, qc_result, locked = self._render_segment(
+                scene, scene_idx, duration=dur, chunk_idx=c,
+                chunk_total=num_chunks, chain_image=chain_image)
+            total_attempts += attempts
+            passed = qc_result is not None and qc_result.passed
+            chunk_results.append({
+                "file": os.path.relpath(path, BASE_DIR) if path else "",
+                "attempts": attempts,
+                "qc": qc_result.metrics if qc_result else {"unchecked": True},
+                "passed": passed,
+            })
+            chunk_paths.append(path)
+            # Extract the last frame so the next 1s segment continues it.
+            if path and self.render_cfg.get("chain_frames", True):
+                chain_image = self._extract_last_frame(path, scene_idx, c)
+
+        scene_path = self._stitch_chunks(scene_idx, chunk_paths)
+        passed_count = sum(1 for r in chunk_results if r.get("passed"))
+        all_passed = bool(chunk_paths) and passed_count == len(chunk_results)
+        agg = QCResult(passed=all_passed, metrics={
+            "chunked": True,
+            "num_chunks": num_chunks,
+            "chunks_passed": passed_count,
+            "chunk_seconds": segment_seconds,
+            "segments": [r["qc"] for r in chunk_results],
+        }, reasons=[] if all_passed else [
+            f"{num_chunks - passed_count}/{num_chunks} segments failed QC"])
+        return scene_path, total_attempts, agg, locked
+
+    def _render_segment(self, scene: dict, scene_idx: int, duration: float,
+                        chunk_idx: Optional[int], chunk_total: int,
+                        chain_image: Optional[str]) -> tuple:
+        """Render ONE clip (a full scene, or one 1s segment of a chunked scene)
+        with the QC retry loop. ``chain_image`` (a PNG path) replaces the T2I
+        keyframe so a segment continues the previous segment's last frame.
+        Returns (video_path, attempts, qc_result, locked_prompts)."""
         max_attempts = int(self.qc_cfg.get("max_attempts", 3))
         qc_enabled = bool(self.qc_cfg.get("enabled", True))
-        expected = float(self.cfg["story"]["seconds_per_scene"])
-        out_name = f"scene_{scene_idx:02d}.mp4"
+        out_name = (f"scene_{scene_idx:02d}.mp4"
+                    if chunk_idx is None
+                    else f"scene_{scene_idx:02d}_c{chunk_idx:02d}.mp4")
         locked_prompts = None
 
         for attempt in range(1, max_attempts + 1):
-            values = self._scene_values(scene, scene_idx)
+            values = self._scene_values(scene, scene_idx, duration=duration,
+                                        chunk_idx=chunk_idx,
+                                        chunk_total=chunk_total)
             locked_prompts = (values["image_prompt"], values["video_prompt"])
             wf = apply_knobs(self.template, self.knobs, values)
-            print(f"\n--- scene {scene_idx} | attempt {attempt}/{max_attempts} ---")
+            if chain_image and chunk_idx is not None and chunk_idx > 0:
+                wf = self._apply_chain_image(wf, chain_image)
+
+            if chunk_idx is None:
+                print(f"\n--- scene {scene_idx} | attempt "
+                      f"{attempt}/{max_attempts} ---")
+            else:
+                print(f"  -- segment {chunk_idx + 1}/{chunk_total} | "
+                      f"attempt {attempt}/{max_attempts}")
             print(f"  image: {scene['image_prompt'][:80]}...")
             print(f"  video: {scene['video_prompt'][:80]}...")
 
@@ -288,7 +471,17 @@ class Director:
 
             if not qc_enabled:
                 return dest, attempt, None, locked_prompts
-            result = self.qc.analyze(dest, expected)
+            # 1s segments are short (e.g. 25-61 frames): scale the minimum
+            # frame count to the segment so a short clip isn't rejected by a
+            # threshold tuned for ~5s clips.
+            expected_frames = int(round(
+                duration * int(self.render_cfg.get("fps", 25))))
+            min_frames = max(2, expected_frames - 2)
+            # Short segments must not be rejected by a min-duration threshold
+            # tuned for long clips; scale it to the segment length.
+            min_dur = max(0.3, duration * 0.5)
+            result = self.qc.analyze(dest, duration, min_frames=min_frames,
+                                     min_duration_seconds=min_dur)
             print(f"  QC: {'PASS' if result.passed else 'FAIL'}")
             print(f"       {result.summary()}")
             if result.passed:
@@ -301,6 +494,75 @@ class Director:
             return last, max_attempts, None, locked_prompts
         return "", max_attempts, None, locked_prompts
 
+    def _apply_chain_image(self, wf: dict, image_path: str) -> dict:
+        """Swap a segment's first frame for the previous segment's last frame
+        (I2V chaining). Uploads the PNG to ComfyUI, adds a LoadImage node and
+        repoints the video first-frame chain (node 26) at it, then drops the
+        now-unused T2I keyframe subgraph so continuation segments skip image
+        generation. On any failure the workflow is returned unchanged and the
+        segment falls back to the normal keyframe."""
+        try:
+            up = self.comfy.upload_image(image_path)
+            name = up.get("name") or os.path.basename(image_path)
+            sub = up.get("subfolder", "") or ""
+        except Exception as exc:  # noqa: BLE001
+            print(f"  [chunk] !! could not upload chained frame: {exc}")
+            return wf
+        load_name = f"{sub}/{name}" if sub else name
+        used = {int(k) for k in wf if str(k).lstrip('-').isdigit()}
+        nid = (max(used) + 1) if used else 60
+        wf[str(nid)] = {
+            "class_type": "LoadImage",
+            "inputs": {"image": load_name, "upload": "image"},
+        }
+        # The video first-frame chain: node 26 (ResizeImageMaskNode) consumes
+        # the keyframe (node 11). Point it at the uploaded last frame instead.
+        if "26" in wf and "input" in wf["26"].get("inputs", {}):
+            wf["26"]["inputs"]["input"] = [str(nid), 0]
+            # The T2I keyframe subgraph (nodes 1..11) now feeds nothing.
+            for k in [str(i) for i in range(1, 12)]:
+                wf.pop(k, None)
+        return wf
+
+    def _extract_last_frame(self, video_path: str, scene_idx: int,
+                            chunk_idx: int) -> Optional[str]:
+        """Extract the exact last frame of a rendered chunk to a PNG so the
+        next chunk can start from it (continuous motion across segments)."""
+        png_dir = os.path.join(self.output_dir, "_chunk_frames")
+        os.makedirs(png_dir, exist_ok=True)
+        png = os.path.join(png_dir,
+                           f"scene_{scene_idx:02d}_c{chunk_idx:02d}_last.png")
+        try:
+            import imageio.v2 as imageio
+            last = None
+            with imageio.get_reader(video_path, "ffmpeg") as rdr:
+                for frame in rdr:
+                    last = frame
+            if last is None:
+                return None
+            imageio.imwrite(png, last)
+            return png
+        except Exception as exc:  # noqa: BLE001
+            print(f"  [chunk] !! could not extract last frame: {exc}")
+            return None
+
+    def _stitch_chunks(self, scene_idx: int, chunk_paths: list) -> str:
+        """Join a scene's 1s segments into the scene file (scene_XX.mp4)."""
+        out = os.path.join(self.output_dir, f"scene_{scene_idx:02d}.mp4")
+        existing = [p for p in chunk_paths if p and os.path.exists(p)]
+        if not existing:
+            print(f"  [chunk] !! no valid segments to stitch for scene "
+                  f"{scene_idx}")
+            return ""
+        if len(existing) == 1:
+            shutil.copyfile(existing[0], out)
+            print(f"  [chunk] single segment -> "
+                  f"{os.path.relpath(out, BASE_DIR)}")
+            return out
+        print(f"  [chunk] stitching {len(existing)} segments -> "
+              f"{os.path.relpath(out, BASE_DIR)}")
+        return self._ffmpeg_concat(existing, out)
+
     def _find_output(self, prompt_id: str) -> Optional[dict]:
         files = self.comfy.output_files(prompt_id)
         if not files:
@@ -312,6 +574,30 @@ class Director:
         return files[0]  # fall back to any output file
 
     # ------------------------------------------------------------- stitch
+    def _ffmpeg_concat(self, paths: list, out: str) -> str:
+        """Concatenate video files with ffmpeg's concat demuxer (audio dropped
+        so streams of independent clips never clash). Returns out on success."""
+        try:
+            import imageio_ffmpeg
+            ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+        except Exception:  # noqa: BLE001
+            ffmpeg = "ffmpeg"
+        list_file = os.path.join(self.output_dir, "_concat.txt")
+        with open(list_file, "w", encoding="utf-8") as f:
+            for p in paths:
+                f.write(f"file '{p.replace(chr(39), chr(39)*4)}'\n")
+        fps = int(self.render_cfg.get("fps", 25))
+        cmd = [ffmpeg, "-y", "-f", "concat", "-safe", "0", "-i", list_file,
+               "-r", str(fps), "-c:v", "libx264", "-crf", "18",
+               "-pix_fmt", "yuv420p", "-an", out]
+        print("  " + " ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True, capture_output=True, timeout=1200)
+            return out
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            print(f"!! stitch failed: {e}")
+            return ""
+
     def stitch(self, scene_paths: list, film_name: str = "final_film.mp4") -> str:
         # Paths may be relative to BASE_DIR (as stored in the report); resolve
         # them against BASE_DIR so stitching works no matter the CWD.
@@ -325,31 +611,27 @@ class Director:
         if not resolved:
             print("!! no accepted clips to stitch")
             return ""
-        try:
-            import imageio_ffmpeg
-            ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-        except Exception:  # noqa: BLE001
-            ffmpeg = "ffmpeg"
-        list_file = os.path.join(self.output_dir, "_concat.txt")
-        with open(list_file, "w", encoding="utf-8") as f:
-            for p in resolved:
-                f.write(f"file '{p.replace(chr(39), chr(39)*4)}'\n")
         out = os.path.join(self.output_dir, film_name)
-        fps = int(self.render_cfg.get("fps", 25))
-        cmd = [ffmpeg, "-y", "-f", "concat", "-safe", "0", "-i", list_file,
-               "-r", str(fps), "-c:v", "libx264", "-crf", "18",
-               "-pix_fmt", "yuv420p", "-an", out]
         print("\n== stitching film ==")
-        print("  " + " ".join(cmd))
-        try:
-            subprocess.run(cmd, check=True, capture_output=True, timeout=1200)
-            return out
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            print(f"!! stitch failed: {e}")
-            return ""
+        return self._ffmpeg_concat(resolved, out)
+
+    def _select_scenes(self, scenes: list, only_scene: Optional[int] = None,
+                       scene_count: Optional[int] = None) -> tuple[list, int]:
+        """Return the subset of scenes to render and the base scene index."""
+        if only_scene is not None:
+            if not (0 <= only_scene < len(scenes)):
+                raise ValueError(f"scene index {only_scene} out of range (0..{len(scenes)-1})")
+            return [scenes[only_scene]], only_scene
+        if scene_count is not None:
+            if scene_count <= 0:
+                raise ValueError("scene_count must be positive")
+            count = min(int(scene_count), len(scenes))
+            return scenes[:count], 0
+        return scenes, 0
 
     # ------------------------------------------------------------- main run
-    def run(self, only_scene: Optional[int] = None) -> None:
+    def run(self, only_scene: Optional[int] = None,
+            scene_count: Optional[int] = None) -> None:
         problems = self.check_environment()
         if problems:
             print("\nENVIRONMENT PROBLEMS:")
@@ -364,6 +646,29 @@ class Director:
         title = story["story_title"]
         scenes = story["scenes"]
         print(f"\n== DIRECTOR shooting: {title!r} ({len(scenes)} scenes) ==")
+
+        # Persist the generated story (LLM or custom) so the dashboard's
+        # Story Writer tab can display and edit it between runs.
+        try:
+            story_doc = {
+                "story_title": title,
+                "scenes": [
+                    {
+                        "index": i + 1,
+                        "image_prompt": s.get("image_prompt", ""),
+                        "video_prompt": s.get("video_prompt", ""),
+                        "characters_present": list(s.get("characters_present", [])),
+                        "dialogue": s.get("dialogue") or "",
+                        "audio_lines": s.get("audio_lines", ""),
+                    }
+                    for i, s in enumerate(scenes)
+                ],
+            }
+            story_path = os.path.join(self.output_dir, "story.json")
+            with open(story_path, "w", encoding="utf-8") as f:
+                json.dump(story_doc, f, ensure_ascii=False, indent=2)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[story] could not persist story.json: {exc}")
 
         # Character locking (Phase 0/1/2): extract cast, write descriptors,
         # render master references (cached per character, reused by name).
@@ -380,16 +685,12 @@ class Director:
                 print(f"[char] library setup failed, continuing with "
                       f"prompt-only: {exc}")
 
-        if only_scene is not None:
-            if not (0 <= only_scene < len(scenes)):
-                print(f"!! scene index {only_scene} out of range "
-                      f"(0..{len(scenes)-1})")
-                return
-            scenes = [scenes[only_scene]]
-            # keep original index for filename
-            base_idx = only_scene
-        else:
-            base_idx = 0
+        try:
+            scenes, base_idx = self._select_scenes(scenes, only_scene=only_scene,
+                                                   scene_count=scene_count)
+        except ValueError as exc:
+            print(f"!! {exc}")
+            return
 
         results = []
         manual_review = bool(self.cfg["director"].get("manual_review", False))
@@ -429,14 +730,30 @@ class Director:
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(report, f, ensure_ascii=False, indent=2)
 
-        if only_scene is None:
+        if only_scene is None and scene_count is None:
             film = self.stitch([r["file"] for r in results])
             report["final_film"] = os.path.relpath(film, BASE_DIR) if film else ""
             with open(report_path, "w", encoding="utf-8") as f:
                 json.dump(report, f, ensure_ascii=False, indent=2)
             print(f"\n== film saved -> {report.get('final_film', 'N/A')}")
+
+            # Phase 4b: narration - speak each scene's DIALOGUE as audio and
+            # burn subtitles into the film. Only active when audio.enabled;
+            # purely additive and never breaks the base film on failure.
+            if self.cfg.get("audio", {}).get("enabled", False):
+                try:
+                    import narrate as narrate_mod
+                    narrated = narrate_mod.narrate(self.cfg, report,
+                                                   self.output_dir)
+                    if narrated:
+                        report["final_film_narrated"] = os.path.relpath(
+                            narrated, BASE_DIR)
+                        with open(report_path, "w", encoding="utf-8") as f:
+                            json.dump(report, f, ensure_ascii=False, indent=2)
+                except Exception as exc:  # noqa: BLE001
+                    print(f"[narrate] auto-narration skipped: {exc}")
         else:
-            print(f"\n== scene rendered -> {results[0]['file']}")
+            print(f"\n== {'scene' if only_scene is not None else 'scene range'} rendered -> {results[0]['file'] if results else 'N/A'}")
 
         # Phase 4: cross-scene consistency review
         if self.chars.enabled:
@@ -458,14 +775,21 @@ def main(argv=None) -> None:
     parser.add_argument("--check", action="store_true",
                         help="run environment/model check only")
     parser.add_argument("--scene", type=int, default=None,
-                        help="render only one scene index (0-based)")
+                        help="render one scene index (0-based)")
+    parser.add_argument("--scene-count", type=int, default=None,
+                        help="render this many scenes starting at --scene")
     parser.add_argument("--no-characters", action="store_true",
                         help="disable character locking for this run")
+    parser.add_argument("--no-chunks", action="store_true",
+                        help="disable 1-second chunked rendering (render each "
+                             "scene as one long clip instead)")
     args = parser.parse_args(argv)
 
     config = load_json(args.config)
     if args.no_characters:
         config.setdefault("characters", {})["enabled"] = False
+    if args.no_chunks:
+        config.setdefault("render", {})["chunked"] = False
     log_path = _install_log_tee(config)
     print(f"== log -> {os.path.relpath(log_path, BASE_DIR)}")
     director = Director(config)
@@ -474,7 +798,7 @@ def main(argv=None) -> None:
         print("\n" + ("ALL CHECKS PASSED" if not problems
                       else "\n".join("- " + p for p in problems)))
         return
-    director.run(only_scene=args.scene)
+    director.run(only_scene=args.scene, scene_count=args.scene_count)
 
 
 if __name__ == "__main__":

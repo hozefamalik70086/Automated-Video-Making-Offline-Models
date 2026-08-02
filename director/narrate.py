@@ -71,13 +71,41 @@ def run_ffmpeg(args: list) -> bool:
 # --------------------------------------------------------------------------- #
 #  Narration synthesis
 # --------------------------------------------------------------------------- #
+def _dialogue_text(dialogue: str) -> str:
+    """Strip the 'Speaker: ' prefix from EVERY line of a dialogue block so
+    multi-line dialogue is read naturally (e.g. 'ANNA: Eliza, that's
+    uncalled for.' -> 'Eliza, that's uncalled for.')."""
+    lines = []
+    for ln in (dialogue or "").splitlines():
+        ln = re.sub(r"^\s*[^:|]{1,40}[|:]\s*", "", ln).strip()
+        if ln:
+            lines.append(ln)
+    return " ".join(lines).strip()
+
+
+def _is_prompt_text(text: str, cfg: dict) -> bool:
+    """Defensive guard - NEVER read the story genre/premise out loud.
+
+    If the dialogue field was mistakenly populated with the generation prompt
+    (e.g. the LLM echoed the genre), treat it as no narration instead of
+    speaking the prompt as audio."""
+    genre = str(cfg.get("story", {}).get("genre", "") or "").strip()
+    if not genre:
+        return False
+    t = re.sub(r"\s+", " ", (text or "")).strip().lower()
+    g = re.sub(r"\s+", " ", genre).strip().lower()
+    if not t or not g:
+        return False
+    return g in t or t in g
+
+
 def make_narration(report: dict, cfg: dict, out_dir: str) -> list:
     """Synthesize one mp3 per scene (or None if unavailable/empty).
 
     Returns a list parallel to report["scenes"] of mp3 paths or None.
-    Speaking characters (scene DIALOGUE) use their LOCKED per-character
-    edge-tts voice; scenes without dialogue fall back to the global narrator
-    voice on their audio_lines.
+    Only scene DIALOGUE is spoken: characters with a LOCKED per-character
+    edge-tts voice use it, otherwise the global narrator voice is used.
+    audio_lines (ambient sound cues) are NEVER spoken.
     """
     audio = cfg.get("audio", {})
     engine = audio.get("engine", "edge-tts")
@@ -104,16 +132,22 @@ def make_narration(report: dict, cfg: dict, out_dir: str) -> list:
     os.makedirs(os.path.join(out_dir, "_narration"), exist_ok=True)
     results = []
     for i, sc in enumerate(report.get("scenes", []), start=1):
-        text = (sc.get("audio_lines") or "").strip()
+        # Only scene DIALOGUE is spoken. audio_lines are ambient sound cues
+        # (e.g. "wind, birds, footsteps") and must NOT be read out as narration.
+        text = ""
         voice, rate = global_voice, global_rate
         dialogue = (sc.get("dialogue") or "").strip()
-        if dialogue and charlib is not None and charlib.enabled:
-            voice_lock = charlib.voice_for_scene(sc)
-            if voice_lock and voice_lock.get("voice"):
-                voice = voice_lock["voice"]
-                rate = voice_lock.get("rate") or global_rate
-            # drop the "Speaker: " prefix -> just the spoken line
-            text = re.sub(r"^\s*[^:|]{1,40}[|:]\s*", "", dialogue).strip()
+        if dialogue:
+            if charlib is not None and charlib.enabled:
+                voice_lock = charlib.voice_for_scene(sc)
+                if voice_lock and voice_lock.get("voice"):
+                    voice = voice_lock["voice"]
+                    rate = voice_lock.get("rate") or global_rate
+            # drop the "Speaker: " prefix from every line -> just the spoken
+            # lines, so multi-line dialogue reads naturally.
+            text = _dialogue_text(dialogue)
+        if text and _is_prompt_text(text, cfg):
+            text = ""  # never speak the genre/prompt as audio
         if not text:
             results.append(None)
             continue
@@ -187,9 +221,16 @@ def build_narration_track(narration: list, scenes: list, out_dir: str) -> str:
     return track if ok else ""
 
 
-def build_subtitles(scenes: list, out_dir: str) -> str:
+def build_subtitles(scenes: list, out_dir: str, cfg: dict) -> str:
     """Write an ASS subtitle file for the narration lines."""
-    lines = [(sc.get("audio_lines") or "").strip() for sc in scenes]
+    lines = []
+    for sc in scenes:
+        # Subtitles mirror what is SPOKEN (dialogue only), never ambient cues.
+        d = (sc.get("dialogue") or "").strip()
+        txt = _dialogue_text(d)
+        if txt and _is_prompt_text(txt, cfg):
+            txt = ""
+        lines.append(txt)
     if not any(lines):
         return ""
     dur = 0.0
@@ -253,7 +294,8 @@ def narrate(cfg: dict, report: dict, out_dir: str) -> str:
     scenes = report.get("scenes", [])
     narration = make_narration(report, cfg, out_dir)
     track = build_narration_track(narration, scenes, out_dir)
-    subs = build_subtitles(scenes, out_dir) if audio.get("subtitles", True) else ""
+    subs = (build_subtitles(scenes, out_dir, cfg)
+            if audio.get("subtitles", True) else "")
 
     out = os.path.join(out_dir, "final_film_narrated.mp4")
     cmd = [get_ffmpeg(), "-y", "-i", film_path]

@@ -43,6 +43,12 @@ Schema:
  ]}
 Rules:
 - Each scene must be a new shot that continues the story.
+- PLAN THE LOCATIONS YOURSELF: the story is shot in a SMALL number of locations
+  (backgrounds) that YOU decide from the story's needs. Several consecutive
+  scenes should share ONE location: reuse the EXACT same room/place/props/lighting
+  wording in every image_prompt of that location, changing only the camera
+  angle, character position and action. Do NOT give every scene a brand-new
+  location; keep reusing one background until the story truly moves on.
 - image_prompt and video_prompt must describe the SAME scene.
 - Keep prompts clear, concrete, and cinematic; avoid copyrighted characters.
 - characters_present: EVERY character visibly in the shot, by name.
@@ -123,6 +129,15 @@ class StoryWriter:
         self.genre = story_cfg.get("genre", "cinematic")
         self.num_scenes = int(story_cfg.get("scenes", 4))
         self.seconds = float(story_cfg.get("seconds_per_scene", 5))
+        self.video_length = float(story_cfg.get("video_length") or 0)
+
+    def _effective_seconds(self) -> float:
+        """Per-scene seconds. When ``story.video_length`` (the total video
+        length the user asks for) is set, each scene gets
+        ``video_length / scenes``; otherwise ``seconds_per_scene``."""
+        if self.video_length and self.video_length > 0:
+            return self.video_length / max(1, int(self.num_scenes))
+        return self.seconds
 
     # ------------------------------------------------------------- entry
     def _finalize(self, story: dict) -> dict:
@@ -150,7 +165,7 @@ class StoryWriter:
                 "characters_present": cp,
                 "dialogue": dialogue,
                 "audio_lines": str(s.get("audio_lines", "")).strip(),
-                "duration_seconds": float(self.seconds),
+                "duration_seconds": float(self._effective_seconds()),
             })
         return {"story_title": str(story.get("story_title", "story")),
                 "scenes": scenes}
@@ -218,8 +233,9 @@ class StoryWriter:
                     characters = [x.strip() for x in
                                   ln.split(":", 1)[1].split(",") if x.strip()]
                 elif low.startswith("dialogue:"):
-                    dialogue = ln.split(":", 1)[1].strip()
-                    mspk = re.match(r"^\s*([^:|]{1,40})[|:]", dialogue)
+                    dline = ln.split(":", 1)[1].strip()
+                    dialogue = (dialogue + "\n" + dline) if dialogue else dline
+                    mspk = re.match(r"^\s*([^:|]{1,40})[|:]", dline)
                     if mspk and mspk.group(1).strip() not in characters:
                         characters.append(mspk.group(1).strip())
                 elif low.startswith("voice:"):
@@ -233,8 +249,10 @@ class StoryWriter:
                         # "Name: line" inside a block that declares characters
                         name = m.group(1).strip()
                         # keep the "Speaker: text" form so _dialogue_speaker()
-                        # / voice locks resolve the speaker consistently
-                        dialogue = f"{name}: {m.group(2).strip()}"
+                        # / voice locks resolve the speaker consistently.
+                        # APPEND so multi-line dialogue is never truncated.
+                        dline = f"{name}: {m.group(2).strip()}"
+                        dialogue = (dialogue + "\n" + dline) if dialogue else dline
                         if name not in characters:
                             characters.append(name)
                         continue
@@ -251,7 +269,7 @@ class StoryWriter:
                 "characters_present": characters,
                 "dialogue": dialogue,
                 "audio_lines": audio_lines,
-                "duration_seconds": self.seconds,
+                "duration_seconds": self._effective_seconds(),
             })
         return {"story_title": "Custom story", "scenes": scenes}
 
@@ -282,12 +300,13 @@ class StoryWriter:
         return None
 
     def _build_user_prompt(self) -> str:
+        secs = self._effective_seconds()
         user_prompt = (
             f"Write a {self.num_scenes}-scene {self.genre} story. "
-            f"Each scene is exactly {self.seconds} seconds long. "
+            f"Each scene is exactly {secs:g} seconds long. "
             "Every scene must include an image_prompt (for a still keyframe) "
             "and a video_prompt (dynamic, continuous visible motion from the "
-            f"very first frame, {self.seconds} seconds). "
+            f"very first frame, {secs:g} seconds). "
         )
         char = str(self.cfg.get("story", {}).get("character", "") or "").strip()
         if char:
@@ -302,7 +321,7 @@ class StoryWriter:
             '"characters_present": ["..."], '
             '"dialogue": "Name: line" or null, '
             '"audio_lines": "...", "duration_seconds": '
-            f'{int(self.seconds)}}}, ...]}}'
+            f'{int(secs)}}}, ...]}}'
         )
         return user_prompt
 
@@ -391,12 +410,19 @@ class StoryWriter:
     def _normalize(self, data: dict) -> dict:
         scenes = []
         for i, s in enumerate(data.get("scenes", []), start=1):
+            cp = s.get("characters_present") or []
+            if isinstance(cp, str):
+                cp = [cp]
+            cp = [str(x).strip() for x in cp if str(x).strip()]
             scenes.append({
                 "id": int(s.get("id", i)),
                 "image_prompt": str(s.get("image_prompt", "")).strip(),
                 "video_prompt": str(s.get("video_prompt", "")).strip(),
+                "characters_present": cp,
+                "dialogue": str(s.get("dialogue") or "").strip() or None,
                 "audio_lines": str(s.get("audio_lines", "")).strip(),
-                "duration_seconds": float(s.get("duration_seconds", self.seconds)),
+                "duration_seconds": float(s.get(
+                    "duration_seconds", self._effective_seconds())),
             })
         return {"story_title": str(data.get("story_title", "LLM story")),
                 "scenes": scenes}

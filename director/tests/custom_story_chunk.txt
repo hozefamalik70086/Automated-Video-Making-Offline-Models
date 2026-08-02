@@ -1,0 +1,10 @@
+# chunked mock story (for tests/config_mock_chunk.json)
+# 3 scenes x 2s -> each rendered as 2 x 1s segments (high fps/res, joined after).
+IMAGE: a quiet sunlit courtyard in soft watercolor, a stone fountain at center
+VIDEO: the camera dollies slowly in toward the fountain, water gently splashing
+---
+IMAGE: a narrow alley in rain, warm shop lights reflecting on wet stone
+VIDEO: the camera tracks forward down the alley, rain streaking the lens
+---
+IMAGE: a rooftop at dusk with a single bird perched on a clothesline
+VIDEO: the camera pans right across the skyline as the bird takes flight

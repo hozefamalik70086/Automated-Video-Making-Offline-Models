@@ -175,5 +175,1145 @@
     "ref_prompt": "A clearly visible Grandmother with a distinctive, consistent appearance; recognizable in every scene; cinematic lighting; high detail., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
     "voice_lock": null,
     "created": "2026-08-01 03:06:58"
+  },
+  {
+    "char_id": "char_010",
+    "name": "Cartoonist",
+    "speaking": false,
+    "scene_ids": [
+      1
+    ],
+    "visual_descriptor": "A man in his late 30s to early 40s. He has perpetually messy, dark brown hair that often falls into his eyes and is usually held back by a pair of vintage brass-rimmed spectacles perched low on his nose. His skin is pale but dusted with faint smudges of various colored inks and graphite, suggesting long hours hunched over a desk. He wears oversized, paint-splattered work overalls (deep indigo canvas) over a perpetually stained white t-shirt that reaches mid-thigh. His hands are central to his look: they are ink-stained, nimble, and often resting on a specialized drafting pen or a sketchbook. Signature accessories include a worn leather satchel slung across his body, filled with pencils, pens, and small jars of inks, and a belt loop holding several discarded charcoal sticks.",
+    "voice_descriptor": "Male, mid-range pitch, speaking style is highly descriptive and passionate, bordering on rambling. He has an educated but casual tone, suggesting the slightly theatrical accent of someone who spent years in creative circles (e.g., New York or London). His speech rhythm is varied; he slows down dramatically when describing details or a piece of art, almost savoring the words.",
+    "master_ref_image": "characters\\refs\\char_010_ref.png",
+    "ref_seed": 2925409406,
+    "ref_prompt": "A man in his late 30s to early 40s. He has perpetually messy, dark brown hair that often falls into his eyes and is usually held back by a pair of vintage brass-rimmed spectacles perched low on his nose. His skin is pale but dusted with faint smudges of various colored inks and graphite, suggesting long hours hunched over a desk. He wears oversized, paint-splattered work overalls (deep indigo canvas) over a perpetually stained white t-shirt that reaches mid-thigh. His hands are central to his look: they are ink-stained, nimble, and often resting on a specialized drafting pen or a sketchbook. Signature accessories include a worn leather satchel slung across his body, filled with pencils, pens, and small jars of inks, and a belt loop holding several discarded charcoal sticks., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:57:52"
+  },
+  {
+    "char_id": "char_011",
+    "name": "Young Apprentice",
+    "speaking": false,
+    "scene_ids": [
+      1,
+      7,
+      10,
+      11,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "visual_descriptor": "A slender young male apprentice, appearing around 14 years old. He has perpetually messy, dark brown hair that often falls across his forehead and deep-set, intensely focused hazel eyes. His skin is pale but carries slight smudges of cerulean blue and black ink, particularly on his fingertips and knuckles. He wears a practical, paint-splattered indigo linen smock over simple charcoal trousers and leather boots. The smock is equipped with several reinforced pockets from which frequently spill graphite pencils, calipers, rulers, and small brushes. His right forearm bears a faint, dried smudge of ochre pigment, suggesting constant work in the messy studio environment.",
+    "voice_descriptor": "Male, approximately 14 years old. Mid-high pitch; energetic and quick to speak when excited. The accent is neutral but carries an underlying academic enthusiasm. Speaking style is eager and slightly breathless, often trailing off with descriptive artistic analogies or bursts of nervous energy while discussing his craft.",
+    "master_ref_image": "characters\\refs\\char_011_ref.png",
+    "ref_seed": 1610197566,
+    "ref_prompt": "A slender young male apprentice, appearing around 14 years old. He has perpetually messy, dark brown hair that often falls across his forehead and deep-set, intensely focused hazel eyes. His skin is pale but carries slight smudges of cerulean blue and black ink, particularly on his fingertips and knuckles. He wears a practical, paint-splattered indigo linen smock over simple charcoal trousers and leather boots. The smock is equipped with several reinforced pockets from which frequently spill graphite pencils, calipers, rulers, and small brushes. His right forearm bears a faint, dried smudge of ochre pigment, suggesting constant work in the messy studio environment., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:58:10"
+  },
+  {
+    "char_id": "char_012",
+    "name": "Inkblot",
+    "speaking": false,
+    "scene_ids": [
+      1,
+      4,
+      5,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      19,
+      20,
+      21,
+      23,
+      24
+    ],
+    "visual_descriptor": "An amorphous entity resembling thick, highly viscous, oily black ink. Its core body constantly shifts and ripples, never maintaining a stable shape but capable of momentarily forming liquid streams, puddles, or vaguely humanoid silhouettes when desired. The edges of the Inkblot emit an unnatural, faint cerulean blue luminescence, particularly where it interacts with other substances. The surface is glossy and reflective, constantly appearing wet and streaked. It leaves behind thick, obsidian-black residue that seems to absorb light and adheres visibly to any surface—wood, metal, or painted scenery. When agitated, smaller droplets of deep indigo ink splash outward like liquid explosions.",
+    "voice_descriptor": "Non-human; the sound is a mischievous blend of wet gurgling, sloshing liquid sounds, low bubbling, and faint echoing squeaks. The pitch varies wildly—from a deep, rumbling bass when it settles to a high, bubbly trill when playful or excited. The style is unpredictable and highly theatrical, communicating through shifts in fluid dynamics rather than structured speech.",
+    "master_ref_image": "characters\\refs\\char_012_ref.png",
+    "ref_seed": 635766419,
+    "ref_prompt": "An amorphous entity resembling thick, highly viscous, oily black ink. Its core body constantly shifts and ripples, never maintaining a stable shape but capable of momentarily forming liquid streams, puddles, or vaguely humanoid silhouettes when desired. The edges of the Inkblot emit an unnatural, faint cerulean blue luminescence, particularly where it interacts with other substances. The surface is glossy and reflective, constantly appearing wet and streaked. It leaves behind thick, obsidian-black residue that seems to absorb light and adheres visibly to any surface—wood, metal, or painted scenery. When agitated, smaller droplets of deep indigo ink splash outward like liquid explosions., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:58:36"
+  },
+  {
+    "char_id": "char_013",
+    "name": "Mischievous Inkblot",
+    "speaking": false,
+    "scene_ids": [
+      2,
+      3,
+      7,
+      18
+    ],
+    "visual_descriptor": "A non-corporeal entity composed entirely of highly viscous, semi-sentient ink. The body has no fixed form but maintains a fluctuating silhouette, typically resembling a puddle that is approximately three feet wide and variable in height (rarely exceeding six inches). Its primary 'color' is deep Prussian black, which constantly bleeds into streaks of various hues—most notably brilliant cerulean blue from its edges, suggesting an unnatural glow. The surface texture is perpetually glossy and oily, reflecting ambient light like a wet mirror. It does not have discernible facial features, but when it focuses attention, the center of the puddle momentarily coalesces into a vague, mischievous 'face' marked by swirling pigment that suggests wide, knowing eyes and a perpetual smirk. Its signature prop/feature is its ability to leave thick, glistening trails (like calligraphy on glass) as it moves, occasionally spitting out tiny, glowing droplets of pure color.",
+    "voice_descriptor": "Non-gendered; sounds like the confluence of wet scraping and echoing liquid drips. The pitch fluctuates wildly, ranging from a deep, resonant rumble (the sound of pooling ink) to high, bubbly squeaks (like air escaping a bubble). It speaks with an exaggerated, theatrical cadence, utilizing dramatic pauses and unpredictable shifts in volume, suggesting mischievous glee through every syllable.",
+    "master_ref_image": "characters\\refs\\char_013_ref.png",
+    "ref_seed": 3349228350,
+    "ref_prompt": "A non-corporeal entity composed entirely of highly viscous, semi-sentient ink. The body has no fixed form but maintains a fluctuating silhouette, typically resembling a puddle that is approximately three feet wide and variable in height (rarely exceeding six inches). Its primary 'color' is deep Prussian black, which constantly bleeds into streaks of various hues—most notably brilliant cerulean blue from its edges, suggesting an unnatural glow. The surface texture is perpetually glossy and oily, reflecting ambient light like a wet mirror. It does not have discernible facial features, but when it focuses attention, the center of the puddle momentarily coalesces into a vague, mischievous 'face' marked by swirling pigment that suggests wide, knowing eyes and a perpetual smirk. Its signature prop/feature is its ability to leave thick, glistening trails (like calligraphy on glass) as it moves, occasionally spitting out tiny, glowing droplets of pure color., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:58:56"
+  },
+  {
+    "char_id": "char_014",
+    "name": "Background Studio Workers",
+    "speaking": false,
+    "scene_ids": [
+      2,
+      3,
+      6
+    ],
+    "visual_descriptor": "The workers consist of a diverse group of people (male and female) ranging in appearance from their late 20s to mid-40s. They are uniformly dressed in heavily worn, industrial smocks or painter’s overalls made of faded canvas or deep navy denim, stained visibly with streaks of sienna paint, thick black ink residue, and dried cerulean splatters. Their clothing is functional and slightly oversized. Most wear durable leather aprons cinched at the waist. Hands are perpetually stained with various pigments; they often wear fingerless gloves coated in dust or brightly colored paint drippings. Hair styles are practical: tied back, short, or messy with noticeable stray bits of charcoal or pigment caught within it. They generally have tired but focused expressions and carry tools such as rolls of vellum, worn sketchbooks, turpentine rags, and miniature buckets of richly pigmented liquids (oil paints, inks). Every member has a patina of the studio environment on their clothes and skin.",
+    "voice_descriptor": "Mixed group; voices are conversational murmurs, indicating a low-level hum of continuous background activity. The pitch varies but is generally mid-to-low range. The accent is neutral, suggesting a large metropolitan area accustomed to creative chaos. Their speaking style is utilitarian and collaborative—they rarely speak full sentences, preferring short exchanges about materials or logistics ('Need more turpentine,' 'That shelf’s dry,' 'Pass the wash brush'). Their dialogue should be easily drowned out by ambient studio sounds (splashing, dripping, scraping).",
+    "master_ref_image": "characters\\refs\\char_014_ref.png",
+    "ref_seed": 907936253,
+    "ref_prompt": "The workers consist of a diverse group of people (male and female) ranging in appearance from their late 20s to mid-40s. They are uniformly dressed in heavily worn, industrial smocks or painter’s overalls made of faded canvas or deep navy denim, stained visibly with streaks of sienna paint, thick black ink residue, and dried cerulean splatters. Their clothing is functional and slightly oversized. Most wear durable leather aprons cinched at the waist. Hands are perpetually stained with various pigments; they often wear fingerless gloves coated in dust or brightly colored paint drippings. Hair styles are practical: tied back, short, or messy with noticeable stray bits of charcoal or pigment caught within it. They generally have tired but focused expressions and carry tools such as rolls of vellum, worn sketchbooks, turpentine rags, and miniature buckets of richly pigmented liquids (oil paints, inks). Every member has a patina of the studio environment on their clothes and skin., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:59:15"
+  },
+  {
+    "char_id": "char_015",
+    "name": "Set Dressers (background workers)",
+    "speaking": false,
+    "scene_ids": [
+      5
+    ],
+    "visual_descriptor": "A group of male and female background workers in their late 20s to early 50s. They wear heavily stained, oil-splattered denim overalls (navy blue or faded khaki) over durable, grime-streaked work shirts (sleeves rolled up). Their boots are thick, black, leather work boots, covered in streaks of industrial dirt and dried paint residue. Every member has a layer of accumulated set dust, grease, and splatters of vibrant colors (cerulean, sepia) on their skin and clothing. Their hair is practical and slightly unkempt, often greasy or restrained by headbands/bandanas tied with frayed twine. They carry various utilitarian props: lengths of wood scaffolding poles, buckets stained yellow from chemicals, or rolls of canvas drop cloths. One signature element is the overall patina of exhaustion and perpetual grime.",
+    "voice_descriptor": "A low-energy, gravelly chorus (mixed genders) suggestive of a worn-out labor crew. The pitch is consistently mid-to-low range. They possess a working-class, regional American accent, speaking slowly and with minimal inflection due to fatigue or the sheer monotony of their repetitive tasks. Their speech style is gruff, functional, and primarily concerned with logistics (e.g., 'Move this,' 'Watch your step,' 'Clear out').",
+    "master_ref_image": "characters\\refs\\char_015_ref.png",
+    "ref_seed": 91523899,
+    "ref_prompt": "A group of male and female background workers in their late 20s to early 50s. They wear heavily stained, oil-splattered denim overalls (navy blue or faded khaki) over durable, grime-streaked work shirts (sleeves rolled up). Their boots are thick, black, leather work boots, covered in streaks of industrial dirt and dried paint residue. Every member has a layer of accumulated set dust, grease, and splatters of vibrant colors (cerulean, sepia) on their skin and clothing. Their hair is practical and slightly unkempt, often greasy or restrained by headbands/bandanas tied with frayed twine. They carry various utilitarian props: lengths of wood scaffolding poles, buckets stained yellow from chemicals, or rolls of canvas drop cloths. One signature element is the overall patina of exhaustion and perpetual grime., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:59:40"
+  },
+  {
+    "char_id": "char_016",
+    "name": "Background Projectionist (panicked)",
+    "speaking": false,
+    "scene_ids": [
+      9
+    ],
+    "visual_descriptor": "A man in his late 30s, with perpetually frazzled, dark brown hair that falls into his eyes. His skin is pale and faintly clammy, marked by stress lines around his temples. He wears a stained, charcoal gray work jumpsuit covered in various splashes of colored paint and ink stains, cinched at the waist with a utility belt holding rolls of masking tape, small spools of wire, and a perpetually dangling pocket flashlight. His left forearm has faint burns or chemical marks, suggesting frequent interaction with volatile art supplies. He wears thick-rimmed safety glasses perched on his forehead, giving him an air of technical anxiety. In a moment of panic, his hands will be moving frantically, gesturing toward the source of the mess while clutching a roll of electrical cable.",
+    "voice_descriptor": "Male, mid-30s, moderately high pitch, with a quick, breathy tempo and a highly panicked, squeaky tone. His accent is generally neutral but adopts a frantic staccato when distressed; he speaks in rushed fragments, often trailing off or losing his place due to stress.",
+    "master_ref_image": "characters\\refs\\char_016_ref.png",
+    "ref_seed": 2940249790,
+    "ref_prompt": "A man in his late 30s, with perpetually frazzled, dark brown hair that falls into his eyes. His skin is pale and faintly clammy, marked by stress lines around his temples. He wears a stained, charcoal gray work jumpsuit covered in various splashes of colored paint and ink stains, cinched at the waist with a utility belt holding rolls of masking tape, small spools of wire, and a perpetually dangling pocket flashlight. His left forearm has faint burns or chemical marks, suggesting frequent interaction with volatile art supplies. He wears thick-rimmed safety glasses perched on his forehead, giving him an air of technical anxiety. In a moment of panic, his hands will be moving frantically, gesturing toward the source of the mess while clutching a roll of electrical cable., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 11:59:59"
+  },
+  {
+    "char_id": "char_017",
+    "name": "Studio Workers",
+    "speaking": false,
+    "scene_ids": [
+      10,
+      22
+    ],
+    "visual_descriptor": "The Studio Workers are a diverse collection of figures, generally appearing mid-twenties to late forties. Their clothing consists of durable, paint-splattered work smocks or stained denim overalls that look heavily used and practical rather than fashionable. They possess perpetually ink-stained hands and forearms. Hair styles range from messy buns and tied-back braids to short, unkempt cuts, often showing flecks of colored dust or dried paint. Their skin generally has a slight, occupational grime beneath any natural flush. Accessories include utility belts holding drawing pencils, rulers, specialized brushes, and half-empty coffee mugs. They are rarely seen without at least one tool—a charcoal pencil stub, an oversized sketchbook, or smudges of brilliant cerulean blue on their outer garments. The overall aesthetic is creative chaos: professional but deeply worn.",
+    "voice_descriptor": "A collective voice characterized by a wide range of tones (male and female), suggesting experienced colleagues across multiple decades. Pitch varies from low, gravelly murmurs to high-pitched bursts of frustrated excitement. Accent is general American, leaning towards an industrial or urban artistic community feel. The speaking style is highly collaborative, often overlapping, punctuated by specialized creative jargon ('negative space,' 'cross-hatching,' 'value'). They speak with a hurried, passionate cadence—sounding knowledgeable but perpetually exhausted from long hours and high bursts of inspiration.",
+    "master_ref_image": "characters\\refs\\char_017_ref.png",
+    "ref_seed": 1777439583,
+    "ref_prompt": "The Studio Workers are a diverse collection of figures, generally appearing mid-twenties to late forties. Their clothing consists of durable, paint-splattered work smocks or stained denim overalls that look heavily used and practical rather than fashionable. They possess perpetually ink-stained hands and forearms. Hair styles range from messy buns and tied-back braids to short, unkempt cuts, often showing flecks of colored dust or dried paint. Their skin generally has a slight, occupational grime beneath any natural flush. Accessories include utility belts holding drawing pencils, rulers, specialized brushes, and half-empty coffee mugs. They are rarely seen without at least one tool—a charcoal pencil stub, an oversized sketchbook, or smudges of brilliant cerulean blue on their outer garments. The overall aesthetic is creative chaos: professional but deeply worn., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 12:00:15"
+  },
+  {
+    "char_id": "char_018",
+    "name": "Apprentice",
+    "speaking": true,
+    "scene_ids": [
+      10,
+      14,
+      16,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "visual_descriptor": "A young man in his late teens/early twenties with a perpetually earnest and focused expression. He has medium-length, messy dark brown hair that is often falling into his eyes, necessitating frequent pushes of the hair away from his face. His skin is lightly dusted with graphite and smudged near the knuckles and cheekbones from handling charcoal and ink. He wears practical, paint-splattered denim overalls over a striped, worn t-shirt, which has small grease stains around the collar. He has a sturdy, multi-pocketed canvas apron that is heavily stained with cerulean blue ink streaks, black oil residue, and dried paint flecks. On his belt hangs a specific signature prop: an antique leather pencil case, brass clasps tarnished green, containing various colored graphite pencils and a ruler whose edge is visibly chipped. His boots are scuffed, work-grade leather that appear to have seen extensive use on oily floors.",
+    "voice_descriptor": "Male, late teens (18-20). Pitch is medium, with an inherent slight tremor of nervous energy when speaking about his craft. The accent is a neutral American English. His speaking style is highly descriptive and overly eager; he tends to speak quickly in bursts of technical detail, often pausing right before the most important word as if gathering courage or checking his notes.",
+    "master_ref_image": "characters\\refs\\char_018_ref.png",
+    "ref_seed": 4034471661,
+    "ref_prompt": "A young man in his late teens/early twenties with a perpetually earnest and focused expression. He has medium-length, messy dark brown hair that is often falling into his eyes, necessitating frequent pushes of the hair away from his face. His skin is lightly dusted with graphite and smudged near the knuckles and cheekbones from handling charcoal and ink. He wears practical, paint-splattered denim overalls over a striped, worn t-shirt, which has small grease stains around the collar. He has a sturdy, multi-pocketed canvas apron that is heavily stained with cerulean blue ink streaks, black oil residue, and dried paint flecks. On his belt hangs a specific signature prop: an antique leather pencil case, brass clasps tarnished green, containing various colored graphite pencils and a ruler whose edge is visibly chipped. His boots are scuffed, work-grade leather that appear to have seen extensive use on oily floors., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-AriaNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 12:00:41"
+  },
+  {
+    "char_id": "char_019",
+    "name": "Inkblot residue",
+    "speaking": false,
+    "scene_ids": [
+      22
+    ],
+    "visual_descriptor": "An amorphous, non-corporeal entity composed entirely of thick, viscous liquid inks. Its main body mass shifts between deep matte black and highly saturated cerulean blue, giving it a constant, oily sheen. It has no fixed form but moves with the slow, deliberate grace of spilled paint. The edges of its 'body' are perpetually glowing faintly (like bioluminescence in ink) and leave visible, wet streaks on any surface it touches, which rapidly dry into hyper-saturated watercolor washes. When moving quickly or reacting, small puffs of iridescent, slightly steam-like vapor vent from its form. It has no discernible face, limbs, or accessories; its physical presence is defined solely by the volatile state of the ink.",
+    "voice_descriptor": "Gender: Androgynous. Age: Ageless. Pitch: Extremely low and resonant, with a wet, echoing quality, similar to liquid dripping into a deep pool. Accent: None discernible. Speaking style: Languid and breathy; it speaks in prolonged whispers or soft, drawn-out murmurs, as if the words themselves are being absorbed and spread by ink on absorbent paper.",
+    "master_ref_image": "characters\\refs\\char_019_ref.png",
+    "ref_seed": 2194811893,
+    "ref_prompt": "An amorphous, non-corporeal entity composed entirely of thick, viscous liquid inks. Its main body mass shifts between deep matte black and highly saturated cerulean blue, giving it a constant, oily sheen. It has no fixed form but moves with the slow, deliberate grace of spilled paint. The edges of its 'body' are perpetually glowing faintly (like bioluminescence in ink) and leave visible, wet streaks on any surface it touches, which rapidly dry into hyper-saturated watercolor washes. When moving quickly or reacting, small puffs of iridescent, slightly steam-like vapor vent from its form. It has no discernible face, limbs, or accessories; its physical presence is defined solely by the volatile state of the ink., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 12:01:02"
+  },
+  {
+    "char_id": "char_020",
+    "name": "Elara",
+    "speaking": true,
+    "scene_ids": [
+      1,
+      2
+    ],
+    "visual_descriptor": "Elara has an ethereal appearance defined by sharp, intelligent features and a quiet elegance. Her skin is porcelain pale with a faint scattering of freckles across the bridge of her nose. Her eyes are large and almond-shaped, described as being a deep, mutable shade of moss green. Her hair is raven black, thick, and styled in soft, natural waves that fall to just past her shoulders, often held back by a simple antique silver clip shaped like an olive leaf. She has a slender build, typically dressed in tailored but loose clothing; specifically, a high-necked blouse made of deep emerald silk and a forest green tweed waistcoat or fitted jacket. Her accessories are minimal but deliberate: she wears a single, delicate gold chain bracelet on her left wrist and sometimes carries thin, round spectacles resting on the bridge of her nose when reading. She generally has an aura of quiet contemplation.",
+    "voice_descriptor": "Female, estimated age late 20s to early 30s. The pitch is naturally medium-low, giving it a resonant quality. Her accent is highly educated and neutral, with a subtly British inflection. Her speaking style is measured, articulate, and thoughtful; she speaks slowly, choosing her words carefully, often pausing slightly before delivering a key point as if considering its full weight.",
+    "master_ref_image": "characters\\refs\\char_020_ref.png",
+    "ref_seed": 285210481,
+    "ref_prompt": "Elara has an ethereal appearance defined by sharp, intelligent features and a quiet elegance. Her skin is porcelain pale with a faint scattering of freckles across the bridge of her nose. Her eyes are large and almond-shaped, described as being a deep, mutable shade of moss green. Her hair is raven black, thick, and styled in soft, natural waves that fall to just past her shoulders, often held back by a simple antique silver clip shaped like an olive leaf. She has a slender build, typically dressed in tailored but loose clothing; specifically, a high-necked blouse made of deep emerald silk and a forest green tweed waistcoat or fitted jacket. Her accessories are minimal but deliberate: she wears a single, delicate gold chain bracelet on her left wrist and sometimes carries thin, round spectacles resting on the bridge of her nose when reading. She generally has an aura of quiet contemplation., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 14:15:06"
+  },
+  {
+    "char_id": "char_021",
+    "name": "Kai",
+    "speaking": false,
+    "scene_ids": [
+      1,
+      2
+    ],
+    "visual_descriptor": "Kai is a man in his late 20s to early 30s, possessing an understated, thoughtful aesthetic. He has sharp, angular features and perpetually restless, deep-set hazel eyes that are often framed by faint laugh lines. His hair is dark brown, slightly wavy, and kept moderately long—just brushing the collar—with a natural, unstyled texture. His skin tone is warm olive with subtle freckling visible across his cheekbones. He has a lean, almost gaunt build, suggesting someone who spends time reading rather than exercising. His signature attire consists of vintage, dark navy or forest green herringbone tweed blazers worn over crisp, oatmeal-colored cotton shirts (never ties). He pairs this with tailored charcoal wool trousers and always wears a single piece of accessory: a heavy, matte brass signet ring on his right index finger. He has no visible tattoos.",
+    "voice_descriptor": "Male, mid-to-late 20s, possessing a low to medium baritone pitch that is inherently warm and resonant. His accent is neutral American English, carrying the educated cadence of someone who reads poetry or philosophy regularly. His speaking style is highly measured and contemplative; he speaks slowly, giving weight to every word, often pausing slightly before key phrases as if considering their meaning aloud.",
+    "master_ref_image": "characters\\refs\\char_021_ref.png",
+    "ref_seed": 2736666266,
+    "ref_prompt": "Kai is a man in his late 20s to early 30s, possessing an understated, thoughtful aesthetic. He has sharp, angular features and perpetually restless, deep-set hazel eyes that are often framed by faint laugh lines. His hair is dark brown, slightly wavy, and kept moderately long—just brushing the collar—with a natural, unstyled texture. His skin tone is warm olive with subtle freckling visible across his cheekbones. He has a lean, almost gaunt build, suggesting someone who spends time reading rather than exercising. His signature attire consists of vintage, dark navy or forest green herringbone tweed blazers worn over crisp, oatmeal-colored cotton shirts (never ties). He pairs this with tailored charcoal wool trousers and always wears a single piece of accessory: a heavy, matte brass signet ring on his right index finger. He has no visible tattoos., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 14:21:43"
+  },
+  {
+    "char_id": "char_022",
+    "name": "Raza",
+    "speaking": true,
+    "scene_ids": [
+      1,
+      2
+    ],
+    "visual_descriptor": "Raza appears to be a man in his late 30s, with a lean but resilient build and broad shoulders. His skin is deeply tanned and subtly weathered, marked by faint lines around the eyes and forehead that speak of time spent outdoors. He has dark, thick hair that falls naturally and slightly tousled, often falling across his brow. His eyes are deep-set and an intense shade of hazel-brown, usually carrying a contemplative or melancholic expression. He is dressed in simple, functional clothing: a slightly faded charcoal gray linen button-up shirt (the sleeves rolled neatly to the forearms) and dark, worn canvas trousers that reach just above the ankle. His only accessory is a thin, woven leather cord bracelet on his left wrist. He has a faint scar tracing diagonally across the bridge of his nose.",
+    "voice_descriptor": "Male; Mid-to-late 30s; Low to medium pitch; Neutral regional accent (like coastal Southern England or Mediterranean influence); His speaking style is measured and gentle, characterized by long pauses between thoughts and a quiet, empathetic resonance. He never raises his voice, making his words feel deliberate and weighted.",
+    "master_ref_image": "characters\\refs\\char_022_ref.png",
+    "ref_seed": 2086471164,
+    "ref_prompt": "Raza appears to be a man in his late 30s, with a lean but resilient build and broad shoulders. His skin is deeply tanned and subtly weathered, marked by faint lines around the eyes and forehead that speak of time spent outdoors. He has dark, thick hair that falls naturally and slightly tousled, often falling across his brow. His eyes are deep-set and an intense shade of hazel-brown, usually carrying a contemplative or melancholic expression. He is dressed in simple, functional clothing: a slightly faded charcoal gray linen button-up shirt (the sleeves rolled neatly to the forearms) and dark, worn canvas trousers that reach just above the ankle. His only accessory is a thin, woven leather cord bracelet on his left wrist. He has a faint scar tracing diagonally across the bridge of his nose., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 14:40:57"
+  },
+  {
+    "char_id": "char_023",
+    "name": "Amma",
+    "speaking": false,
+    "scene_ids": [
+      1
+    ],
+    "visual_descriptor": "Amma is a woman in her late 40s, possessing a timeless, gentle beauty marked by experience. Her skin has warm, olive undertones and is finely wrinkled around the eyes and mouth from years of smiling and exposure to sun, giving it a soft patina. Her hair is dark brown, thick, and pulled back into a neat, low braid adorned with a single fresh jasmine garland, with noticeable streaks of silver woven near her temples. She has large, expressive, deep-set eyes that are perpetually conveying empathy. Her physique is slender but moves with an inherent grace and quiet strength. She wears simple, breathable cotton clothing—specifically, a muted indigo sari draped in a traditional style, paired with a lightly starched cream blouse. Her only accessory is a thin, tarnished silver anklet on her left ankle; otherwise, she is minimalistic, emphasizing natural simplicity.",
+    "voice_descriptor": "Female, perceived age of 50s. The pitch is mid-low and naturally melodic, possessing an inherent warmth that soothes the listener. She speaks with a gentle, comforting cadence, occasionally dropping into soft, rhythmic humming or song fragments (like lullabies). Her accent is regional and distinctly empathetic, making her speech feel rooted in tradition and deep care.",
+    "master_ref_image": "characters\\refs\\char_023_ref.png",
+    "ref_seed": 380352130,
+    "ref_prompt": "Amma is a woman in her late 40s, possessing a timeless, gentle beauty marked by experience. Her skin has warm, olive undertones and is finely wrinkled around the eyes and mouth from years of smiling and exposure to sun, giving it a soft patina. Her hair is dark brown, thick, and pulled back into a neat, low braid adorned with a single fresh jasmine garland, with noticeable streaks of silver woven near her temples. She has large, expressive, deep-set eyes that are perpetually conveying empathy. Her physique is slender but moves with an inherent grace and quiet strength. She wears simple, breathable cotton clothing—specifically, a muted indigo sari draped in a traditional style, paired with a lightly starched cream blouse. Her only accessory is a thin, tarnished silver anklet on her left ankle; otherwise, she is minimalistic, emphasizing natural simplicity., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 14:41:31"
+  },
+  {
+    "char_id": "char_024",
+    "name": "Stray Cat",
+    "speaking": false,
+    "scene_ids": [
+      1
+    ],
+    "visual_descriptor": "A medium-sized domestic stray cat with an athletic, lean build. Its fur is a dense mix of patchy smoke grey and faded charcoal tabby stripes, exhibiting visible signs of neglect—some patches are slightly matted, particularly around the haunches and tail base, but it retains a healthy sheen on its back. The eyes are the most striking feature: large, highly reflective pools of deep amber, giving them an unnervingly intelligent and watchful quality. Its nose leather is dusty pink, and there is a faint, pale scar running vertically down the bridge of its nose. The cat's paws are perpetually clean but slightly calloused from navigating wet urban environments (like puddles or sinks). It moves with liquid grace; every stretch or crouch suggests coiled tension and immediate readiness to spring. It has no accessories or clothing.",
+    "voice_descriptor": "The character does not possess a human voice, but communicates through highly nuanced vocalizations. These sounds are pitched low and raspy (a gravelly meow), often accompanied by soft, resonant trills that shift in pitch dramatically based on mood—from a questioning, high-pitched chirp when curious, to a deep, rumbling purr of profound contentment or warning. Its 'accent' is one of wilderness; every sound conveys caution and intense observation, never sounding purely domestic.",
+    "master_ref_image": "characters\\refs\\char_024_ref.png",
+    "ref_seed": 3567617577,
+    "ref_prompt": "A medium-sized domestic stray cat with an athletic, lean build. Its fur is a dense mix of patchy smoke grey and faded charcoal tabby stripes, exhibiting visible signs of neglect—some patches are slightly matted, particularly around the haunches and tail base, but it retains a healthy sheen on its back. The eyes are the most striking feature: large, highly reflective pools of deep amber, giving them an unnervingly intelligent and watchful quality. Its nose leather is dusty pink, and there is a faint, pale scar running vertically down the bridge of its nose. The cat's paws are perpetually clean but slightly calloused from navigating wet urban environments (like puddles or sinks). It moves with liquid grace; every stretch or crouch suggests coiled tension and immediate readiness to spring. It has no accessories or clothing., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 14:42:02"
+  },
+  {
+    "char_id": "char_025",
+    "name": "Zara",
+    "speaking": false,
+    "scene_ids": [
+      2
+    ],
+    "visual_descriptor": "Zara is a woman of approximately 27 years old with striking, naturally dark espresso hair that falls to her shoulders, often appearing damp or slightly tousled. Her skin is fair but has a warm, sun-kissed undertone and noticeable fragility around the collarbone. She has large, expressive eyes of deep hazel framed by thick, naturally curled lashes. Her build is slender and graceful. She wears clothing made of lightweight, natural fabrics—such as linen or cotton—in muted earth tones (soft indigo, faded terracotta). Her signature accessory is a thin, antique silver bracelet worn on her right wrist, which occasionally catches the light; otherwise, she is minimally adorned with simple, delicate rings. Her hands are notably expressive and often appear slightly cold when wet.",
+    "voice_descriptor": "Female, late 20s to early 30s. The voice has a low-to-moderate pitch, delivered in a soft, breathy, yet clear tone. She speaks slowly and deliberately, suggesting deep contemplation or emotional exhaustion. Her accent is subtly melodic with hints of Mediterranean influence (e.g., slight softening of consonants). Her style is highly internalized; she rarely raises her voice, but when speaking about memory or longing, the tone becomes fragile, bordering on a whisper.",
+    "master_ref_image": "characters\\refs\\char_025_ref.png",
+    "ref_seed": 1802928423,
+    "ref_prompt": "Zara is a woman of approximately 27 years old with striking, naturally dark espresso hair that falls to her shoulders, often appearing damp or slightly tousled. Her skin is fair but has a warm, sun-kissed undertone and noticeable fragility around the collarbone. She has large, expressive eyes of deep hazel framed by thick, naturally curled lashes. Her build is slender and graceful. She wears clothing made of lightweight, natural fabrics—such as linen or cotton—in muted earth tones (soft indigo, faded terracotta). Her signature accessory is a thin, antique silver bracelet worn on her right wrist, which occasionally catches the light; otherwise, she is minimally adorned with simple, delicate rings. Her hands are notably expressive and often appear slightly cold when wet., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-01 14:42:35"
+  },
+  {
+    "char_id": "char_026",
+    "name": "Aarav",
+    "speaking": true,
+    "scene_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "visual_descriptor": "Aarav is a man in his late twenties, possessing an effortlessly graceful and weathered beauty. His skin is sun-kissed with deep, warm undertones, lightly dusted with faint hints of natural earth stains on his forearms and collar. His hair is thick, dark mahogany brown, kept shoulder-length but naturally tousled, falling just enough to graze his neck when he moves. He has intelligent, observant eyes—the color of rich moss—and a perpetually calm expression. He is slender and possesses an agile build, suggesting quiet physical labor rather than brute strength. His clothing consists entirely of natural fibers: a loose-fitting, cream-colored linen tunic layered over soft sage green trousers, both slightly worn at the cuffs but meticulously clean. The fabric always looks breathable and comfortable. He wears minimal accessories—only a simple, braided leather cord around his wrist, which is stained lightly with plant residue.",
+    "voice_descriptor": "Male, perceived age of 30. The pitch is medium-low, resonant, and profoundly soothing. His accent is neutral but carries a gentle, measured cadence that suggests profound contemplation. His speaking style is slow, deliberate, and rhythmic; he articulates each word as if savoring its meaning, often pausing for thoughtful beats before continuing, giving his voice a poetic quality.",
+    "master_ref_image": "characters\\refs\\char_026_ref.png",
+    "ref_seed": 3205156378,
+    "ref_prompt": "Aarav is a man in his late twenties, possessing an effortlessly graceful and weathered beauty. His skin is sun-kissed with deep, warm undertones, lightly dusted with faint hints of natural earth stains on his forearms and collar. His hair is thick, dark mahogany brown, kept shoulder-length but naturally tousled, falling just enough to graze his neck when he moves. He has intelligent, observant eyes—the color of rich moss—and a perpetually calm expression. He is slender and possesses an agile build, suggesting quiet physical labor rather than brute strength. His clothing consists entirely of natural fibers: a loose-fitting, cream-colored linen tunic layered over soft sage green trousers, both slightly worn at the cuffs but meticulously clean. The fabric always looks breathable and comfortable. He wears minimal accessories—only a simple, braided leather cord around his wrist, which is stained lightly with plant residue., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-BrianNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 19:51:06"
+  },
+  {
+    "char_id": "char_027",
+    "name": "Priya",
+    "speaking": true,
+    "scene_ids": [
+      19
+    ],
+    "visual_descriptor": "Priya has a warm olive complexion with subtle freckling visible across her nose and collarbones, suggesting time spent outdoors. Her hair is thick, raven-black, and usually styled in a low, intricate braid adorned with fresh jasmine flowers or simple woven bands of terracotta beads. She possesses soft, thoughtful features, framed by deep hazel eyes that appear perpetually observant. She wears clothing constructed from natural, breathable fabrics—primarily linen and fine cotton—in muted earth tones (sage green, faded indigo, cream). Her outfit consists of a loose, floor-length tunic over fitted trousers, allowing for unrestricted movement in the garden setting. Accessories are minimal but intentional: she wears simple hammered copper bangles on her wrists and carries a woven rattan clutch bag that often holds gathered herbs or small potted blooms.",
+    "voice_descriptor": "Female, late 20s to early 30s. The pitch is mid-low, possessing a soft, resonant quality. Her accent is educated, gentle, and slightly melodious, suggesting a deep connection to the culture and land. She speaks at a measured, thoughtful pace, with clear enunciation. Her speaking style is reflective; she tends to pause before answering questions or making observations, lending her words an air of quiet authority and profound understanding.",
+    "master_ref_image": "characters\\refs\\char_027_ref.png",
+    "ref_seed": 3780322748,
+    "ref_prompt": "Priya has a warm olive complexion with subtle freckling visible across her nose and collarbones, suggesting time spent outdoors. Her hair is thick, raven-black, and usually styled in a low, intricate braid adorned with fresh jasmine flowers or simple woven bands of terracotta beads. She possesses soft, thoughtful features, framed by deep hazel eyes that appear perpetually observant. She wears clothing constructed from natural, breathable fabrics—primarily linen and fine cotton—in muted earth tones (sage green, faded indigo, cream). Her outfit consists of a loose, floor-length tunic over fitted trousers, allowing for unrestricted movement in the garden setting. Accessories are minimal but intentional: she wears simple hammered copper bangles on her wrists and carries a woven rattan clutch bag that often holds gathered herbs or small potted blooms., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 19:51:58"
+  },
+  {
+    "char_id": "char_028",
+    "name": "Nani",
+    "speaking": true,
+    "scene_ids": [
+      30
+    ],
+    "visual_descriptor": "Nani is a woman in her late 60s with a strong, weathered presence. Her skin is deeply tanned and crisscrossed with fine lines, giving her face an eternally serene quality. She has dark, salt-and-pepper hair braided simply down her back, interwoven subtly with dried jasmine blossoms or bits of moss. She wears practical, layered clothing made of natural, undyed linen in muted shades of olive green and terracotta. Her outfit consists of a loose peasant blouse and high-waisted trousers cinched with a wide belt woven from coir rope. Over this, she wears a simple shawl of raw silk that often catches specks of pollen or earth dust. She carries a basket woven from reeds and stained with age, which typically holds cuttings or small pots. Her hands are visible in every shot: strong, graceful, and perpetually dusted with fine soil.",
+    "voice_descriptor": "Female, perceived age of 65-70. The pitch is low and warm, slightly husky, giving it a sense of deep resonance. She speaks with a gentle, rhythmic cadence, implying a regional accent (Mediterranean or Southern European feel). Her speaking style is measured, contemplative, and highly descriptive; she often pauses before answering, as if observing something beautiful in the moment before sharing her thoughts.",
+    "master_ref_image": "characters\\refs\\char_028_ref.png",
+    "ref_seed": 2321049918,
+    "ref_prompt": "Nani is a woman in her late 60s with a strong, weathered presence. Her skin is deeply tanned and crisscrossed with fine lines, giving her face an eternally serene quality. She has dark, salt-and-pepper hair braided simply down her back, interwoven subtly with dried jasmine blossoms or bits of moss. She wears practical, layered clothing made of natural, undyed linen in muted shades of olive green and terracotta. Her outfit consists of a loose peasant blouse and high-waisted trousers cinched with a wide belt woven from coir rope. Over this, she wears a simple shawl of raw silk that often catches specks of pollen or earth dust. She carries a basket woven from reeds and stained with age, which typically holds cuttings or small pots. Her hands are visible in every shot: strong, graceful, and perpetually dusted with fine soil., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-01 19:52:41"
+  },
+  {
+    "char_id": "char_029",
+    "name": "Anna",
+    "speaking": true,
+    "scene_ids": [
+      1,
+      26,
+      28
+    ],
+    "visual_descriptor": "Anna is a woman of striking, classic beauty with an undeniably refined presence. Her face features high cheekbones, a defined jawline, and large, expressive hazel eyes that often carry a subtle melancholy or intelligence. Her skin is porcelain-smooth and immaculately cared for. She has rich, dark mahogany hair styled in elegant, voluminous soft waves that are always partially swept over her left shoulder, maintaining a polished yet natural fall. Her build is slender and graceful. She is dressed in tailored evening wear—a deep sapphire or emerald green silk gown with a sophisticated neckline (e.g., cowl neck or structured bodice). Accessories include understated diamond stud earrings and a thin gold cuff bracelet; she avoids anything overly flashy. Her signature props, if visible, are typically delicate, expensive-looking gloves.",
+    "voice_descriptor": "Female, sounding late 20s to mid-30s. The pitch is medium-low, maintaining exceptional clarity and control. She speaks with a polished, educated cadence and a neutral accent that suggests old money or elite social circles (highly articulate, precise diction). Her speaking style is deliberate and measured; she rarely rushes, choosing her words with apparent effortlessness, lending an air of sophisticated intimacy to even casual conversation.",
+    "master_ref_image": "characters\\refs\\char_029_ref.png",
+    "ref_seed": 1860780086,
+    "ref_prompt": "Anna is a woman of striking, classic beauty with an undeniably refined presence. Her face features high cheekbones, a defined jawline, and large, expressive hazel eyes that often carry a subtle melancholy or intelligence. Her skin is porcelain-smooth and immaculately cared for. She has rich, dark mahogany hair styled in elegant, voluminous soft waves that are always partially swept over her left shoulder, maintaining a polished yet natural fall. Her build is slender and graceful. She is dressed in tailored evening wear—a deep sapphire or emerald green silk gown with a sophisticated neckline (e.g., cowl neck or structured bodice). Accessories include understated diamond stud earrings and a thin gold cuff bracelet; she avoids anything overly flashy. Her signature props, if visible, are typically delicate, expensive-looking gloves., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:27:37"
+  },
+  {
+    "char_id": "char_030",
+    "name": "Various Friends",
+    "speaking": false,
+    "scene_ids": [
+      1
+    ],
+    "visual_descriptor": "A mixed group of sophisticated, immaculately dressed individuals who embody high-end glamour and contemporary wealth. The clothing style is varied but consistent: haute couture with a blend of structural tailoring (jackets, gowns) and luxurious fabrics (silk, velvet, lace). Color palettes are deep jewel tones (sapphire, emerald, ruby) punctuated by stark black or creamy ivory. Hair styling ranges from voluminous, polished waves to sleek, severe updos. Makeup is flawless, featuring dramatic smoky eyes or a perfect, classic red lip. Signature props include designer clutches, elaborate necklaces, and statement rings that catch the light. Every person appears perfectly groomed, exuding an aura of effortless, expensive polish.",
+    "voice_descriptor": "A chorus of varied voices (soprano to contralto) speaking at a moderate, deliberate pace. The tone is articulate, cultured, and highly dramatic—sounding like people who are used to being heard in formal settings. Accents are neutral but suggest upper-class social backgrounds; the general style is one of studied conversational charm mixed with underlying emotional intensity.",
+    "master_ref_image": "characters\\refs\\char_030_ref.png",
+    "ref_seed": 1895417380,
+    "ref_prompt": "A mixed group of sophisticated, immaculately dressed individuals who embody high-end glamour and contemporary wealth. The clothing style is varied but consistent: haute couture with a blend of structural tailoring (jackets, gowns) and luxurious fabrics (silk, velvet, lace). Color palettes are deep jewel tones (sapphire, emerald, ruby) punctuated by stark black or creamy ivory. Hair styling ranges from voluminous, polished waves to sleek, severe updos. Makeup is flawless, featuring dramatic smoky eyes or a perfect, classic red lip. Signature props include designer clutches, elaborate necklaces, and statement rings that catch the light. Every person appears perfectly groomed, exuding an aura of effortless, expensive polish., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:28:16"
+  },
+  {
+    "char_id": "char_031",
+    "name": "Protagonist (The Married Woman)",
+    "speaking": false,
+    "scene_ids": [
+      2
+    ],
+    "visual_descriptor": "A woman in her early 40s, embodying classic old-money glamour. Her skin is flawless and porcelain-like, appearing always professionally lit. She has sharply defined cheekbones and almond-shaped eyes that are often framed by smoky, perfectly winged eyeliner and deep mauve shadow. Her lips are consistently painted a rich, matte crimson red. Her hair is thick, dark chestnut brown, styled in meticulously structured waves that fall past her shoulders. She wears bespoke cocktail dresses—structured fabrics (velvet, silk crepe) in jewel tones like emerald or sapphire—always accessorized with delicate gold jewelry, notably a prominent solitaire engagement ring on her right hand, which she subtly gestures with. Her nails are kept immaculate and polished a nude shade.",
+    "voice_descriptor": "Female; mid-to-late 40s; medium pitch, slightly husky depth; neutral upper-class American accent with an undeniable patina of Southern eloquence; speaking style is highly measured, articulate, and gracefully modulated. She speaks in complete, grammatically perfect sentences, often pausing before key words or emotional points to maximize perceived sincerity or subtle implication.",
+    "master_ref_image": "characters\\refs\\char_031_ref.png",
+    "ref_seed": 3317135049,
+    "ref_prompt": "A woman in her early 40s, embodying classic old-money glamour. Her skin is flawless and porcelain-like, appearing always professionally lit. She has sharply defined cheekbones and almond-shaped eyes that are often framed by smoky, perfectly winged eyeliner and deep mauve shadow. Her lips are consistently painted a rich, matte crimson red. Her hair is thick, dark chestnut brown, styled in meticulously structured waves that fall past her shoulders. She wears bespoke cocktail dresses—structured fabrics (velvet, silk crepe) in jewel tones like emerald or sapphire—always accessorized with delicate gold jewelry, notably a prominent solitaire engagement ring on her right hand, which she subtly gestures with. Her nails are kept immaculate and polished a nude shade., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:29:09"
+  },
+  {
+    "char_id": "char_032",
+    "name": "Friends",
+    "speaking": false,
+    "scene_ids": [
+      2,
+      11,
+      13,
+      25,
+      26,
+      27,
+      28
+    ],
+    "visual_descriptor": "An ensemble cast exhibiting a shared, immaculate sense of high-end fashion; every member wears tailored garments (silk, velvet, cashmere) in jewel tones or classic neutrals, suggesting extreme wealth and curated taste. Individual variations include dramatic, polished hairstyles (wavy bobs, sleek updos), minimal but expensive jewelry (geometric gold, colored gemstones), and perfect makeup application. Their collective aesthetic is polished drama—they look like they belong in an opulent, old-world setting.",
+    "voice_descriptor": "The voice descriptor for the group itself: A layered tapestry of feminine voices ranging from light soprano to rich alto, speaking with a rapid, interlocking cadence. The pitch varies wildly based on the individual speaker, but their collective style is highly articulate, dramatic, and perpetually engaged—a blend of conspiratorial whispers punctuated by bursts of bright, theatrical laughter.",
+    "master_ref_image": "characters\\refs\\char_032_ref.png",
+    "ref_seed": 2859106978,
+    "ref_prompt": "An ensemble cast exhibiting a shared, immaculate sense of high-end fashion; every member wears tailored garments (silk, velvet, cashmere) in jewel tones or classic neutrals, suggesting extreme wealth and curated taste. Individual variations include dramatic, polished hairstyles (wavy bobs, sleek updos), minimal but expensive jewelry (geometric gold, colored gemstones), and perfect makeup application. Their collective aesthetic is polished drama—they look like they belong in an opulent, old-world setting., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:29:47"
+  },
+  {
+    "char_id": "char_033",
+    "name": "Protagonist",
+    "speaking": true,
+    "scene_ids": [
+      2,
+      4,
+      11,
+      13,
+      14,
+      29
+    ],
+    "visual_descriptor": "A woman in her late twenties with an arresting, thoughtful beauty. Her hair is a deep espresso brown, worn sleekly in a structured wave that falls just below her shoulders, always immaculate but never overly styled. Her skin is porcelain-smooth with cool undertones and prominent cheekbones. She has intense, almond-shaped hazel eyes, framed by naturally long, dark lashes, which are perpetually observant. Her style favors timeless, high-end tailoring; today she wears a deep emerald velvet gown of a structured A-line cut, accented by an intricate black lace yoke visible at the neckline and wrist cuffs. She carries herself with contained grace. Signature accessory: a single, heavy platinum bracelet featuring three small, uncut sapphires that catches the light subtly.",
+    "voice_descriptor": "Female, estimated age 28, pitch is medium-low, maintaining consistent control even when emotionally heightened. Her accent is a polished, upper-class neutral American accent with subtle European cadence. Her speaking style is measured and highly articulate; she speaks in full, grammatically perfect sentences, using deliberate pauses before key points or rhetorical questions to maximize dramatic impact. She sounds confident but slightly weary.",
+    "master_ref_image": "characters\\refs\\char_033_ref.png",
+    "ref_seed": 1216448883,
+    "ref_prompt": "A woman in her late twenties with an arresting, thoughtful beauty. Her hair is a deep espresso brown, worn sleekly in a structured wave that falls just below her shoulders, always immaculate but never overly styled. Her skin is porcelain-smooth with cool undertones and prominent cheekbones. She has intense, almond-shaped hazel eyes, framed by naturally long, dark lashes, which are perpetually observant. Her style favors timeless, high-end tailoring; today she wears a deep emerald velvet gown of a structured A-line cut, accented by an intricate black lace yoke visible at the neckline and wrist cuffs. She carries herself with contained grace. Signature accessory: a single, heavy platinum bracelet featuring three small, uncut sapphires that catches the light subtly., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:30:18"
+  },
+  {
+    "char_id": "char_034",
+    "name": "Unmarried Friend A",
+    "speaking": false,
+    "scene_ids": [
+      4
+    ],
+    "visual_descriptor": "A woman in her late 20s, with shoulder-length, wavy chestnut brown hair that falls naturally and is often caught catching the light. Her skin is warm olive-toned and flawless. She has expressive, deep hazel eyes framed by long, dark lashes and a gentle, engaging smile. She typically wears tailored, modern clothing—such as silk slip dresses or high-waisted trousers paired with delicate cashmere sweaters—in muted jewel tones (sage green, dusty blue, burgundy). Her accessories are minimal but expensive: small gold hoop earrings, a thin layered gold necklace, and often carries a structured, neutral-colored clutch. She generally exudes an approachable yet sophisticated air.",
+    "voice_descriptor": "Female, late 20s to early 30s, medium pitch, slightly lower register. Her accent is crisp and cultivated (suggesting university education or high society). Her speaking style is warm, empathetic, and highly conversational; she speaks with a measured pace, using frequent, reassuring interjections ('Oh!', 'Honestly...', 'Right?'), making her sound like an attentive and agreeable social confidant.",
+    "master_ref_image": "characters\\refs\\char_034_ref.png",
+    "ref_seed": 187628402,
+    "ref_prompt": "A woman in her late 20s, with shoulder-length, wavy chestnut brown hair that falls naturally and is often caught catching the light. Her skin is warm olive-toned and flawless. She has expressive, deep hazel eyes framed by long, dark lashes and a gentle, engaging smile. She typically wears tailored, modern clothing—such as silk slip dresses or high-waisted trousers paired with delicate cashmere sweaters—in muted jewel tones (sage green, dusty blue, burgundy). Her accessories are minimal but expensive: small gold hoop earrings, a thin layered gold necklace, and often carries a structured, neutral-colored clutch. She generally exudes an approachable yet sophisticated air., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:30:52"
+  },
+  {
+    "char_id": "char_035",
+    "name": "Unmarried Friend B",
+    "speaking": false,
+    "scene_ids": [
+      4
+    ],
+    "visual_descriptor": "Unmarried Friend B is a woman in her early thirties with an elegant, understated style. She has straight, ash-brown hair that falls just past her collarbone and is usually styled in soft waves. Her skin is pale olive, generally matte with subtle blush on the cheekbones. She possesses sharp, observant hazel eyes and a naturally defined mouth. She favors tailored pieces—think slip dresses paired with structured blazers, or silk trousers and cashmere sweaters. Today, she wears a deep forest green velvet midi dress and minimal gold jewelry: thin hoop earrings and a simple stacking ring on her index finger. Her signature accessory is a vintage, structured crossbody bag made of dark leather that always sits perfectly balanced against her hip.",
+    "voice_descriptor": "Female, estimated age 32-35, medium-high pitch, clean upper-middle-class accent (New York or Boston inflection), and a speaking style that is highly modulated and conversational. She speaks with an engaged, inquisitive tone, using thoughtful pauses and slight shifts in cadence to emphasize points, making her sound knowledgeable but always attentive to the group dynamic.",
+    "master_ref_image": "characters\\refs\\char_035_ref.png",
+    "ref_seed": 3379216058,
+    "ref_prompt": "Unmarried Friend B is a woman in her early thirties with an elegant, understated style. She has straight, ash-brown hair that falls just past her collarbone and is usually styled in soft waves. Her skin is pale olive, generally matte with subtle blush on the cheekbones. She possesses sharp, observant hazel eyes and a naturally defined mouth. She favors tailored pieces—think slip dresses paired with structured blazers, or silk trousers and cashmere sweaters. Today, she wears a deep forest green velvet midi dress and minimal gold jewelry: thin hoop earrings and a simple stacking ring on her index finger. Her signature accessory is a vintage, structured crossbody bag made of dark leather that always sits perfectly balanced against her hip., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:31:25"
+  },
+  {
+    "char_id": "char_036",
+    "name": "Anya",
+    "speaking": true,
+    "scene_ids": [
+      5
+    ],
+    "visual_descriptor": "Anya possesses an arresting, statuesque beauty with porcelain skin and sharply defined cheekbones. Her eyes are a cool shade of grey that holds an intense, calculating focus. Her hair is deep raven black, styled in polished, voluminous waves that fall just past her shoulders, often adorned with subtle pearl or diamond clips. She has flawless makeup emphasizing strong brows and a muted crimson lip stain. Her wardrobe consists of bespoke evening wear; she is wearing a floor-length gown of midnight blue silk velvet with delicate silver filigree embroidery at the waistline. She wears minimal but impactful jewelry: small diamond stud earrings and an antique, heavy gold bracelet on her left wrist. Signature prop: She often carries herself with perfect posture, occasionally adjusting the cuff of her sleeve.",
+    "voice_descriptor": "Female, early 30s, medium-low pitch, sophisticated upper-class neutral accent. Her speaking style is highly articulate and deliberate; she speaks in a controlled, smooth rhythm, employing slight dramatic pauses before key phrases to ensure maximum impact. She sounds confident but always measured.",
+    "master_ref_image": "characters\\refs\\char_036_ref.png",
+    "ref_seed": 3892950672,
+    "ref_prompt": "Anya possesses an arresting, statuesque beauty with porcelain skin and sharply defined cheekbones. Her eyes are a cool shade of grey that holds an intense, calculating focus. Her hair is deep raven black, styled in polished, voluminous waves that fall just past her shoulders, often adorned with subtle pearl or diamond clips. She has flawless makeup emphasizing strong brows and a muted crimson lip stain. Her wardrobe consists of bespoke evening wear; she is wearing a floor-length gown of midnight blue silk velvet with delicate silver filigree embroidery at the waistline. She wears minimal but impactful jewelry: small diamond stud earrings and an antique, heavy gold bracelet on her left wrist. Signature prop: She often carries herself with perfect posture, occasionally adjusting the cuff of her sleeve., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:32:10"
+  },
+  {
+    "char_id": "char_037",
+    "name": "Single Friends Group",
+    "speaking": false,
+    "scene_ids": [
+      5
+    ],
+    "visual_descriptor": "A group of 3-5 women in their late 20s to mid-30s; they share an aesthetic of expensive, curated nightlife fashion. Individual styles vary (ranging from sleek Parisian minimalism to modern maximalist glamour), but all outfits are high quality and coordinated for a wealthy social event. Common features include flawless skin makeup, carefully styled hair (deep waves, polished updos, or glossy bobs), and subtle but costly accessories (structured handbags, delicate gold jewelry). Their signature props often include crystal flutes of champagne, manicured hands gesturing during conversation, and designer optical eyewear pushed up on the bridge of the nose.",
+    "voice_descriptor": "A multi-faceted soundscape characterized by elevated 'chatter.' The combined voices are mid-to-high pitch, ranging from light soprano to mezzo-soprano. The speaking style is rapid, breathless, highly modulated, and filled with bursts of overlapping laughter and hushed secrets, suggesting an air of curated exclusivity and constant social performance.",
+    "master_ref_image": "characters\\refs\\char_037_ref.png",
+    "ref_seed": 3970646340,
+    "ref_prompt": "A group of 3-5 women in their late 20s to mid-30s; they share an aesthetic of expensive, curated nightlife fashion. Individual styles vary (ranging from sleek Parisian minimalism to modern maximalist glamour), but all outfits are high quality and coordinated for a wealthy social event. Common features include flawless skin makeup, carefully styled hair (deep waves, polished updos, or glossy bobs), and subtle but costly accessories (structured handbags, delicate gold jewelry). Their signature props often include crystal flutes of champagne, manicured hands gesturing during conversation, and designer optical eyewear pushed up on the bridge of the nose., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:32:46"
+  },
+  {
+    "char_id": "char_038",
+    "name": "CHLOE",
+    "speaking": false,
+    "scene_ids": [
+      6,
+      7
+    ],
+    "visual_descriptor": "CHLOE: Late 20s, possessing flawlessly sculpted, high cheekbones and a naturally defined jawline. Her skin is porcelain-smooth with a luminous finish achieved by subtle contouring makeup. She has striking, almond-shaped eyes that are frequently lined with deep black liquid eyeliner to give them a perpetually dramatic, wide-awake look. Her signature hair is pitch-black, perfectly styled in structured, voluminous curtain waves that fall past her shoulders and require no visible effort. Today's outfit consists of an emerald silk cocktail dress that cinches at the waist, falling just above the knee. She wears delicate, antique gold jewelry: a single, prominent diamond tennis bracelet on her left wrist, matching small stud earrings, and perpetually has a structural, polished gold cuff ring worn on her index finger. Her manicure is always immaculate, featuring glossy nude almond nails.",
+    "voice_descriptor": "Female, mid-30s, with a clear, slightly breathy mezzo pitch. Her accent is cultivated transatlantic (neutral British influence), giving her speech an air of effortless polish and superior education. Her speaking style is measured and conversational; she never rushes her words, often pausing just long enough before delivering the key phrase to ensure maximum impact or emotional weight.",
+    "master_ref_image": "characters\\refs\\char_038_ref.png",
+    "ref_seed": 4105129064,
+    "ref_prompt": "CHLOE: Late 20s, possessing flawlessly sculpted, high cheekbones and a naturally defined jawline. Her skin is porcelain-smooth with a luminous finish achieved by subtle contouring makeup. She has striking, almond-shaped eyes that are frequently lined with deep black liquid eyeliner to give them a perpetually dramatic, wide-awake look. Her signature hair is pitch-black, perfectly styled in structured, voluminous curtain waves that fall past her shoulders and require no visible effort. Today's outfit consists of an emerald silk cocktail dress that cinches at the waist, falling just above the knee. She wears delicate, antique gold jewelry: a single, prominent diamond tennis bracelet on her left wrist, matching small stud earrings, and perpetually has a structural, polished gold cuff ring worn on her index finger. Her manicure is always immaculate, featuring glossy nude almond nails., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:33:17"
+  },
+  {
+    "char_id": "char_039",
+    "name": "MARTHA",
+    "speaking": false,
+    "scene_ids": [
+      6,
+      30
+    ],
+    "visual_descriptor": "MARTHA is a woman in her early 30s with an impeccably maintained, polished appearance. Her face has sharp cheekbones, full lips painted a deep oxblood red, and striking almond-shaped eyes that are typically framed by winged liquid eyeliner. Her skin tone is porcelain pale with a flawless sheen. She wears her dark, raven hair styled in structured waves that fall just past her shoulders. Her physique is slender and graceful. Her wardrobe consists of tailored garments—today she is wearing a high-necked emerald velvet gown that falls to the ankle, cinched at the waist by a delicate gold belt featuring an engraved crest. Accessories are crucial: she wears matching diamond stud earrings and carries a small, structured minaudière clutch of dark sapphire blue. Her signature item is a single, antique silver locket worn around her neck on a fine chain.",
+    "voice_descriptor": "Female, early 30s. The pitch is medium-low and velvety smooth. She possesses a cultivated, precise accent (suggesting old European money). Her speaking style is highly controlled and articulate; she rarely raises her voice, using careful enunciation and measured pauses to ensure every word carries weight and implication.",
+    "master_ref_image": "characters\\refs\\char_039_ref.png",
+    "ref_seed": 2993042775,
+    "ref_prompt": "MARTHA is a woman in her early 30s with an impeccably maintained, polished appearance. Her face has sharp cheekbones, full lips painted a deep oxblood red, and striking almond-shaped eyes that are typically framed by winged liquid eyeliner. Her skin tone is porcelain pale with a flawless sheen. She wears her dark, raven hair styled in structured waves that fall just past her shoulders. Her physique is slender and graceful. Her wardrobe consists of tailored garments—today she is wearing a high-necked emerald velvet gown that falls to the ankle, cinched at the waist by a delicate gold belt featuring an engraved crest. Accessories are crucial: she wears matching diamond stud earrings and carries a small, structured minaudière clutch of dark sapphire blue. Her signature item is a single, antique silver locket worn around her neck on a fine chain., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:33:51"
+  },
+  {
+    "char_id": "char_040",
+    "name": "MARIA",
+    "speaking": true,
+    "scene_ids": [
+      8
+    ],
+    "visual_descriptor": "Maria has flawless, cool-toned porcelain skin, always complemented by subtle contouring that highlights her cheekbones. Her hair is a deep, rich espresso brown, worn in a meticulously structured chignon that falls elegantly at the nape of her neck, with only a few artfully placed tendrils framing her face. She wears expensive, understated jewelry—specifically, small diamond stud earrings and a single platinum cuff bracelet on her left wrist. Her wardrobe consists of structured, bias-cut gowns in jewel tones (e.g., sapphire blue or deep burgundy), often featuring silk velvet or heavy crepe fabric. She carries a miniature, vintage black beaded clutch that she adjusts with precise, measured movements. Her expression is perpetually composed, suggesting watchful intelligence.",
+    "voice_descriptor": "Female, estimated age 38-45. The pitch is consistently mid-low and controlled, never rising into genuine excitement or despair. She possesses an immaculate, highly polished transatlantic accent, speaking with perfect diction. Her speaking style is measured, deliberate, and melodic; she pauses significantly before delivering key phrases, lending them a theatrical weight that suggests both extreme confidence and subtle condescension.",
+    "master_ref_image": "characters\\refs\\char_040_ref.png",
+    "ref_seed": 2800921100,
+    "ref_prompt": "Maria has flawless, cool-toned porcelain skin, always complemented by subtle contouring that highlights her cheekbones. Her hair is a deep, rich espresso brown, worn in a meticulously structured chignon that falls elegantly at the nape of her neck, with only a few artfully placed tendrils framing her face. She wears expensive, understated jewelry—specifically, small diamond stud earrings and a single platinum cuff bracelet on her left wrist. Her wardrobe consists of structured, bias-cut gowns in jewel tones (e.g., sapphire blue or deep burgundy), often featuring silk velvet or heavy crepe fabric. She carries a miniature, vintage black beaded clutch that she adjusts with precise, measured movements. Her expression is perpetually composed, suggesting watchful intelligence., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:34:24"
+  },
+  {
+    "char_id": "char_041",
+    "name": "HUSBAND",
+    "speaking": false,
+    "scene_ids": [
+      8,
+      14,
+      23
+    ],
+    "visual_descriptor": "He is a man in his late 40s, possessing the carefully curated appearance of old money. He has thick, impeccably styled salt-and-pepper hair, always slicked back from a sharp widow's peak. His skin is pale and smooth, with fine lines only visible around his calculating blue eyes. He is sharply built but holds himself with a relaxed, almost languid confidence. His signature attire is a custom, charcoal glen plaid suit, tailored to perfection over a pristine white dress shirt and a silk tie in deep burgundy or navy stripes. Accessories include polished alligator-skin gloves (often tucked into a pocket) and an expensive, understated wristwatch visible only when his wrist gestures slightly.",
+    "voice_descriptor": "Male, late 40s, mid-low pitch with remarkable resonance and control. He speaks with a highly educated, refined East Coast American accent, characterized by long, smooth vowel sounds. His speaking style is measured and deliberate; every word feels chosen for maximum impact, conveying inherent authority and subtle emotional distance.",
+    "master_ref_image": "characters\\refs\\char_041_ref.png",
+    "ref_seed": 2761430121,
+    "ref_prompt": "He is a man in his late 40s, possessing the carefully curated appearance of old money. He has thick, impeccably styled salt-and-pepper hair, always slicked back from a sharp widow's peak. His skin is pale and smooth, with fine lines only visible around his calculating blue eyes. He is sharply built but holds himself with a relaxed, almost languid confidence. His signature attire is a custom, charcoal glen plaid suit, tailored to perfection over a pristine white dress shirt and a silk tie in deep burgundy or navy stripes. Accessories include polished alligator-skin gloves (often tucked into a pocket) and an expensive, understated wristwatch visible only when his wrist gestures slightly., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:35:17"
+  },
+  {
+    "char_id": "char_042",
+    "name": "SINGLE FRIENDS",
+    "speaking": false,
+    "scene_ids": [
+      8,
+      18
+    ],
+    "visual_descriptor": "A woman of polished, expensive taste; approximately 30 years old. Her hair is long, thick, and deep espresso brown, always immaculately styled in structured waves that fall past her shoulders. Her skin is porcelain pale with a visible effortlessness, maintained by flawless makeup: perfectly sculpted brows, subtle contouring, and lips painted the color of ripe berry wine. She favors tailored designer dresses or sophisticated separates (silk slips paired with architectural blazers) in jewel tones like emerald green, sapphire blue, or deep burgundy. Her accessories are statement pieces but appear vintage—a delicate gold choker necklace that sits high on her neck and small, diamond-encrusted cocktail rings. Her overall aesthetic is 'effortless wealth' combined with an underlying sense of dramatic melancholy.",
+    "voice_descriptor": "Female, late 20s to early 30s. The pitch is low-to-mid range, smooth, and highly melodic, possessing a cultivated warmth that often masks critical undertones. Her accent is highly polished and sophisticated (upper-class Received Pronunciation or similar globally elite standard). Her speaking style is characterized by perfect articulation and dramatic pacing; she speaks in measured tones, often using careful pauses before key phrases to emphasize perceived sincerity or concealed judgment.",
+    "master_ref_image": "characters\\refs\\char_042_ref.png",
+    "ref_seed": 3119645667,
+    "ref_prompt": "A woman of polished, expensive taste; approximately 30 years old. Her hair is long, thick, and deep espresso brown, always immaculately styled in structured waves that fall past her shoulders. Her skin is porcelain pale with a visible effortlessness, maintained by flawless makeup: perfectly sculpted brows, subtle contouring, and lips painted the color of ripe berry wine. She favors tailored designer dresses or sophisticated separates (silk slips paired with architectural blazers) in jewel tones like emerald green, sapphire blue, or deep burgundy. Her accessories are statement pieces but appear vintage—a delicate gold choker necklace that sits high on her neck and small, diamond-encrusted cocktail rings. Her overall aesthetic is 'effortless wealth' combined with an underlying sense of dramatic melancholy., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:35:56"
+  },
+  {
+    "char_id": "char_043",
+    "name": "The Girl",
+    "speaking": true,
+    "scene_ids": [
+      9,
+      20,
+      21
+    ],
+    "visual_descriptor": "A girl who appears to be in her early twenties. She has an almost porcelain complexion with immaculate, flawlessly applied makeup—a delicate wash of blush, defined brows, and a deep berry lip stain. Her eyes are wide-set and strikingly observant, framed by long, dark lashes. Her hair is raven black, styled in perfect, highly polished waves that fall just past her shoulders, often secured with an ornate, antique hairpin or pin. She favors expensive, structured gowns (velvet, silk, deep jewel tones) that emphasize a slender but poised figure. Accessories are crucial to her persona: she always wears meticulously crafted jewelry, most notably a significant signet ring on her right index finger. Her overall presentation is one of perfect, curated elegance, making her appear simultaneously breathtaking and slightly untouchable.",
+    "voice_descriptor": "Female, appearing in her early twenties. The voice has a medium, crystalline pitch and an educated, cultivated cadence with the soft enunciation of Old Money aristocracy (a subtle Upper East Side/Mayfair accent). Her speaking style is deliberate, measured, and almost theatrical; she speaks at a steady, moderate pace, never rushing or stumbling over words. Her tone always maintains a thread of fragile sincerity, making it difficult for listeners to discern if she is genuinely speaking or simply performing the role of 'The Girl.'",
+    "master_ref_image": "characters\\refs\\char_043_ref.png",
+    "ref_seed": 750768106,
+    "ref_prompt": "A girl who appears to be in her early twenties. She has an almost porcelain complexion with immaculate, flawlessly applied makeup—a delicate wash of blush, defined brows, and a deep berry lip stain. Her eyes are wide-set and strikingly observant, framed by long, dark lashes. Her hair is raven black, styled in perfect, highly polished waves that fall just past her shoulders, often secured with an ornate, antique hairpin or pin. She favors expensive, structured gowns (velvet, silk, deep jewel tones) that emphasize a slender but poised figure. Accessories are crucial to her persona: she always wears meticulously crafted jewelry, most notably a significant signet ring on her right index finger. Her overall presentation is one of perfect, curated elegance, making her appear simultaneously breathtaking and slightly untouchable., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-AnaNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:36:42"
+  },
+  {
+    "char_id": "char_044",
+    "name": "Unmarried Friends",
+    "speaking": false,
+    "scene_ids": [
+      9,
+      20,
+      21,
+      23,
+      30
+    ],
+    "visual_descriptor": "A group of four women in their late twenties to early thirties, styled as high-fashion, modern socialites. They are dressed in luxurious, cocktail attire that is individually unique but cohesive (e.g., deep jewel tones, sleek fabrics like silk and velvet). Styles range from tailored mini-blazers and wide-leg trousers to sophisticated slip dresses. Their hair is impeccably styled—ranging from polished waves to chic updos. Makeup is polished but natural, emphasizing glossy lips and defined brows. They share a unified sense of polished elegance; their collective presentation suggests wealth, careful grooming, and contemporary fashion awareness. They are accessorized with fine jewelry (minimalist gold/silver pieces), structured handbags, and heels.",
+    "voice_descriptor": "The ensemble speaks as a unit: multiple voices (two female leads, two supporting). The pitch range is medium-low to mid-high, reflecting individual personality but maintaining group synchronization. The accent is highly polished, upper-class American or European neutral. Speaking style is rapid, witty, and conversational; it transitions smoothly between shared laughter, conspiratorial whispers, and dramatic emphasis when one character needs to take the floor.",
+    "master_ref_image": "characters\\refs\\char_044_ref.png",
+    "ref_seed": 4220194467,
+    "ref_prompt": "A group of four women in their late twenties to early thirties, styled as high-fashion, modern socialites. They are dressed in luxurious, cocktail attire that is individually unique but cohesive (e.g., deep jewel tones, sleek fabrics like silk and velvet). Styles range from tailored mini-blazers and wide-leg trousers to sophisticated slip dresses. Their hair is impeccably styled—ranging from polished waves to chic updos. Makeup is polished but natural, emphasizing glossy lips and defined brows. They share a unified sense of polished elegance; their collective presentation suggests wealth, careful grooming, and contemporary fashion awareness. They are accessorized with fine jewelry (minimalist gold/silver pieces), structured handbags, and heels., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:37:16"
+  },
+  {
+    "char_id": "char_045",
+    "name": "Wife",
+    "speaking": true,
+    "scene_ids": [
+      10
+    ],
+    "visual_descriptor": "A woman in her early 40s with polished, porcelain skin that appears flawlessly maintained. Her makeup is expertly applied, featuring a subtle smoky eye and a muted rose lip stain that enhances her natural coloring without being distracting. She has voluminous, rich espresso-brown hair styled in perfect, controlled waves that cascade over one shoulder. She wears tailored designer cocktail dresses, favoring deep jewel tones (sapphire, emerald, burgundy) made of luxurious materials like silk or velvet; the clothing is impeccably fitted and sophisticated but never flamboyant. Her accessories are minimalist yet undeniably expensive: a signature tennis bracelet featuring small diamonds, diamond stud earrings, and high heels with structured pumps. She always carries herself with perfect posture, her hands frequently resting near her neck or adjusting a delicate, vintage-inspired silk scarf. The overall look is one of effortless, expensive perfection.",
+    "voice_descriptor": "Female, appearing to be in her mid-forties. Her voice has a medium pitch and a velvety resonance that is always perfectly modulated. She speaks with a highly polished, cultured accent (such as Received Pronunciation or an elite metropolitan cadence). Her speaking style is measured, articulate, and intensely controlled; she rarely raises her tone, preferring to deliver sharp observations or compliments through subtle pauses and a saccharine sweetness that never quite reaches her eyes.",
+    "master_ref_image": "characters\\refs\\char_045_ref.png",
+    "ref_seed": 3711550158,
+    "ref_prompt": "A woman in her early 40s with polished, porcelain skin that appears flawlessly maintained. Her makeup is expertly applied, featuring a subtle smoky eye and a muted rose lip stain that enhances her natural coloring without being distracting. She has voluminous, rich espresso-brown hair styled in perfect, controlled waves that cascade over one shoulder. She wears tailored designer cocktail dresses, favoring deep jewel tones (sapphire, emerald, burgundy) made of luxurious materials like silk or velvet; the clothing is impeccably fitted and sophisticated but never flamboyant. Her accessories are minimalist yet undeniably expensive: a signature tennis bracelet featuring small diamonds, diamond stud earrings, and high heels with structured pumps. She always carries herself with perfect posture, her hands frequently resting near her neck or adjusting a delicate, vintage-inspired silk scarf. The overall look is one of effortless, expensive perfection., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:38:14"
+  },
+  {
+    "char_id": "char_046",
+    "name": "Friends (unmarried)",
+    "speaking": false,
+    "scene_ids": [
+      10
+    ],
+    "visual_descriptor": "A stylishly varied group of young adults (early to late twenties). The general aesthetic is 'effortlessly chic' but highly polished. Clothing ranges from elevated bohemian styles (flowing silk fabrics, earth tones) to minimalist modern elegance (tailored blazers, high-waisted trousers in jewel tones, structured cocktail dresses). Makeup is consistently flawless: skin glowing, brows meticulously groomed, and lips often defined with sophisticated matte nudes or deep berries. Hair is kept healthy and voluminous—either polished waves, sleek straight styles, or carefully styled updos. Accessories are key: delicate gold layering necklaces, subtle statement rings (often worn prominently), and high-end minimalist bags. Every character maintains a posture that suggests confidence and social awareness.",
+    "voice_descriptor": "The group possesses varied voices reflective of different personalities within the circle. The overall tone is articulate, highly expressive, and capable of modulating instantly from bright, conspiratorial giggling to deeply sincere whispers. The pitch range is medium-high, suggesting modern urbanity. Accents are generally neutral American English, though individual characters may subtly reflect regional background (e.g., a slight East Coast lilt vs. a warm Southern drawl), but the speaking style across the group is characterized by practiced social ease, quick wit, and highly nuanced emotional delivery.",
+    "master_ref_image": "characters\\refs\\char_046_ref.png",
+    "ref_seed": 3239987153,
+    "ref_prompt": "A stylishly varied group of young adults (early to late twenties). The general aesthetic is 'effortlessly chic' but highly polished. Clothing ranges from elevated bohemian styles (flowing silk fabrics, earth tones) to minimalist modern elegance (tailored blazers, high-waisted trousers in jewel tones, structured cocktail dresses). Makeup is consistently flawless: skin glowing, brows meticulously groomed, and lips often defined with sophisticated matte nudes or deep berries. Hair is kept healthy and voluminous—either polished waves, sleek straight styles, or carefully styled updos. Accessories are key: delicate gold layering necklaces, subtle statement rings (often worn prominently), and high-end minimalist bags. Every character maintains a posture that suggests confidence and social awareness., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:39:09"
+  },
+  {
+    "char_id": "char_047",
+    "name": "Unmarried Friends (group)",
+    "speaking": false,
+    "scene_ids": [
+      12
+    ],
+    "visual_descriptor": "A diverse group of 4-6 women in their mid-to-late twenties, sharing a collective aesthetic of effortless, expensive chic. Their outfits are contemporary and highly varied—ranging from tailored slip dresses and silk blouses to elevated cocktail wear—but all pieces suggest high quality and coordinated effortlessness. Hairstyles are modern: structured waves, sleek straight cuts, or voluminous updos. Skin tones vary across the spectrum (deep olive, pale porcelain, warm caramel). Accessories include delicate gold jewelry, structural handbags, and designer shoes. No single piece is overly loud; the overall visual effect is polished, magnetic, and deeply interconnected.",
+    "voice_descriptor": "A chorus of overlapping feminine voices (range: alto to mezzo-soprano), averaging the age sounds of mid-twenties to early thirties. The pitch and timbre are sophisticated and highly articulate. The accent is educated and metropolitan (undefined regionality). Speaking style is characterized by rapid, witty banter that can segue instantly into intense, conspiratorial whispers or single, devastatingly calm pronouncements.",
+    "master_ref_image": "characters\\refs\\char_047_ref.png",
+    "ref_seed": 3907134694,
+    "ref_prompt": "A diverse group of 4-6 women in their mid-to-late twenties, sharing a collective aesthetic of effortless, expensive chic. Their outfits are contemporary and highly varied—ranging from tailored slip dresses and silk blouses to elevated cocktail wear—but all pieces suggest high quality and coordinated effortlessness. Hairstyles are modern: structured waves, sleek straight cuts, or voluminous updos. Skin tones vary across the spectrum (deep olive, pale porcelain, warm caramel). Accessories include delicate gold jewelry, structural handbags, and designer shoes. No single piece is overly loud; the overall visual effect is polished, magnetic, and deeply interconnected., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:40:09"
+  },
+  {
+    "char_id": "char_048",
+    "name": "Protagonist (Married)",
+    "speaking": false,
+    "scene_ids": [
+      13,
+      18,
+      29
+    ],
+    "visual_descriptor": "A woman in her early thirties, striking and impeccably groomed. She has deep-set, warm hazel eyes, framed by thick, naturally dark lashes, and high cheekbones that are accentuated by makeup emphasizing subtle contouring. Her hair is a rich mahogany brown, always styled in soft, voluminous waves that fall just past her shoulders. Her complexion is luminous porcelain skin. She favors tailored, expensive evening wear—often deep jewel tones (sapphire, emerald) or classic black—with structured silhouettes (e.g., floor-length column gowns or sophisticated cocktail dresses). Her accessories are minimal but impactful: a simple gold band on the ring finger that signifies her marriage, and elegant diamond stud earrings. She always carries an air of poised refinement.",
+    "voice_descriptor": "Female, estimated age 30s, medium pitch, neutral American accent, with a cultivated, articulate speaking style. Her delivery is measured and graceful; she speaks in thoughtful sentences, modulating volume to appear casual yet commanding attention when making a point.",
+    "master_ref_image": "characters\\refs\\char_048_ref.png",
+    "ref_seed": 3465835608,
+    "ref_prompt": "A woman in her early thirties, striking and impeccably groomed. She has deep-set, warm hazel eyes, framed by thick, naturally dark lashes, and high cheekbones that are accentuated by makeup emphasizing subtle contouring. Her hair is a rich mahogany brown, always styled in soft, voluminous waves that fall just past her shoulders. Her complexion is luminous porcelain skin. She favors tailored, expensive evening wear—often deep jewel tones (sapphire, emerald) or classic black—with structured silhouettes (e.g., floor-length column gowns or sophisticated cocktail dresses). Her accessories are minimal but impactful: a simple gold band on the ring finger that signifies her marriage, and elegant diamond stud earrings. She always carries an air of poised refinement., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:41:09"
+  },
+  {
+    "char_id": "char_049",
+    "name": "Friend A",
+    "speaking": false,
+    "scene_ids": [
+      14,
+      17
+    ],
+    "visual_descriptor": "Friend A is a woman in her late 20s with an undeniably polished, elegant appearance. Her skin has a flawless, warm porcelain undertone, accentuated by soft contouring blush and neutral lipstick that gives a perpetually well-rested look. She has sharp cheekbones and expressive hazel eyes framed by thick, dark lashes. Her hair is rich mahogany brown, styled in impeccably structured, voluminous waves that fall past her shoulders. She favors classic, tailored clothing—today, she wears a silk cocktail dress in deep emerald green with subtle ruching at the waist, complemented by sheer black elbow-length gloves and simple, geometric gold drop earrings. Her signature accessory is a vintage velvet clutch bag embossed with faint floral patterns, which she occasionally rests on her lap or uses to gesture subtly while speaking.",
+    "voice_descriptor": "Female, late 20s. The pitch is medium-high and clear, possessing a resonant quality that makes her easily audible above background chatter. She has a polished, educated accent (suggesting metropolitan East Coast refinement). Her speaking style is measured, articulate, and highly engaging; she sounds confident and effortlessly charming, capable of switching between bright amusement and carefully controlled sincerity depending on the moment.",
+    "master_ref_image": "characters\\refs\\char_049_ref.png",
+    "ref_seed": 890487551,
+    "ref_prompt": "Friend A is a woman in her late 20s with an undeniably polished, elegant appearance. Her skin has a flawless, warm porcelain undertone, accentuated by soft contouring blush and neutral lipstick that gives a perpetually well-rested look. She has sharp cheekbones and expressive hazel eyes framed by thick, dark lashes. Her hair is rich mahogany brown, styled in impeccably structured, voluminous waves that fall past her shoulders. She favors classic, tailored clothing—today, she wears a silk cocktail dress in deep emerald green with subtle ruching at the waist, complemented by sheer black elbow-length gloves and simple, geometric gold drop earrings. Her signature accessory is a vintage velvet clutch bag embossed with faint floral patterns, which she occasionally rests on her lap or uses to gesture subtly while speaking., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:41:58"
+  },
+  {
+    "char_id": "char_050",
+    "name": "Friend B",
+    "speaking": false,
+    "scene_ids": [
+      14,
+      17
+    ],
+    "visual_descriptor": "A woman in her early thirties with warm olive skin and sculpted cheekbones. Her hair is a polished, deep mahogany color, styled in soft, voluminous waves that fall just past her collarbones. She has almond-shaped eyes and frequently wears delicate gold jewelry, specifically small geometric drop earrings and a thin wrist cuff. Today, she is dressed in an emerald green silk cocktail dress with subtle ruching at the waist, complemented by nude heels and carrying a small, beaded clutch bag. Her overall look is meticulously put together: sophisticated, polished, yet approachable.",
+    "voice_descriptor": "Female, appearing to be in her early thirties. The pitch is medium-low and smooth. She speaks with a slight, refined East Coast accent, characterized by an elevated vocabulary and precise articulation. Her speaking style is warm and conversational; she sounds witty and observant rather than dramatic, always maintaining a steady, engaging rhythm that suggests confidence and high social intelligence.",
+    "master_ref_image": "characters\\refs\\char_050_ref.png",
+    "ref_seed": 300708468,
+    "ref_prompt": "A woman in her early thirties with warm olive skin and sculpted cheekbones. Her hair is a polished, deep mahogany color, styled in soft, voluminous waves that fall just past her collarbones. She has almond-shaped eyes and frequently wears delicate gold jewelry, specifically small geometric drop earrings and a thin wrist cuff. Today, she is dressed in an emerald green silk cocktail dress with subtle ruching at the waist, complemented by nude heels and carrying a small, beaded clutch bag. Her overall look is meticulously put together: sophisticated, polished, yet approachable., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:42:56"
+  },
+  {
+    "char_id": "char_051",
+    "name": "Group of Friends",
+    "speaking": false,
+    "scene_ids": [
+      15
+    ],
+    "visual_descriptor": "A collective aesthetic of polished, expensive, and deliberately curated style, suggesting upper-class modern luxury. The overall appearance is immaculately groomed; every piece of clothing (dresses, tailored suits, silk blouses) is made of visibly rich materials—deep jewel tones, black, ivory, or shimmering metallic accents are prevalent. Hair styles vary but maintain perfect volume and polish (structured waves, slick updos, or voluminous blowout). Skin tone ranges through the spectrum of flawless, high-definition makeup application. Accessories include prominent geometric jewelry (ear cuffs, thick rings, structured clutches) that catch light dramatically. Their collective demeanor is one of poised theatricality; they rarely slouch, their posture is upright and elegant, projecting effortless but intimidating wealth. When grouped together, they always occupy the visual center of a scene.",
+    "voice_descriptor": "A dynamic blend of articulate, high-status voices. The overall sound profile is melodious, carrying confidence without sounding shrill or overly aggressive. There is a subtle undercurrent of practiced sincerity—their laughter and agreements are perfectly pitched but carry an undertone of calculated amusement. They speak with a transatlantic, educated accent (neutral, upper-middle class formality), utilizing nuanced vocabulary and maintaining synchronized conversational rhythms that suggest deep familiarity and shared secrets.",
+    "master_ref_image": "characters\\refs\\char_051_ref.png",
+    "ref_seed": 2267135253,
+    "ref_prompt": "A collective aesthetic of polished, expensive, and deliberately curated style, suggesting upper-class modern luxury. The overall appearance is immaculately groomed; every piece of clothing (dresses, tailored suits, silk blouses) is made of visibly rich materials—deep jewel tones, black, ivory, or shimmering metallic accents are prevalent. Hair styles vary but maintain perfect volume and polish (structured waves, slick updos, or voluminous blowout). Skin tone ranges through the spectrum of flawless, high-definition makeup application. Accessories include prominent geometric jewelry (ear cuffs, thick rings, structured clutches) that catch light dramatically. Their collective demeanor is one of poised theatricality; they rarely slouch, their posture is upright and elegant, projecting effortless but intimidating wealth. When grouped together, they always occupy the visual center of a scene., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:43:54"
+  },
+  {
+    "char_id": "char_052",
+    "name": "Eliza",
+    "speaking": false,
+    "scene_ids": [
+      16
+    ],
+    "visual_descriptor": "Eliza possesses strikingly elegant features, with a perfectly sculpted jawline and high cheekbones emphasized by subtle contouring makeup. Her eyes are her most notable feature: large, penetrating, and an unusual shade of slate grey. Her hair is a deep espresso brown, styled in voluminous, soft waves that fall past her shoulders and always look flawlessly maintained. Her skin tone is porcelain with a matte, impeccable finish. She wears impeccably tailored clothing, favoring jewel tones—specifically, a midnight blue velvet gown featuring a high neckline and fitted sleeves to convey formality. Essential accessories include long, elbow-length silk opera gloves (matching the gown) and a single vintage gold locket on a delicate chain visible at her throat.",
+    "voice_descriptor": "Female, appearing in her late 20s to early 30s. The pitch is smooth and medium-low, delivering sound with absolute control. She speaks with a highly educated, polished accent (suggestive of Received Pronunciation), maintaining a deliberately measured pace. Her style is articulate and resonant; she rarely raises her voice but ensures every word has weight, making her speech feel authoritative yet subtly manipulative.",
+    "master_ref_image": "characters\\refs\\char_052_ref.png",
+    "ref_seed": 1435850580,
+    "ref_prompt": "Eliza possesses strikingly elegant features, with a perfectly sculpted jawline and high cheekbones emphasized by subtle contouring makeup. Her eyes are her most notable feature: large, penetrating, and an unusual shade of slate grey. Her hair is a deep espresso brown, styled in voluminous, soft waves that fall past her shoulders and always look flawlessly maintained. Her skin tone is porcelain with a matte, impeccable finish. She wears impeccably tailored clothing, favoring jewel tones—specifically, a midnight blue velvet gown featuring a high neckline and fitted sleeves to convey formality. Essential accessories include long, elbow-length silk opera gloves (matching the gown) and a single vintage gold locket on a delicate chain visible at her throat., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:44:51"
+  },
+  {
+    "char_id": "char_053",
+    "name": "Friends (unmarried group)",
+    "speaking": false,
+    "scene_ids": [
+      16
+    ],
+    "visual_descriptor": "The group shares an elevated, classic modern aesthetic: tailored elegance with a touch of decadent flair. Their skin tones range from porcelain pale to warm honey, generally flawless and well-cared for. Hair styles are voluminous yet restrained—think deep mahogany waves, sleek obsidian bobs, or polished chestnut updos. They favour expensive but subtly branded clothing (Chanel, Dior analogues), featuring rich jewel tones (emerald, sapphire, burgundy) mixed with stark neutrals like cream and midnight black. Silhouettes are structured: fitted velvet jackets, silk slip dresses, and high-waisted trousers cinched at the natural waist. Accessories include delicate yet noticeable gold jewellery—layered necklaces, architectural cuff bracelets, and statement cocktail rings often worn prominently. Footwear is consistently high-end stilettos. Their makeup is meticulously perfected: a sharp brow, smoky eyes (smoky liner/shadow), and a controlled lip color that enhances but does not overwhelm the natural lip tone.",
+    "voice_descriptor": "Soprano range, highly articulate, generally sounding in their late twenties to mid-thirties (appearing 30s). The accent is polished, upper-class American or British received pronunciation—the kind that sounds educated but effortless. Their speaking style is rapid, melodic, and conversational; they employ sophisticated wit, frequent rhetorical questions, and use dramatic pauses for emphasis. They are skilled conversationalists whose tone shifts effortlessly from warm conspiratorial murmuring to razor-sharp, controlled laughter.",
+    "master_ref_image": "characters\\refs\\char_053_ref.png",
+    "ref_seed": 4247543081,
+    "ref_prompt": "The group shares an elevated, classic modern aesthetic: tailored elegance with a touch of decadent flair. Their skin tones range from porcelain pale to warm honey, generally flawless and well-cared for. Hair styles are voluminous yet restrained—think deep mahogany waves, sleek obsidian bobs, or polished chestnut updos. They favour expensive but subtly branded clothing (Chanel, Dior analogues), featuring rich jewel tones (emerald, sapphire, burgundy) mixed with stark neutrals like cream and midnight black. Silhouettes are structured: fitted velvet jackets, silk slip dresses, and high-waisted trousers cinched at the natural waist. Accessories include delicate yet noticeable gold jewellery—layered necklaces, architectural cuff bracelets, and statement cocktail rings often worn prominently. Footwear is consistently high-end stilettos. Their makeup is meticulously perfected: a sharp brow, smoky eyes (smoky liner/shadow), and a controlled lip color that enhances but does not overwhelm the natural lip tone., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:45:58"
+  },
+  {
+    "char_id": "char_054",
+    "name": "Sarah",
+    "speaking": true,
+    "scene_ids": [
+      17
+    ],
+    "visual_descriptor": "Sarah possesses an arresting, structured beauty defined by immaculate presentation. Her skin is porcelain-pale with subtle hints of cool undertones, appearing flawless and luminous. She has high cheekbones, a defined jawline, and intensely observant hazel eyes that are framed by thick, naturally dark lashes. Her hair is rich, deep mahogany brown, always styled in a sleek, sharply angled bob that falls just below her jaw, catching light with a liquid sheen. She has an athletic yet slender build, moving with contained grace. Her attire consistently consists of tailored pieces: tonight she wears a midi-length dress crafted from matte charcoal tweed, featuring sharp shoulder seams and an asymmetrical neckline. Complementing this are polished black leather heels and delicate gold accessories—specifically, a single, geometric torque necklace and small diamond studs. She always carries a structured rectangular clutch made of deep emerald velvet.",
+    "voice_descriptor": "Female, late 20s to early 30s. Her pitch is mid-high, maintained with perfect control. She speaks with a refined, educated accent (a sophisticated neutral American tone) and her style is highly measured and articulate. She does not raise her voice when upset; rather, she slows down and lowers her volume, forcing the listener to lean in and pay close attention. Every word is carefully chosen, delivered with a sense of knowing authority, as if she has rehearsed what she is about to say.",
+    "master_ref_image": "characters\\refs\\char_054_ref.png",
+    "ref_seed": 2498728084,
+    "ref_prompt": "Sarah possesses an arresting, structured beauty defined by immaculate presentation. Her skin is porcelain-pale with subtle hints of cool undertones, appearing flawless and luminous. She has high cheekbones, a defined jawline, and intensely observant hazel eyes that are framed by thick, naturally dark lashes. Her hair is rich, deep mahogany brown, always styled in a sleek, sharply angled bob that falls just below her jaw, catching light with a liquid sheen. She has an athletic yet slender build, moving with contained grace. Her attire consistently consists of tailored pieces: tonight she wears a midi-length dress crafted from matte charcoal tweed, featuring sharp shoulder seams and an asymmetrical neckline. Complementing this are polished black leather heels and delicate gold accessories—specifically, a single, geometric torque necklace and small diamond studs. She always carries a structured rectangular clutch made of deep emerald velvet., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-JennyNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:46:48"
+  },
+  {
+    "char_id": "char_055",
+    "name": "Sarah (The Married Woman)",
+    "speaking": false,
+    "scene_ids": [
+      19
+    ],
+    "visual_descriptor": "Sarah is a woman in her late 30s with meticulously maintained perfection. Her skin has a porcelain finish, achieved through high-end makeup that conceals all natural variations, giving it a flawless but slightly artificial sheen. Her hair is thick, rich chestnut brown, styled in elaborate, polished waves that fall just past her shoulders, requiring careful product work to maintain its impeccable structure. She has sharp, carefully sculpted eyebrows and classically defined features. She dresses exclusively in high-end, tailored formal wear—think structured silk cocktail gowns or expensive sheath dresses in muted jewel tones (emerald, navy, burgundy). Her accessories are always noticeable: discreet but costly diamond earrings, a delicate gold necklace featuring a small, symbolic pendant, and frequently, the placement of her manicured hands, which bear polished nude nails. She always carries an elegant, structured clutch bag that matches her outfit's formality.",
+    "voice_descriptor": "Female, estimated age 38-45. The pitch is mid-range with a cultivated resonance; it sounds naturally pleasant and controlled. Her accent is refined Received Pronunciation (Upper-Class American/English blend). Her speaking style is deliberately measured and articulate. She speaks in full, complex sentences, often employing qualifiers ('I suppose,' 'You know') and maintaining an even, almost sing-song rhythm that suggests polite agreement but masks any genuine emotional fluctuation.",
+    "master_ref_image": "characters\\refs\\char_055_ref.png",
+    "ref_seed": 3398336052,
+    "ref_prompt": "Sarah is a woman in her late 30s with meticulously maintained perfection. Her skin has a porcelain finish, achieved through high-end makeup that conceals all natural variations, giving it a flawless but slightly artificial sheen. Her hair is thick, rich chestnut brown, styled in elaborate, polished waves that fall just past her shoulders, requiring careful product work to maintain its impeccable structure. She has sharp, carefully sculpted eyebrows and classically defined features. She dresses exclusively in high-end, tailored formal wear—think structured silk cocktail gowns or expensive sheath dresses in muted jewel tones (emerald, navy, burgundy). Her accessories are always noticeable: discreet but costly diamond earrings, a delicate gold necklace featuring a small, symbolic pendant, and frequently, the placement of her manicured hands, which bear polished nude nails. She always carries an elegant, structured clutch bag that matches her outfit's formality., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:47:42"
+  },
+  {
+    "char_id": "char_056",
+    "name": "Friends Group",
+    "speaking": false,
+    "scene_ids": [
+      19
+    ],
+    "visual_descriptor": "The Friends Group maintains an aesthetic of 'Modern Old Hollywood Glamour.' Their clothing is always high-end designer wear (silks, velvet, tailored crepe) favoring deep jewel tones—emerald green, sapphire blue, burgundy—punctuated by metallic gold or silver accents. Silhouettes are structured yet flowing, ensuring every outfit looks deliberate and costly. Hair is immaculate: perfectly curled waves or sleek, voluminous updos. Makeup is dramatic but flawless; smoky eyes paired with matte nude or oxblood lipstick. All members wear significant, visible jewelry (elaborate chandelier earrings, stacked rings made of precious metals) and designer clutches. They are always accessorized with a sense of polished intent; nothing about them is accidental. Their appearance must convey effortless wealth and deep social awareness.",
+    "voice_descriptor": "The collective voice is varied but possesses an overarching tone of confident theatricality. The general age range appears to be late 20s to mid-30s. Pitches are generally medium to slightly high, conveying polished energy. Accent is a sophisticated, non-regional standard (Upper East Side/Global Elite). Speaking style is highly articulate, witty, and conspiratorial; they speak in carefully curated bursts of conversational dialogue, utilizing frequent dramatic pauses and subtle vocal shifts—moving from light, airy gossip to deep, weighted secrets—to ensure every line feels both casual and deeply significant.",
+    "master_ref_image": "characters\\refs\\char_056_ref.png",
+    "ref_seed": 935641926,
+    "ref_prompt": "The Friends Group maintains an aesthetic of 'Modern Old Hollywood Glamour.' Their clothing is always high-end designer wear (silks, velvet, tailored crepe) favoring deep jewel tones—emerald green, sapphire blue, burgundy—punctuated by metallic gold or silver accents. Silhouettes are structured yet flowing, ensuring every outfit looks deliberate and costly. Hair is immaculate: perfectly curled waves or sleek, voluminous updos. Makeup is dramatic but flawless; smoky eyes paired with matte nude or oxblood lipstick. All members wear significant, visible jewelry (elaborate chandelier earrings, stacked rings made of precious metals) and designer clutches. They are always accessorized with a sense of polished intent; nothing about them is accidental. Their appearance must convey effortless wealth and deep social awareness., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:48:39"
+  },
+  {
+    "char_id": "char_057",
+    "name": "Maya",
+    "speaking": false,
+    "scene_ids": [
+      21
+    ],
+    "visual_descriptor": "Maya is a woman in her late twenties, possessing an arresting, classic beauty defined by severe elegance. Her skin is flawlessly porcelain-white with faint cool undertones. She has striking, almond-shaped eyes that are deep slate grey, framed by long, naturally dark lashes. Her facial structure includes sharp, defined cheekbones and a delicate jawline. Her hair is thick, obsidian black, styled in polished, controlled waves that fall just past her shoulders and always appear immaculate. For clothing, she favors tailored, luxurious fabrics (velvet, silk crepe) in deep jewel tones (sapphire, emerald), which are sharply structured but draped to emphasize fluidity. She wears a signature accessory: a single, heavy vintage silver locket on a delicate chain that rests just above her clavicle, and small, geometric diamond stud earrings. Her overall presentation is one of studied, expensive sophistication.",
+    "voice_descriptor": "Female, early 30s. Medium-low pitch with impeccable clarity; the tone suggests polished breeding but maintains an underlying coolness. She speaks with a refined, slightly melodic cadence, implying an educated background (perhaps Upper East Side/London accent). Her style is measured and deliberate—she rarely raises her voice, allowing pauses and subtle changes in inflection to carry most of her emotional weight.",
+    "master_ref_image": "characters\\refs\\char_057_ref.png",
+    "ref_seed": 3572092861,
+    "ref_prompt": "Maya is a woman in her late twenties, possessing an arresting, classic beauty defined by severe elegance. Her skin is flawlessly porcelain-white with faint cool undertones. She has striking, almond-shaped eyes that are deep slate grey, framed by long, naturally dark lashes. Her facial structure includes sharp, defined cheekbones and a delicate jawline. Her hair is thick, obsidian black, styled in polished, controlled waves that fall just past her shoulders and always appear immaculate. For clothing, she favors tailored, luxurious fabrics (velvet, silk crepe) in deep jewel tones (sapphire, emerald), which are sharply structured but draped to emphasize fluidity. She wears a signature accessory: a single, heavy vintage silver locket on a delicate chain that rests just above her clavicle, and small, geometric diamond stud earrings. Her overall presentation is one of studied, expensive sophistication., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:49:25"
+  },
+  {
+    "char_id": "char_058",
+    "name": "Friends (unspecified)",
+    "speaking": false,
+    "scene_ids": [
+      22
+    ],
+    "visual_descriptor": "A group of women in high-society evening wear, characterized by deep jewel tones (sapphire, emerald, burgundy) and opulent fabrics like silk velvet and chiffon. All garments feature intricate detailing—beading, subtle embroidery, or structured corsetry appropriate for a 1920s/modern period drama setting. Hair styles are elaborate, ranging from tightly coiled chignons to soft, Hollywood waves, often adorned with understated jeweled accessories (headbands, combs). Skin tones vary but are always impeccably maintained; makeup is dramatic yet polished—smoky eyes paired with deep lip colors. Signature element: The general aesthetic must convey effortless, practiced elegance and expense.",
+    "voice_descriptor": "The group speaks with a blend of distinct voices—ranging from breathy sopranos to rich mezzo-soprano tones. The pitch remains consistently elevated, never descending into rawness unless the scene calls for it. Accent is highly educated, suggesting an elite background but without being overtly regional. Speaking style alternates rapidly: moments of light, rapid-fire chatter (suggesting gossip or camaraderie) juxtaposed with controlled, deliberate whispers when delivering crucial information, always maintaining a veneer of perfect composure.",
+    "master_ref_image": "characters\\refs\\char_058_ref.png",
+    "ref_seed": 3284043402,
+    "ref_prompt": "A group of women in high-society evening wear, characterized by deep jewel tones (sapphire, emerald, burgundy) and opulent fabrics like silk velvet and chiffon. All garments feature intricate detailing—beading, subtle embroidery, or structured corsetry appropriate for a 1920s/modern period drama setting. Hair styles are elaborate, ranging from tightly coiled chignons to soft, Hollywood waves, often adorned with understated jeweled accessories (headbands, combs). Skin tones vary but are always impeccably maintained; makeup is dramatic yet polished—smoky eyes paired with deep lip colors. Signature element: The general aesthetic must convey effortless, practiced elegance and expense., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:50:04"
+  },
+  {
+    "char_id": "char_059",
+    "name": "Protagonist (married woman)",
+    "speaking": false,
+    "scene_ids": [
+      23
+    ],
+    "visual_descriptor": "A woman of classic, sophisticated beauty, appearing to be in her late 30s/early 40s. She has rich chestnut brown hair, styled in polished, voluminous waves that fall past her shoulders. Her skin is flawless and warm-toned, often highlighted by expertly applied makeup—a precise wing-liner on deep plum or charcoal eyeshadow, a nude-mauve lipstick, and subtle contouring. She possesses an elegant, slender build, always impeccably dressed. Her signature wardrobe consists of tailored cocktail dresses in rich jewel tones (emerald, sapphire, burgundy) made of structured fabric like velvet or silk crepe, often featuring delicate lace detailing at the neckline. Accessories include a single, significant piece of jewelry—a vintage diamond and onyx pendant necklace or large pearl earrings—and she is rarely seen without perfectly manicured hands wearing rings that subtly catch the light.",
+    "voice_descriptor": "Female, appearing late 30s to early 40s. The pitch is naturally medium-low, projecting confidence and polished control. Her accent is precise and educated (e.g., upper-middle-class East Coast or received standard). Her speaking style is articulate and measured; she rarely rushes her words, maintaining a calm, modulated tone even when emotional. She speaks with an inherent authority that suggests high social standing.",
+    "master_ref_image": "characters\\refs\\char_059_ref.png",
+    "ref_seed": 3213748770,
+    "ref_prompt": "A woman of classic, sophisticated beauty, appearing to be in her late 30s/early 40s. She has rich chestnut brown hair, styled in polished, voluminous waves that fall past her shoulders. Her skin is flawless and warm-toned, often highlighted by expertly applied makeup—a precise wing-liner on deep plum or charcoal eyeshadow, a nude-mauve lipstick, and subtle contouring. She possesses an elegant, slender build, always impeccably dressed. Her signature wardrobe consists of tailored cocktail dresses in rich jewel tones (emerald, sapphire, burgundy) made of structured fabric like velvet or silk crepe, often featuring delicate lace detailing at the neckline. Accessories include a single, significant piece of jewelry—a vintage diamond and onyx pendant necklace or large pearl earrings—and she is rarely seen without perfectly manicured hands wearing rings that subtly catch the light., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:50:41"
+  },
+  {
+    "char_id": "char_060",
+    "name": "The Unmarried Friends",
+    "speaking": false,
+    "scene_ids": [
+      24
+    ],
+    "visual_descriptor": "The core aesthetic is modern, lived-in elegance—less 'haute couture spectacle,' more 'inherently polished'. All characters share a subtle commonality: highly maintained appearance that suggests consistent privilege. Their clothing favors tailored silhouettes in deep jewel tones (emerald green, sapphire blue, burgundy) or muted neutrals (camel, slate gray). Fabrics are natural and expensive-looking—cashmere, silk crepe, heavy linen, fine wool. Signature pieces include structured cocktail dresses, wide-leg trousers paired with elegant knit tops, or timeless midi-skirts. Accessories are minimal but impactful: delicate gold jewelry (small hoops, stacked rings), classic pointed heels, and a coordinated mini-bag or structured clutch made of patent leather or velvet. Hair styles are varied (long waves, intricate updos, sleek bobs) but always appear healthy, clean, and purposefully styled. Skin tones should be luminous with foundation that provides a natural, porcelain matte finish. Makeup is sophisticated and restrained: defined brows, subtle smoky eyes, and a signature deep berry or muted rose lip stain.",
+    "voice_descriptor": "The group features multiple distinct voices, but they share commonalities of high articulation and measured pacing. Generally mature female voices (Late 20s to Mid-30s). Pitch is mid-to-low, projecting confidence without effort. The accent is a highly educated, cosmopolitan American drawl—clear, rhythmic, and precise, avoiding regionalisms or exaggerated tones. Speaking style is witty and conversational; they speak in interconnected fragments of dialogue rather than single statements. They are skilled at shifting volume dramatically—from loud, shared laughter with sharp undertones to intensely whispered secrets delivered with deliberate emphasis.",
+    "master_ref_image": "characters\\refs\\char_060_ref.png",
+    "ref_seed": 1116909193,
+    "ref_prompt": "The core aesthetic is modern, lived-in elegance—less 'haute couture spectacle,' more 'inherently polished'. All characters share a subtle commonality: highly maintained appearance that suggests consistent privilege. Their clothing favors tailored silhouettes in deep jewel tones (emerald green, sapphire blue, burgundy) or muted neutrals (camel, slate gray). Fabrics are natural and expensive-looking—cashmere, silk crepe, heavy linen, fine wool. Signature pieces include structured cocktail dresses, wide-leg trousers paired with elegant knit tops, or timeless midi-skirts. Accessories are minimal but impactful: delicate gold jewelry (small hoops, stacked rings), classic pointed heels, and a coordinated mini-bag or structured clutch made of patent leather or velvet. Hair styles are varied (long waves, intricate updos, sleek bobs) but always appear healthy, clean, and purposefully styled. Skin tones should be luminous with foundation that provides a natural, porcelain matte finish. Makeup is sophisticated and restrained: defined brows, subtle smoky eyes, and a signature deep berry or muted rose lip stain., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:51:09"
+  },
+  {
+    "char_id": "char_061",
+    "name": "The Married Girl",
+    "speaking": true,
+    "scene_ids": [
+      25
+    ],
+    "visual_descriptor": "A woman who presents as eternally poised. She has flawless, porcelain-smooth skin, high cheekbones, and a controlled expression that is perpetually polite. Her hair is styled in immaculate, dark brunette waves, swept back from her temples into an elegant chignon secured with subtle pearl pins. She wears deep crimson lipstick on sharply defined lips and minimal but perfectly applied smoky eyeliner. Her attire consists of bespoke evening wear—a structured gown in a saturated jewel tone (such as emerald or sapphire)—with intricate beading at the bodice. She is accessorized with expensive, tasteful gold and diamond jewelry: delicate earrings, a matching necklace, and most notably, a large, prominent engagement ring that she frequently gestures with. Her posture is impeccable; every movement is deliberate.",
+    "voice_descriptor": "Female, appearing late 20s to early 30s. The pitch is medium-high and impeccably controlled. She speaks in a highly articulate, polished upper-class accent (a sophisticated Received Pronunciation undertone). Her style is measured and breathy; she seldom raises her voice, speaking in carefully constructed sentences punctuated by practiced, airy laughter. Even when expressing disagreement, the tone remains sweet and faintly pitying.",
+    "master_ref_image": "characters\\refs\\char_061_ref.png",
+    "ref_seed": 650767164,
+    "ref_prompt": "A woman who presents as eternally poised. She has flawless, porcelain-smooth skin, high cheekbones, and a controlled expression that is perpetually polite. Her hair is styled in immaculate, dark brunette waves, swept back from her temples into an elegant chignon secured with subtle pearl pins. She wears deep crimson lipstick on sharply defined lips and minimal but perfectly applied smoky eyeliner. Her attire consists of bespoke evening wear—a structured gown in a saturated jewel tone (such as emerald or sapphire)—with intricate beading at the bodice. She is accessorized with expensive, tasteful gold and diamond jewelry: delicate earrings, a matching necklace, and most notably, a large, prominent engagement ring that she frequently gestures with. Her posture is impeccable; every movement is deliberate., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": {
+      "engine": "edge-tts",
+      "voice": "en-US-AnaNeural",
+      "rate": "+0%",
+      "speaking": true
+    },
+    "created": "2026-08-02 03:51:54"
+  },
+  {
+    "char_id": "char_062",
+    "name": "Friend Group",
+    "speaking": false,
+    "scene_ids": [
+      29
+    ],
+    "visual_descriptor": "A sophisticated, diverse group of young women in their mid-twenties, dressed in high-fashion cocktail attire suited for an opulent evening event. Their aesthetic is polished, curated, and expensive. Clothing features rich fabrics (velvet, silk, structured satin) and jewel tones (emerald green, sapphire blue, deep crimson). Styles vary slightly—one might wear architectural silhouettes, another a bias-cut slip dress, but all maintain perfect grooming: hair is always immaculately styled (barrel waves, slicked back knots, or sophisticated updos), nails are manicured with neutral or dark polish. Makeup is flawless and dramatic, focusing on structured brows and either a smoky eye or a bold lip. They move together in clusters, occupying space confidently; their signature 'prop' is the collective presence of highly expensive, subtly branded accessories (designer clutches, delicate layered necklaces, statement cocktail rings). The overall visual impression is one of effortless wealth and intense social awareness.",
+    "voice_descriptor": "The group voice functions as a multi-layered texture rather than a single person. It is delivered in various pitches and timbres (ranging from slightly breathy and breathless to sharply enunciated and resonant). The general tone is high energy, performative, and highly conversational. There is an underlying undercurrent of competitive warmth—a pitch of forced joviality mixed with genuine intimacy. The accents are primarily upper-class American or European; the speaking style is fast-paced, punctuated by overlapping dialogue ('overlapping chatter'), sharp bursts of laughter that quickly fade into controlled conversation, and dramatic pauses used for emphasis.",
+    "master_ref_image": "characters\\refs\\char_062_ref.png",
+    "ref_seed": 1249554317,
+    "ref_prompt": "A sophisticated, diverse group of young women in their mid-twenties, dressed in high-fashion cocktail attire suited for an opulent evening event. Their aesthetic is polished, curated, and expensive. Clothing features rich fabrics (velvet, silk, structured satin) and jewel tones (emerald green, sapphire blue, deep crimson). Styles vary slightly—one might wear architectural silhouettes, another a bias-cut slip dress, but all maintain perfect grooming: hair is always immaculately styled (barrel waves, slicked back knots, or sophisticated updos), nails are manicured with neutral or dark polish. Makeup is flawless and dramatic, focusing on structured brows and either a smoky eye or a bold lip. They move together in clusters, occupying space confidently; their signature 'prop' is the collective presence of highly expensive, subtly branded accessories (designer clutches, delicate layered necklaces, statement cocktail rings). The overall visual impression is one of effortless wealth and intense social awareness., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 03:52:36"
+  },
+  {
+    "char_id": "char_063",
+    "name": "Guests",
+    "speaking": false,
+    "scene_ids": [
+      1
+    ],
+    "visual_descriptor": "The Guests are an ensemble, depicted in high-fashion, luxurious attire suitable for a grand, historic hall. Their clothing is immaculately tailored—velvets, silk, sharp blazers, and elaborate evening gowns dominate. Colors are deep jewel tones (sapphire blue, emerald green, burgundy) contrasted with muted metallics. Every guest carries themselves with careful, deliberate posture; their accessories include subtle, expensive jewelry, highly polished shoes, and small, elegant clutches or programs. Their general appearance is one of wealthy, sophisticated boredom; they never look genuinely uncomfortable, only deeply amused by the proceedings.",
+    "voice_descriptor": "A varied chorus. The vocal range includes deep baritones punctuated by sharp, lilting sopranos. The overall texture is cultured, with an educated yet subtly condescending tone. Accents are predominantly upper-class British or Northeastern American, characterized by crisp articulation and frequent use of dramatic pauses before delivering key insights or snickers. They speak in modulated whispers, often taking turns completing each other's implied thoughts.",
+    "master_ref_image": "characters\\refs\\char_063_ref.png",
+    "ref_seed": 1302226031,
+    "ref_prompt": "The Guests are an ensemble, depicted in high-fashion, luxurious attire suitable for a grand, historic hall. Their clothing is immaculately tailored—velvets, silk, sharp blazers, and elaborate evening gowns dominate. Colors are deep jewel tones (sapphire blue, emerald green, burgundy) contrasted with muted metallics. Every guest carries themselves with careful, deliberate posture; their accessories include subtle, expensive jewelry, highly polished shoes, and small, elegant clutches or programs. Their general appearance is one of wealthy, sophisticated boredom; they never look genuinely uncomfortable, only deeply amused by the proceedings., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:43:37"
+  },
+  {
+    "char_id": "char_064",
+    "name": "Friend 1",
+    "speaking": false,
+    "scene_ids": [
+      6
+    ],
+    "visual_descriptor": "Friend 1 is a woman in her early thirties with an elegant and polished appearance. She has high cheekbones, almond-shaped eyes, and a perpetually knowing half-smile that rarely reaches them. Her skin is flawless with warm, creamy undertones. Her hair is a deep, raven black, styled in voluminous, controlled curls that fall past her shoulders. Today, she wears a floor-length gown of emerald green velvet, tailored with delicate silver piping at the neckline and waist. She carries an opera-length glove on one arm and favors a small, intricately beaded clutch purse held by her side hand. Her only visible jewelry consists of substantial diamond earrings that catch the light.",
+    "voice_descriptor": "Female, early thirties, medium-low pitch, sophisticated East Coast accent. The speaking style is measured, articulate, and slightly theatrical; she speaks with intentional pauses, giving each sentence an air of considered importance or amused resignation.",
+    "master_ref_image": "characters\\refs\\char_064_ref.png",
+    "ref_seed": 2048435229,
+    "ref_prompt": "Friend 1 is a woman in her early thirties with an elegant and polished appearance. She has high cheekbones, almond-shaped eyes, and a perpetually knowing half-smile that rarely reaches them. Her skin is flawless with warm, creamy undertones. Her hair is a deep, raven black, styled in voluminous, controlled curls that fall past her shoulders. Today, she wears a floor-length gown of emerald green velvet, tailored with delicate silver piping at the neckline and waist. She carries an opera-length glove on one arm and favors a small, intricately beaded clutch purse held by her side hand. Her only visible jewelry consists of substantial diamond earrings that catch the light., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:44:28"
+  },
+  {
+    "char_id": "char_065",
+    "name": "Clara",
+    "speaking": false,
+    "scene_ids": [
+      11
+    ],
+    "visual_descriptor": "Clara has pale olive skin and striking, almond-shaped eyes framed by naturally dark lashes. Her face structure features high cheekbones and a perpetually composed, subtly thoughtful expression. Her hair is raven black, falling just past her shoulders in controlled, polished waves that catch the light smoothly but never look overly styled. She possesses a slender, upright posture, radiating quiet poise. Her signature outfit consists of deeply tailored garments; for this setting, she wears a forest green silk cocktail dress with a structured bodice and subtle draping at the waist. The fabric is rich and matte. Accessories are minimal: delicate gold drop earrings featuring small emeralds, and a single vintage-style watch on her left wrist. She carries no dramatic props, favoring natural elegance that allows her to blend into grand architecture.",
+    "voice_descriptor": "Female, sounding in her late 20s/early 30s. The pitch is clear and controlled, sitting in the mid-range. Her accent is articulate American English. Her speaking style is deliberate, measured, and thoughtful; she speaks with a smooth cadence, choosing words carefully rather than relying on volume or rapid delivery to emphasize points.",
+    "master_ref_image": "characters\\refs\\char_065_ref.png",
+    "ref_seed": 1953371685,
+    "ref_prompt": "Clara has pale olive skin and striking, almond-shaped eyes framed by naturally dark lashes. Her face structure features high cheekbones and a perpetually composed, subtly thoughtful expression. Her hair is raven black, falling just past her shoulders in controlled, polished waves that catch the light smoothly but never look overly styled. She possesses a slender, upright posture, radiating quiet poise. Her signature outfit consists of deeply tailored garments; for this setting, she wears a forest green silk cocktail dress with a structured bodice and subtle draping at the waist. The fabric is rich and matte. Accessories are minimal: delicate gold drop earrings featuring small emeralds, and a single vintage-style watch on her left wrist. She carries no dramatic props, favoring natural elegance that allows her to blend into grand architecture., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:44:58"
+  },
+  {
+    "char_id": "char_066",
+    "name": "Other Friends",
+    "speaking": false,
+    "scene_ids": [
+      11
+    ],
+    "visual_descriptor": "The group consists of three to five individuals who maintain a consistent aesthetic of effortless, dramatic sophistication, suggesting wealthy taste and familiarity with high society. Their clothing is characterized by structured, expensive fabrics: deep jewel-toned velvets, crisp black silks, and tailored wools. There is no uniform color scheme, but the overall palette leans toward muted midnight blues, emerald greens, and charcoal grays. Signature details include minimal but striking gold or silver jewelry (hoop earrings, thick signet rings), perfectly coiffed hair that is polished and glossy, and makeup that emphasizes smoky eyes and deep matte lip colors. They always carry small, structured clutches or elegant evening bags. Their demeanor is perpetually poised—shoulders slightly held back, arms often linked or resting on each other in a way that suggests intimate, self-contained camaraderie.",
+    "voice_descriptor": "The group's voices are designed to overlap and blend, never creating a single distinct voice but rather a collective murmur of sophisticated background energy. The average pitch is mid-low. The accent is highly polished, cosmopolitan, and subtly varied (suggesting diverse, international backgrounds). Their speaking style involves quick, overlapping conversational snippets—a brittle laugh that catches slightly on the exhale, whispered suggestions delivered with dramatic emphasis ('Oh, but please,' or 'Don't you?'). They are skilled at providing ambient sound without ever becoming the focus of the conversation.",
+    "master_ref_image": "characters\\refs\\char_066_ref.png",
+    "ref_seed": 1949652470,
+    "ref_prompt": "The group consists of three to five individuals who maintain a consistent aesthetic of effortless, dramatic sophistication, suggesting wealthy taste and familiarity with high society. Their clothing is characterized by structured, expensive fabrics: deep jewel-toned velvets, crisp black silks, and tailored wools. There is no uniform color scheme, but the overall palette leans toward muted midnight blues, emerald greens, and charcoal grays. Signature details include minimal but striking gold or silver jewelry (hoop earrings, thick signet rings), perfectly coiffed hair that is polished and glossy, and makeup that emphasizes smoky eyes and deep matte lip colors. They always carry small, structured clutches or elegant evening bags. Their demeanor is perpetually poised—shoulders slightly held back, arms often linked or resting on each other in a way that suggests intimate, self-contained camaraderie., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:45:39"
+  },
+  {
+    "char_id": "char_067",
+    "name": "Friends (various)",
+    "speaking": false,
+    "scene_ids": [
+      15
+    ],
+    "visual_descriptor": "A mixed group of people, generally appearing to be in their late 20s to mid-40s, inhabiting a shared aesthetic of inherited wealth and modern fashion. Their clothing ranges from tailored evening wear (deep velvet suits, silk cocktail dresses) to impeccably tailored daytime luxury fabrics (linen blazers, cashmere wraps). While individual styling varies—some might wear bold geometric jewelry, others classic pearls; some hair is sleekly pulled back, others cascading in soft waves—all garments maintain a cohesive level of expensive tailoring and dramatic color palette. Accessories include statement shoes, structured handbags, and varying degrees of noticeable, high-end jewelry (signet rings, cuff bracelets). They move with an air of practiced confidence, often clustered together for conversation.",
+    "voice_descriptor": "The collective sound of lively, modulated social chatter. The group contains multiple distinct voices—ranging in pitch from lower baritone registers to bright mezzo sopranos—suggesting a diverse mix of genders and ages (late 20s to early 50s). Their accents are predominantly upper-class American/European English, delivered with a rapid but articulate tempo; the style is highly conversational, prone to dramatic inflections, shared laughter, knowing whispers, and sudden bursts of conspiratorial excitement.",
+    "master_ref_image": "characters\\refs\\char_067_ref.png",
+    "ref_seed": 3510705403,
+    "ref_prompt": "A mixed group of people, generally appearing to be in their late 20s to mid-40s, inhabiting a shared aesthetic of inherited wealth and modern fashion. Their clothing ranges from tailored evening wear (deep velvet suits, silk cocktail dresses) to impeccably tailored daytime luxury fabrics (linen blazers, cashmere wraps). While individual styling varies—some might wear bold geometric jewelry, others classic pearls; some hair is sleekly pulled back, others cascading in soft waves—all garments maintain a cohesive level of expensive tailoring and dramatic color palette. Accessories include statement shoes, structured handbags, and varying degrees of noticeable, high-end jewelry (signet rings, cuff bracelets). They move with an air of practiced confidence, often clustered together for conversation., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:46:15"
+  },
+  {
+    "char_id": "char_068",
+    "name": "Emily",
+    "speaking": false,
+    "scene_ids": [
+      16
+    ],
+    "visual_descriptor": "Emily is a woman in her early thirties with an aura of restrained elegance. She has porcelain, flawless skin and high, structured cheekbones. Her eyes are a cool, assessing shade of slate gray. Her hair is thick, deep espresso brown, styled in soft, polished waves that fall just past her shoulders. She wears tailored evening gowns—never overly flashy, but exquisitely cut from rich fabrics like velvet or silk crepe, favoring jewel tones (sapphire blue, emerald green). Her jewelry is consistently minimal and antique: a delicate silver locket she often touches, simple diamond studs, and perfectly manicured hands with a neutral polish. Her posture is impeccable, giving her an air of controlled stillness.",
+    "voice_descriptor": "Female, mid-thirties. The pitch is medium-low, always measured and even. She possesses a sophisticated, educated American accent with a slightly formal cadence. Her speaking style is deliberate and thoughtful; she rarely rushes, allowing slight, pregnant pauses that draw attention to her carefully chosen words. Her tone suggests intellectual depth rather than high emotion.",
+    "master_ref_image": "characters\\refs\\char_068_ref.png",
+    "ref_seed": 1538531443,
+    "ref_prompt": "Emily is a woman in her early thirties with an aura of restrained elegance. She has porcelain, flawless skin and high, structured cheekbones. Her eyes are a cool, assessing shade of slate gray. Her hair is thick, deep espresso brown, styled in soft, polished waves that fall just past her shoulders. She wears tailored evening gowns—never overly flashy, but exquisitely cut from rich fabrics like velvet or silk crepe, favoring jewel tones (sapphire blue, emerald green). Her jewelry is consistently minimal and antique: a delicate silver locket she often touches, simple diamond studs, and perfectly manicured hands with a neutral polish. Her posture is impeccable, giving her an air of controlled stillness., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:46:51"
+  },
+  {
+    "char_id": "char_069",
+    "name": "Friends (Group)",
+    "speaking": false,
+    "scene_ids": [
+      17,
+      24,
+      29
+    ],
+    "visual_descriptor": "The Friends are a diverse ensemble of four individuals (two women and two men) designed to appear coordinated but individually distinct, suitable for a grand, fashionable setting. They share an overall sense of effortless, expensive style. The three women wear tailored, modern cocktail dresses in muted jewel tones (emerald, sapphire, burgundy), styled with structured jackets or capes; their hair is immaculately coiffed (some sleek and straight, others voluminous waves). The two men are dressed in high-end suits: deep charcoal grey or navy blue, paired with crisp white shirts and subtly patterned ties. They consistently wear minimal but expensive accessories (designer watches, geometric earrings). Their makeup/grooming is flawless, emphasizing polished perfection rather than bold extremes.",
+    "voice_descriptor": "The group dynamic features a range of voices, ranging from mid-to-high female tones to deep male baritones. The overall collective tone is highly modulated; they speak in synchronized bursts of confident, conversational patter, often punctuated by shared laughter or knowing glances. Their accent is modern and cosmopolitan, speaking with precise diction and an air of studied nonchalance.",
+    "master_ref_image": "characters\\refs\\char_069_ref.png",
+    "ref_seed": 3890075176,
+    "ref_prompt": "The Friends are a diverse ensemble of four individuals (two women and two men) designed to appear coordinated but individually distinct, suitable for a grand, fashionable setting. They share an overall sense of effortless, expensive style. The three women wear tailored, modern cocktail dresses in muted jewel tones (emerald, sapphire, burgundy), styled with structured jackets or capes; their hair is immaculately coiffed (some sleek and straight, others voluminous waves). The two men are dressed in high-end suits: deep charcoal grey or navy blue, paired with crisp white shirts and subtly patterned ties. They consistently wear minimal but expensive accessories (designer watches, geometric earrings). Their makeup/grooming is flawless, emphasizing polished perfection rather than bold extremes., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:47:18"
+  },
+  {
+    "char_id": "char_070",
+    "name": "Various Unmarried Friends (Peripheral)",
+    "speaking": false,
+    "scene_ids": [
+      20
+    ],
+    "visual_descriptor": "A diverse collection of young to middle-aged adults ($25-40$), collectively styled in high-end, impeccably curated designer fashion suitable for an extravagant ballroom setting. Their makeup and nails are flawless, executed with a highly polished, expensive finish (matte skin, sharp winged eyeliner, sophisticated lip colors). Hair is always immaculate—ranging from voluminous, curled brunette updos to sleek, straight, darkly colored styles. Clothing consists of luxurious materials like silk, satin, velvet, and structured crepe; think cocktail dresses that hit mid-calf, sharply tailored blazers over jewel tones, or elegant slip gowns. Accessories are signature status symbols: delicate yet weighty gold necklaces, diamond studs, designer clutches with geometric patterns, and pointed stilettos. Their overall presentation is one of studied perfection—they look like they belong in an expensive magazine shoot every time. They possess a collective aura of curated wealth and flawless taste.",
+    "voice_descriptor": "The group's voices vary but share common traits: highly articulate, possessing varied pitches but generally mid-to-high register when animated, and carrying a polished, educated accent (such as Received Pronunciation or an upper-class American drawl). Their speaking style is characterized by careful cadence, deliberate emphasis on certain words, frequent dramatic pauses, and the ability to transition seamlessly between intimate whispering and sudden, melodramatic laughter. They speak with an undercurrent of theatrical performance, making even mundane conversation sound like a witty anecdote.",
+    "master_ref_image": "characters\\refs\\char_070_ref.png",
+    "ref_seed": 362039837,
+    "ref_prompt": "A diverse collection of young to middle-aged adults ($25-40$), collectively styled in high-end, impeccably curated designer fashion suitable for an extravagant ballroom setting. Their makeup and nails are flawless, executed with a highly polished, expensive finish (matte skin, sharp winged eyeliner, sophisticated lip colors). Hair is always immaculate—ranging from voluminous, curled brunette updos to sleek, straight, darkly colored styles. Clothing consists of luxurious materials like silk, satin, velvet, and structured crepe; think cocktail dresses that hit mid-calf, sharply tailored blazers over jewel tones, or elegant slip gowns. Accessories are signature status symbols: delicate yet weighty gold necklaces, diamond studs, designer clutches with geometric patterns, and pointed stilettos. Their overall presentation is one of studied perfection—they look like they belong in an expensive magazine shoot every time. They possess a collective aura of curated wealth and flawless taste., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:47:46"
+  },
+  {
+    "char_id": "char_071",
+    "name": "Emma",
+    "speaking": false,
+    "scene_ids": [
+      22
+    ],
+    "visual_descriptor": "Emma is a woman in her late twenties with striking features and meticulous grooming. Her complexion is warm, honey-toned olive skin. Her hair is a deep, rich mahogany brown, styled in smooth, heavy waves that fall just past her shoulders, always kept impeccably neat. She has large, intelligent hazel eyes framed by naturally long lashes and defined eyebrows. She possesses a poised, elegant figure, favoring tailored silhouettes. She wears an outfit consisting of a fitted ivory silk blouse with delicate lace cuffs, paired with a charcoal grey, high-waisted wool skirt that hits just below the knee. Her accessories are minimalist but impactful: thin gold stud earrings shaped like leaves and a small, structured rectangular clutch made of deep emerald velvet which she occasionally holds or gestures with. She has a subtle, natural scent that can be visualized as expensive sandalwood.",
+    "voice_descriptor": "Female, late twenties, medium-low pitch, speaking tempo is deliberate and controlled. Her accent is neutral American English, conveying an educated, slightly formal upbringing. Her speaking style is eloquent and precise; she rarely raises her voice but commands attention through perfect diction and measured pauses, sounding thoughtful rather than overtly emotional.",
+    "master_ref_image": "characters\\refs\\char_071_ref.png",
+    "ref_seed": 796328513,
+    "ref_prompt": "Emma is a woman in her late twenties with striking features and meticulous grooming. Her complexion is warm, honey-toned olive skin. Her hair is a deep, rich mahogany brown, styled in smooth, heavy waves that fall just past her shoulders, always kept impeccably neat. She has large, intelligent hazel eyes framed by naturally long lashes and defined eyebrows. She possesses a poised, elegant figure, favoring tailored silhouettes. She wears an outfit consisting of a fitted ivory silk blouse with delicate lace cuffs, paired with a charcoal grey, high-waisted wool skirt that hits just below the knee. Her accessories are minimalist but impactful: thin gold stud earrings shaped like leaves and a small, structured rectangular clutch made of deep emerald velvet which she occasionally holds or gestures with. She has a subtle, natural scent that can be visualized as expensive sandalwood., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:48:30"
+  },
+  {
+    "char_id": "char_072",
+    "name": "Sophia",
+    "speaking": false,
+    "scene_ids": [
+      26
+    ],
+    "visual_descriptor": "Sophia possesses a striking, classically beautiful face with high, defined cheekbones and almond-shaped eyes that are perpetually observing. Her skin is immaculate porcelain, suggesting careful upkeep. Her hair is rich, obsidian black, styled in polished, voluminous waves that fall just past her shoulders, always meticulously arranged. She maintains a slender, elegant posture. For clothing, she wears structured, deep jewel-toned gowns (e.g., sapphire blue or emerald green) made of heavy silk or velvet, favoring high necklines and tailored sleeves over overly revealing cuts. Accessories are minimalist but impactful: small diamond stud earrings and a single cuff bracelet. She always carries a sleek, black leather clutch that functions as a prop for her dramatic poses. Every element—from the precise manicure to the slight tilt of her chin—is controlled and deliberate.",
+    "voice_descriptor": "Female, late 30s (vibrating with controlled maturity). The pitch is slightly lower than average, giving it gravitas. Her accent is highly polished and educated, possessing a cultivated rhythm that implies old money and deep resources. Her speaking style is measured, precise, and theatrical; she speaks in full sentences with an articulate cadence, using strategic pauses before key words to maximize impact or convey passive judgment.",
+    "master_ref_image": "characters\\refs\\char_072_ref.png",
+    "ref_seed": 890076121,
+    "ref_prompt": "Sophia possesses a striking, classically beautiful face with high, defined cheekbones and almond-shaped eyes that are perpetually observing. Her skin is immaculate porcelain, suggesting careful upkeep. Her hair is rich, obsidian black, styled in polished, voluminous waves that fall just past her shoulders, always meticulously arranged. She maintains a slender, elegant posture. For clothing, she wears structured, deep jewel-toned gowns (e.g., sapphire blue or emerald green) made of heavy silk or velvet, favoring high necklines and tailored sleeves over overly revealing cuts. Accessories are minimalist but impactful: small diamond stud earrings and a single cuff bracelet. She always carries a sleek, black leather clutch that functions as a prop for her dramatic poses. Every element—from the precise manicure to the slight tilt of her chin—is controlled and deliberate., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 10:49:07"
+  },
+  {
+    "char_id": "char_073",
+    "name": "Marcia",
+    "speaking": false,
+    "scene_ids": [
+      1,
+      2
+    ],
+    "visual_descriptor": "Marcia is a woman with elegant, timeless features. She has sharp, high cheekbones and a defined jawline. Her skin is smooth and warm-toned. Her hair is dark, rich chestnut brown, styled in polished, voluminous waves that fall just below her shoulders. She is slender with an undeniably poised carriage. She wears a deep emerald green cocktail dress made of heavy velvet, featuring a structured bodice and subtle ruching at the waist. The dress has long sleeves and hits just above the knee. Her accessories are minimal but luxurious: small gold hoop earrings, a single delicate diamond tennis bracelet on her left wrist, and a small, structured clutch bag in matching emerald satin. She carries herself with controlled confidence.",
+    "voice_descriptor": "Female, estimated age 38-42. The pitch is medium-low and perfectly modulated. She possesses a smooth, educated, upper-class American accent that never sounds strained or overly dramatic. Her speaking style is measured, articulate, and confident; she speaks in full, complex sentences with subtle emphasis on key words, suggesting intelligence and authority.",
+    "master_ref_image": "characters\\refs\\char_073_ref.png",
+    "ref_seed": 2896145077,
+    "ref_prompt": "Marcia is a woman with elegant, timeless features. She has sharp, high cheekbones and a defined jawline. Her skin is smooth and warm-toned. Her hair is dark, rich chestnut brown, styled in polished, voluminous waves that fall just below her shoulders. She is slender with an undeniably poised carriage. She wears a deep emerald green cocktail dress made of heavy velvet, featuring a structured bodice and subtle ruching at the waist. The dress has long sleeves and hits just above the knee. Her accessories are minimal but luxurious: small gold hoop earrings, a single delicate diamond tennis bracelet on her left wrist, and a small, structured clutch bag in matching emerald satin. She carries herself with controlled confidence., standing in a neutral pose, studio lighting, full body, plain background, high resolution",
+    "voice_lock": null,
+    "created": "2026-08-02 11:12:41"
   }
 ]

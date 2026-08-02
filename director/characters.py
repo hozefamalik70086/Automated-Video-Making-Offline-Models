@@ -124,9 +124,19 @@ def _pick_edge_voice(voice_descriptor: str, name: str = "") -> str:
 
 
 def _fallback_visual(name: str) -> str:
-    return (f"A clearly visible {name} with a distinctive, consistent "
-            "appearance; recognizable in every scene; cinematic lighting; "
-            "high detail.")
+    # Stable, name-derived anchor so fallback (no-LLM) locks still differ from
+    # each other. Real locks use a rich Ollama visual_descriptor instead; this
+    # only runs when the LLM is unavailable (e.g. bad model name / 404).
+    seed = sum(ord(c) for c in name.lower())
+    attrs = [
+        "a memorable silhouette and distinctive coloring",
+        "a bold color palette and clean styling",
+        "an unmistakable look and strong visual identity",
+        "a distinctive appearance with high contrast",
+    ]
+    attr = attrs[seed % len(attrs)]
+    return (f"A clearly visible {name} with {attr}; recognizable in every "
+            "scene; cinematic lighting; high detail.")
 
 
 class CharacterLibrary:

@@ -2,7 +2,7 @@
 
 A "director model" that drives your existing **ComfyUI** workflow end-to-end:
 
-> **Story writer** (optional LLM, or your own text) → **Text-to-Image** (Z-Image-Turbo) → **Image-to-Video** (LTX-2.3) → **5-second clip** → **automatic QC pass/fail** → **re-shoot on failure** → **next scene** → **stitch final film**.
+> **Story writer** (optional LLM, or your own text) → **Text-to-Image** (Z-Image-Turbo) → **Image-to-Video** (LTX-2.3) → **1-second clips (chunked)** → **automatic QC pass/fail** → **re-shoot on failure** → **join segments → next scene → join scenes → final film**.
 
 The Director app is plain Python. It talks to ComfyUI's HTTP API, so **no node-graph can do the QC loop — this is why the director is a Python app driving ComfyUI** (industry-standard approach).
 
@@ -20,6 +20,7 @@ The Director app is plain Python. It talks to ComfyUI's HTTP API, so **no node-g
 | `comfy_api.py` | Minimal ComfyUI HTTP client (submit / poll / download). |
 | `qc.py` | Quality Control: duration, black frames, frozen frames, motion. |
 | `director.py` | The Director orchestrator (main entry point). |
+| `narrate.py` | Optional edge-tts narration: speaks each scene's `dialogue` as audio + burns subtitles (auto-runs after the film when `audio.enabled`). |
 | `custom_story.txt` | Optional: put your own story here to bypass the LLM. |
 | `requirements.txt` | Python dependencies. |
 | `output/` | Rendered clips + `report.json` + stitched film. |
@@ -52,16 +53,76 @@ python director.py              # full production run
 The director will:
 1. Print an environment/model check.
 2. Get the story (see below).
-3. Shoot each scene as a 5-second clip (image → video), downloading it.
-4. Run QC on every clip. **Fail → automatic re-shoot with new seeds** (up to `qc.max_attempts`).
-5. Stitch the accepted clips into `output/final_film.mp4`.
-6. Write `output/report.json` (per-scene results + QC metrics).
+3. Shoot each scene — by default split into **1-second segments** rendered at
+   the configured FPS/resolution (e.g. 1080×1920 @ 30fps, 9:16 vertical), then
+   joined right after creation into `scene_XX.mp4` (see
+   ["1-second chunked rendering"](#1-second-chunked-rendering-high-fps--high-resolution)).
+4. Run QC on every clip/segment. **Fail → automatic re-shoot with new seeds** (up to `qc.max_attempts`).
+5. Stitch the accepted scene clips into `output/final_film.mp4`.
+6. Write `output/report.json` (per-scene results + QC metrics, including the
+   per-segment metrics when chunked).
 
 ### One scene only
 
 ```bash
 python director.py --scene 2    # render only scene index 2 (0-based)
 ```
+
+---
+
+## 1-second chunked rendering (high FPS + high resolution)
+
+Long scenes at high FPS/high resolution are rendered as **one giant LTX
+generation** (`seconds × fps + 1` frames) which can OOM the GPU, hang, or run
+out of memory on the RTX 4080. The director avoids that by splitting every
+scene into **small segments** (at most `render.max_segment_seconds`), rendering
+each segment as its own tiny generation, then **joining the segments right
+after creation** — and finally joining the scenes. A **hard safety cap** means
+a single generation is never huge no matter what `chunk_seconds` says, so
+30–60 s videos render reliably.
+
+```jsonc
+"render": {
+    "video_width": 1080,      // 9:16 vertical (Reels / TikTok / Shorts)
+    "video_height": 1920,
+    "fps": 30,
+    "image_width": 1080,      // keyframe T2I matches the portrait frame
+    "image_height": 1920,
+    "chunked": true,          // split each scene into small segments
+    "chunk_seconds": 1.0,     // preferred segment length (s)
+    "max_segment_seconds": 1.0, // HARD CAP — one generation never exceeds this
+    "chain_frames": true      // continue each segment from the previous
+                              // segment's last frame (continuous shot)
+}
+```
+
+How it works (`director.py`):
+
+- A `N`-second scene becomes `ceil(N / segment)` segments where
+  `segment = min(chunk_seconds, max_segment_seconds)` — the cap wins, so even
+  if `chunk_seconds` is set to 30 the pipeline still submits 1 s generations
+  (e.g. 1s @ 30fps = 31 frames — tiny, fast, VRAM-safe) instead of one 751-frame
+  generation that OOMs the GPU.
+- **Total video length:** set `story.video_length` (the whole video's runtime)
+  and each scene is auto-adjusted to `video_length / scenes`, so "make it 60 s"
+  with 12 scenes gives 5 s per scene, each rendered as 5 × 1 s chunks. Leave it
+  at 0 (or unset) to use `story.seconds_per_scene` directly.
+- Each segment is QC'd independently with the same pass/fail + re-shoot loop.
+- With `chain_frames: true`, the **last frame** of segment `k` is extracted to
+  a PNG, uploaded to ComfyUI (`/upload/image`), and injected as the **first
+  frame** of segment `k+1` (the T2I keyframe subgraph is skipped for
+  continuation segments) — so the joined shot is a continuous camera move, not
+  a series of restarts.
+- All accepted segments are joined with ffmpeg into `scene_XX.mp4`, then all
+  scenes are joined into `final_film.mp4`.
+- Disable it for a classic single-shot render: `"chunked": false` or run
+  `python director.py --no-chunks`.
+
+> **Note on 1080×1920:** LTX latent dims in this template are the video
+> dimensions halved (`ComfyMathExpression "a/2"`), so the latent is
+> 540×960. If your ComfyUI/LTX build rejects that resolution, pick video
+> dimensions divisible by 64 (e.g. **1088×1920** — still ~9:16) in
+> `render.video_width` / `render.video_height`.
 
 ---
 
@@ -79,7 +140,11 @@ Priority:
 3. **Template fallback** — if no custom story and no LLM, a small built-in story
    runs so the pipeline is always testable.
 
-Edit `story.scenes` and `story.seconds_per_scene` in `config.json` to control length.
+Control length via `story.scenes`, `story.seconds_per_scene`, or
+`story.video_length` (total runtime, divided across scenes) in `config.json`
+(or the dashboard — Story & LLM tab). For a 30–60 s video, prefer
+`story.video_length`; the per-scene duration is computed automatically and
+every scene is still rendered as small 1 s chunks, so it never OOMs.
 
 ---
 
@@ -132,10 +197,26 @@ Knobs (things the director changes per scene) live in `workflow_knobs.json`:
 
 ## Notes / limitations
 
-- One ComfyUI prompt runs the whole image+video scene; total render time depends
-  on your GPU (expect roughly 1–5 min per 5s scene on a mid-range GPU).
+- With `render.chunked: true` (default), every scene is rendered as short
+  segments (hard-capped at `render.max_segment_seconds`, default **1.0 s**)
+  that are joined right after creation; total render time is similar to a
+  single long render but each individual generation is small, so high FPS +
+  high resolution never OOM/hang (expect roughly 1–5 min per 1s segment on a
+  mid-range GPU). The cap is enforced in code even if `chunk_seconds` is set
+  higher, so long 30/60 s scenes can never OOM an 8–16 GB GPU.
+- Without chunking, one ComfyUI prompt runs the whole image+video scene; expect
+  roughly 1–5 min per 5s scene on a mid-range GPU — long durations/high FPS
+  risk GPU OOM.
 - The final stitch re-encodes clips (H.264) to guarantee concatenation works;
   audio from LTX is currently dropped in the stitch (`-an`) for robustness.
+- **Dialogue → audio:** each scene's `dialogue` (from `custom_story.txt`
+  `DIALOGUE:` / `Speaker: line` blocks, or the LLM story writer) is spoken by
+  `narrate.py` with `edge-tts` (per-character voice locks from `characters/`
+  when set, else the global narrator voice) and subtitles are burned in. This
+  runs **automatically** at the end of `director.py` when `audio.enabled: true`
+  and produces `final_film_narrated.mp4` (the base film is never modified). A
+  defensive guard ensures the story genre/prompt is **never** read out loud,
+  and `audio_lines` (ambient sound cues) are never spoken.
 - The LLM is only a **story writer**; all images/videos are generated locally by
   ComfyUI. No cloud API keys are required.
 - Change the film look by editing prompts, `config.json` (resolution, fps,
@@ -174,12 +255,17 @@ python director.py --config tests\config_mock_custom.json
 
 # full run with no custom story / no LLM -> built-in fallback story
 python director.py --config tests\config_mock_fallback.json
+
+# chunked e2e — 3 scenes x 2s as 1s segments @ 30fps (1080x1920 9:16),
+# with frame chaining + per-scene join (tests config_mock_chunk.json)
+python director.py --config tests\config_mock_chunk.json
 ```
 
 Expected result: every scene shows `QC: FAIL` on attempt 1 then `QC: PASS` on
 attempt 2, and a valid `tests/output_test/final_film.mp4` (4 clips × 5s = 20s)
 is produced. This is exactly what the real ComfyUI run does, just with a fake
-renderer.
+renderer. The chunked run (`config_mock_chunk.json`) produces 1s segment files
+(`scene_XX_cYY.mp4`), joined `scene_XX.mp4` files and a 6s `final_film.mp4`.
 
 > The mock also made the model check (`--check`) honest: it serves a realistic
 > `/object_info` (the `[choices, options]` shape real ComfyUI returns), which is
