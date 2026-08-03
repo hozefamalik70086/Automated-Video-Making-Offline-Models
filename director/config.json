@@ -2,7 +2,10 @@
   "comfyui": {
     "url": "http://127.0.0.1:8188",
     "timeout_seconds": 30,
-    "render_timeout_seconds": 3600
+    "render_timeout_seconds": 3600,
+    "free_between_scenes": true,
+    "free_between_segments": false,
+    "gc_collect": true
   },
   "llm": {
     "backend": "ollama",
@@ -11,18 +14,18 @@
     "openai_base_url": "http://127.0.0.1:1234/v1",
     "openai_api_key": "not-needed",
     "openai_model": "gemma4:latest",
-    "temperature": 1,
+    "temperature": 0.85,
     "max_tokens": 192000,
     "max_attempts": 2,
     "keep_alive": "30m"
   },
   "story": {
     "custom_story_file": "custom_story.txt",
-    "genre": "this girl standing still in the banquet hall and making fun of her unmarried friends to feel them jealous of her marriage. ",
-    "scenes": 12,
+    "genre": "a 20-year-old Asian Indian girl with glowing wheatish skin and a fit, athletic build",
+    "scenes": 5,
     "seconds_per_scene": 10,
     "character": "",
-    "video_length": 0
+    "video_length": 60
   },
   "render": {
     "video_width": 640,

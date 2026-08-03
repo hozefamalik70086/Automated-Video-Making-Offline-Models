@@ -785,6 +785,67 @@ def test_segment_cap_prevents_oom() -> None:
           repr(qc_result.metrics))
 
 
+def test_memory_cleanup_between_segments() -> None:
+    section("director: memory cleanup between segments (free_memory)")
+    import director as director_mod
+    cfg = base_config()
+    cfg["story"]["seconds_per_scene"] = 3
+    cfg["render"]["chunked"] = True
+    cfg["render"]["chunk_seconds"] = 1.0
+    cfg["render"]["chain_frames"] = False
+    cfg["comfyui"]["free_between_segments"] = True
+    cfg["comfyui"]["free_between_scenes"] = True
+    d = director_mod.Director(cfg)
+    d.chars = type("FakeLib", (), {"enabled": False})()
+
+    free_calls = [0]
+    shown = [0]
+
+    class FakeMemComfy:
+        def free_memory(self, _unload_models=True, _free_memory=True):
+            free_calls[0] += 1
+            return True
+
+        def memory_summary(self):
+            shown[0] += 1
+            return "VRAM 8.0/12.0 GB free; RAM 20/64 GB free"
+
+    d.comfy = FakeMemComfy()
+
+    def fake_segment(scene, scene_idx, duration, chunk_idx, chunk_total,
+                     chain_image):
+        return (f"output/scene_{scene_idx:02d}_c{chunk_idx:02d}.mp4", 1,
+                QCResult(passed=True, metrics={"motion_std": 1.0}), ("ip", "vp"))
+
+    def fake_stitch(scene_idx, chunk_paths):
+        return f"output/scene_{scene_idx:02d}.mp4"
+
+    d._render_segment = fake_segment
+    d._extract_last_frame = lambda *a, **k: None
+    d._stitch_chunks = fake_stitch
+
+    d.render_scene({"image_prompt": "p", "video_prompt": "v"}, 2)
+
+    check("free_memory called once per segment (3 segments)",
+          free_calls[0] == 3, str(free_calls[0]))
+    check("memory summary logged after each segment",
+          shown[0] >= 3, str(shown[0]))
+
+    # Default behavior: free_between_segments = False must NOT touch the API
+    cfg2 = base_config()
+    d2 = director_mod.Director(cfg2)
+    d2.comfy = FakeMemComfy()
+    free_calls[0] = 0
+    d2._clean_memory("segment")
+    check("segment cleanup skipped by default (no free calls)",
+          free_calls[0] == 0, str(free_calls[0]))
+    # scene cleanup is on by default and reaches the API
+    free_calls[0] = 0
+    d2._clean_memory("scene")
+    check("scene cleanup runs by default", free_calls[0] == 1,
+          str(free_calls[0]))
+
+
 # --------------------------------------------------------------------------- #
 #  narrate.make_narration voice selection
 # --------------------------------------------------------------------------- #
@@ -877,6 +938,7 @@ def main() -> None:
     test_render_scene_chunked_fallback_to_single()
     test_effective_scene_seconds_video_length()
     test_segment_cap_prevents_oom()
+    test_memory_cleanup_between_segments()
     test_narrate_voice_selection()
     print(f"\n{'='*60}\nPASS: {PASS}   FAIL: {FAIL}")
     if FAILURES:

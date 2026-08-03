@@ -46,6 +46,22 @@ from storywriter import StoryWriter
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Known install folder (relative to <ComfyUI>/models/) for a model filename,
+# used to turn a bare "not found" env-check message into an actionable hint.
+_MODEL_INSTALL_FOLDERS = {
+    "ae.safetensors": "vae",
+    "z_image_turbo_int8_convrot.safetensors": "diffusion_models",
+    "qwen_3_4b_fp8_mixed.safetensors": "text_encoders",
+    "gemma_3_12B_it_fp4_mixed_2.safetensors": "text_encoders",
+    "ltx-2.3-22b-dev-fp8.safetensors": "checkpoints",
+    "ltx-2.3-22b-distilled-1.1_lora-dynamic_fro09_avg_rank_111_bf16.safetensors": "loras",
+    "ltx-2.3-spatial-upscaler-x2-1.1.safetensors": "upscale_models",
+}
+# Optional direct download link for known models to save the user a search.
+_MODEL_DOWNLOAD_URLS = {
+    "ae.safetensors": "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors",
+}
+
 
 class _Tee:
     """Duplicates printed output to both the console and a log file so the
@@ -216,7 +232,14 @@ class Director:
             spec = options.get(inp_name) or []
             choices = spec[0] if spec and isinstance(spec[0], list) else []
             if choices and val not in choices:
-                problems.append(f"{cls} '{val}' not found on server")
+                hint = ""
+                folder = _MODEL_INSTALL_FOLDERS.get(val)
+                if folder:
+                    hint = f"  -> place it at <ComfyUI>/models/{folder}/{val}"
+                url = _MODEL_DOWNLOAD_URLS.get(val)
+                if url:
+                    hint += f"  download: {url}"
+                problems.append(f"{cls} '{val}' not found on server.{hint}")
         return problems
 
     # ------------------------------------------------------------- rendering
@@ -344,6 +367,47 @@ class Director:
         """Number of segments for a scene of this length."""
         return max(1, int(math.ceil(total_seconds / self._segment_seconds())))
 
+    def _clean_memory(self, stage: str) -> None:
+        """Release RAM/VRAM pressure between heavy generations.
+
+        ``stage`` is 'segment' or 'scene'. Controlled by the ``comfyui``
+        config section:
+          * free_between_scenes  (default True)  - unload everything at scene
+            boundaries so RAM/VRAM cannot accumulate across a long run (the
+            LTX fp8 + 12B text encoder are both heavy).
+          * free_between_segments (default False) - unload between every 1s
+            segment. Disabled by default because reloading the I2V model for
+            each tiny segment slows chunked runs; enable only if one still
+            sees OOM mid-scene.
+          * gc_collect (default True)              - forces Python GC so this
+            process releases any large downloaded-file buffers.
+        Never crashes the pipeline - every step is best-effort."""
+        conf = self.cfg.get("comfyui", {})
+        if stage == "segment":
+            if not conf.get("free_between_segments", False):
+                return
+        elif not conf.get("free_between_scenes", True):
+            return
+        try:
+            if hasattr(self.comfy, "free_memory"):
+                if self.comfy.free_memory():
+                    print(f"  [mem] freed ComfyUI models ({stage})")
+        except Exception as exc:  # noqa: BLE001
+            print(f"  [mem] !! free failed ({stage}): {exc}")
+        if conf.get("gc_collect", True):
+            try:
+                import gc
+                gc.collect()
+            except Exception:  # noqa: BLE001
+                pass
+        try:
+            sm = (self.comfy.memory_summary()
+                  if hasattr(self.comfy, "memory_summary") else None)
+            if sm:
+                print(f"  [mem] after {stage}: {sm}")
+        except Exception:  # noqa: BLE001
+            pass
+
     def render_scene(self, scene: dict, scene_idx: int) -> tuple:
         """Render one scene with QC retry loop.
 
@@ -403,6 +467,9 @@ class Director:
             # Extract the last frame so the next 1s segment continues it.
             if path and self.render_cfg.get("chain_frames", True):
                 chain_image = self._extract_last_frame(path, scene_idx, c)
+            # Release leftover RAM/VRAM before the next tiny segment so
+            # back-to-back LTX generations do not accumulate memory pressure.
+            self._clean_memory("segment")
 
         scene_path = self._stitch_chunks(scene_idx, chunk_paths)
         passed_count = sum(1 for r in chunk_results if r.get("passed"))
@@ -719,6 +786,10 @@ class Director:
             if manual_review and passed:
                 input(f"  Human review: press Enter to accept scene {idx+1} "
                       "or Ctrl+C to abort…")
+            # Unload cached models between scenes: the biggest single source of
+            # RAM/VRAM pressure across a whole run (LTX fp8 + 12B text
+            # encoder staying resident in ComfyUI).
+            self._clean_memory("scene")
 
         report = {
             "story_title": title,

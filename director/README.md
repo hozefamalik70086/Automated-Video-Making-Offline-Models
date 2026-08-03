@@ -207,6 +207,17 @@ Knobs (things the director changes per scene) live in `workflow_knobs.json`:
 - Without chunking, one ComfyUI prompt runs the whole image+video scene; expect
   roughly 1–5 min per 5s scene on a mid-range GPU — long durations/high FPS
   risk GPU OOM.
+- **RAM / VRAM cleanup:** between scenes the director asks ComfyUI to unload
+  model weights and free cached memory via `POST /free` (so the LTX fp8 model +
+  12B text encoder do not stay resident and eat RAM/VRAM across a whole run)
+  and forces Python GC to drop downloaded-file buffers. Tune with
+  `comfyui.free_between_scenes` (default `true`) and
+  `comfyui.free_between_segments` (default `false` — freeing between every 1s
+  segment forces the I2V model to reload each time, which is slower; enable it
+  only if a single scene still OOMs). Each cleanup prints the live
+  `VRAM/RAM free` figures so you can watch pressure in the console. If you
+  still see high RAM/VRAM with chunked 1s segments, also run ComfyUI Desktop in
+  `--lowvram` mode (Settings → ComfyUI → extra launch args).
 - The final stitch re-encodes clips (H.264) to guarantee concatenation works;
   audio from LTX is currently dropped in the stitch (`-an`) for robustness.
 - **Dialogue → audio:** each scene's `dialogue` (from `custom_story.txt`

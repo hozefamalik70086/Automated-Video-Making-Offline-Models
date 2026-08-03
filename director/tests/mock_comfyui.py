@@ -196,6 +196,11 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/upload/image":
             self._handle_upload()
             return
+        if parsed.path == "/free":
+            # memory-cleanup endpoint (mirrors real ComfyUI) - report success
+            print("[mock] free")
+            self._json(200, {"deleted": True})
+            return
         if parsed.path != "/prompt":
             self._json(404, {"error": f"no mock route {parsed.path}"})
             return

@@ -19,6 +19,15 @@ from typing import Any, Optional
 import requests
 
 POLL_INTERVAL_S = 1.0
+GB = 1024 ** 3
+
+
+def _gb(n: float) -> str:
+    """Format a byte count as a readable GiB string (tolerant of bad input)."""
+    try:
+        return f"{float(n) / GB:.1f} GB"
+    except Exception:  # noqa: BLE001
+        return "?"
 
 
 class ComfyUIError(RuntimeError):
@@ -46,6 +55,45 @@ class ComfyUI:
         r = self.session.get(f"{self.url}/system_stats", timeout=10)
         r.raise_for_status()
         return r.json()
+
+    def free_memory(self, unload_models: bool = True,
+                    free_memory: bool = True) -> bool:
+        """Ask ComfyUI to unload model weights (VRAM) and free cached RAM.
+
+        POST /free is ComfyUI's own cleanup route: it drops model weights from
+        VRAM and reclaims cached RAM so the next job starts from a fresh state.
+        Call it between scenes/segments to stop memory from accumulating on
+        low-VRAM cards. Never raises - cleanup is best-effort."""
+        try:
+            r = self.session.post(
+                f"{self.url}/free",
+                json={"unload_models": unload_models,
+                      "free_memory": free_memory},
+                timeout=15)
+            return r.status_code == 200
+        except requests.RequestException:
+            return False
+
+    def memory_summary(self) -> Optional[str]:
+        """Human-readable 'VRAM x / y free; RAM z / w free' summary from
+        /system_stats, or None when the server does not report metrics."""
+        try:
+            stats = self.system_stats()
+        except Exception:  # noqa: BLE001
+            return None
+        devs = stats.get("devices") or []
+        gpu = devs[0] if devs else {}
+        bits = []
+        vtotal = gpu.get("vram_total") or 0
+        vfree = gpu.get("vram_free") or 0
+        if vtotal:
+            bits.append(f"VRAM {_gb(vfree)}/{_gb(vtotal)} free")
+        syst = stats.get("system") or {}
+        rtotal = syst.get("ram_total") or 0
+        rfree = syst.get("ram_free") or 0
+        if rtotal:
+            bits.append(f"RAM {_gb(rfree)}/{_gb(rtotal)} free")
+        return "; ".join(bits) if bits else None
 
     # ------------------------------------------------------------- submit
     def submit(self, workflow: dict) -> str:
