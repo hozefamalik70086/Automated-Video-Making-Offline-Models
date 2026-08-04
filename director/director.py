@@ -367,6 +367,16 @@ class Director:
         """Number of segments for a scene of this length."""
         return max(1, int(math.ceil(total_seconds / self._segment_seconds())))
 
+    def _free_ram_gb(self) -> Optional[float]:
+        """Free system RAM (GB) per ComfyUI /system_stats, or None if unknown
+        / the client has no such method (guards offline unit-test fakes)."""
+        if not hasattr(self.comfy, "free_ram_gb"):
+            return None
+        try:
+            return self.comfy.free_ram_gb()
+        except Exception:  # noqa: BLE001
+            return None
+
     def _clean_memory(self, stage: str) -> None:
         """Release RAM/VRAM pressure between heavy generations.
 
@@ -377,23 +387,40 @@ class Director:
             LTX fp8 + 12B text encoder are both heavy).
           * free_between_segments (default False) - unload between every 1s
             segment. Disabled by default because reloading the I2V model for
-            each tiny segment slows chunked runs; enable only if one still
-            sees OOM mid-scene.
+            each tiny segment slows chunked runs.
+          * min_free_ram_gb (default 6.0) - SAFETY NET: even when
+            free_between_segments is OFF, if free system RAM drops below this
+            we STILL unload ComfyUI's models. Without this, a long chunked
+            scene (many 1s segments keeping LTX + 12B encoder resident)
+            exhausts RAM and the whole machine freezes mid-scene (observed
+            stalling at ~segment 10-12 of 12). The adaptive free only fires
+            when RAM is genuinely tight, so healthy runs stay fast.
           * gc_collect (default True)              - forces Python GC so this
-            process releases any large downloaded-file buffers.
+            process releases any large downloaded-file buffers. Runs
+            regardless of the free toggles above.
         Never crashes the pipeline - every step is best-effort."""
         conf = self.cfg.get("comfyui", {})
-        if stage == "segment":
-            if not conf.get("free_between_segments", False):
-                return
-        elif not conf.get("free_between_scenes", True):
-            return
-        try:
-            if hasattr(self.comfy, "free_memory"):
-                if self.comfy.free_memory():
-                    print(f"  [mem] freed ComfyUI models ({stage})")
-        except Exception as exc:  # noqa: BLE001
-            print(f"  [mem] !! free failed ({stage}): {exc}")
+        force = (bool(conf.get("free_between_scenes", True))
+                 if stage == "scene"
+                 else bool(conf.get("free_between_segments", False)))
+        # Adaptive safety net: unload models even when segment-freeing is OFF
+        # if the system is critically low on RAM, so we never freeze mid-scene.
+        if not force and stage == "segment":
+            floor = float(conf.get("min_free_ram_gb", 6.0))
+            free = self._free_ram_gb()
+            if free is not None and free < floor:
+                print(f"  [mem] free RAM {free:.1f} GB < {floor:.1f} GB "
+                      f"threshold; unloading models to avoid a freeze")
+                force = True
+        if force:
+            try:
+                if hasattr(self.comfy, "free_memory"):
+                    if self.comfy.free_memory():
+                        print(f"  [mem] freed ComfyUI models ({stage})")
+            except Exception as exc:  # noqa: BLE001
+                print(f"  [mem] !! free failed ({stage}): {exc}")
+        # GC + memory summary always run so Python-side buffers don't build up
+        # across many segments, even when model-unloading is disabled.
         if conf.get("gc_collect", True):
             try:
                 import gc
@@ -433,8 +460,20 @@ class Director:
                                         chunk_idx=None, chunk_total=1,
                                         chain_image=None)
 
-        # ---- chunked path: N small segments, joined after creation ----------
         num_chunks = max(1, int(math.ceil(total_seconds / segment_seconds)))
+        # BATCH path: submit every segment into ComfyUI's queue up-front so the
+        # GPU keeps the same model loaded and renders them back-to-back (no
+        # per-segment submit/wait/reload round-trip). Only meaningful when we
+        # have several independent segments; frame-chaining needs the previous
+        # segment's output so it forces the sequential path instead.
+        use_batch = (bool(self.render_cfg.get("batch", True)) and
+                     num_chunks > 1 and
+                     not bool(self.render_cfg.get("chain_frames", True)))
+        if use_batch:
+            return self._render_scene_batch(scene, scene_idx, total_seconds,
+                                            num_chunks, segment_seconds)
+
+        # ---- sequential chunked path: N segments, joined after creation ----
         fps = int(self.render_cfg.get("fps", 25))
         vw = int(self.render_cfg.get("video_width", 480))
         vh = int(self.render_cfg.get("video_height", 280))
@@ -477,6 +516,132 @@ class Director:
         agg = QCResult(passed=all_passed, metrics={
             "chunked": True,
             "num_chunks": num_chunks,
+            "chunks_passed": passed_count,
+            "chunk_seconds": segment_seconds,
+            "segments": [r["qc"] for r in chunk_results],
+        }, reasons=[] if all_passed else [
+            f"{num_chunks - passed_count}/{num_chunks} segments failed QC"])
+        return scene_path, total_attempts, agg, locked
+
+    def _render_scene_batch(self, scene: dict, scene_idx: int,
+                            total_seconds: float, num_chunks: int,
+                            segment_seconds: float) -> tuple:
+        """Batch-render a chunked scene by submitting ALL segments into
+        ComfyUI's queue up-front, then downloading each as ComfyUI finishes.
+
+        Because the segments are submitted together (and are independent, no
+        frame-chaining), ComfyUI keeps the LTX model loaded and processes them
+        back-to-back — no per-segment submit/wait/reload round-trip and no
+        per-segment model reload, so a tight-memory machine doesn't stall and
+        the render is far faster. Memory is only freed once, at scene end.
+
+        Returns (video_path, attempts, qc_result, locked_prompts).
+        """
+        max_attempts = int(self.qc_cfg.get("max_attempts", 3))
+        qc_enabled = bool(self.qc_cfg.get("enabled", True))
+        print(f"\n[chunk] BATCH mode: submitting {num_chunks} segments to "
+              f"the ComfyUI queue up-front ({segment_seconds:g}s each)")
+
+        # 1) Submit every segment's workflow now, collecting prompt_ids.
+        jobs: list[dict] = []
+        for c in range(num_chunks):
+            start = c * segment_seconds
+            dur = min(segment_seconds, total_seconds - start)
+            values = self._scene_values(scene, scene_idx, duration=dur,
+                                        chunk_idx=c, chunk_total=num_chunks)
+            wf = apply_knobs(self.template, self.knobs, values)
+            prompt_id = self.comfy.submit(wf)
+            print(f"  [chunk] queued segment {c + 1}/{num_chunks} "
+                  f"({start:.2f}s–{start + dur:.2f}s) -> {prompt_id}")
+            jobs.append({"idx": c, "dur": dur, "pid": prompt_id,
+                         "attempts": 1})
+
+        # 2) Wait for + download each in queue order; retry failures.
+        chunk_paths: list = []
+        chunk_results: list = []
+        locked = None
+        total_attempts = 0
+        timeout = float(self.cfg["comfyui"].get(
+            "render_timeout_seconds", 3600))
+        if timeout <= 0:
+            timeout = 3600
+        for job in jobs:
+            c = job["idx"]
+            dur = job["dur"]
+            out_name = f"scene_{scene_idx:02d}_c{c:02d}.mp4"
+            accepted = False
+            while not accepted and job["attempts"] <= max_attempts:
+                pid = job["pid"]
+                print(f"  -- segment {c + 1}/{num_chunks} | attempt "
+                      f"{job['attempts']}/{max_attempts} (queued {pid})")
+                self.comfy.wait(pid, timeout=timeout)
+                src = self._find_output(pid)
+                if src is None:
+                    print("  !! no output video found in ComfyUI history")
+                    job["pid"] = self.comfy.submit(
+                        apply_knobs(self.template, self.knobs,
+                                    self._scene_values(
+                                        scene, scene_idx, duration=dur,
+                                        chunk_idx=c, chunk_total=num_chunks)))
+                    job["attempts"] += 1
+                    continue
+                dest = os.path.join(self.output_dir, out_name)
+                self.comfy.download(src["filename"], dest,
+                                    src.get("subfolder", ""),
+                                    src.get("type", "output"))
+                print(f"  downloaded -> "
+                      f"{os.path.relpath(dest, BASE_DIR)}")
+                attempts = job["attempts"]
+                total_attempts += attempts
+                if not qc_enabled:
+                    chunk_paths.append(dest)
+                    chunk_results.append({
+                        "file": os.path.relpath(dest, BASE_DIR),
+                        "attempts": attempts,
+                        "qc": {"unchecked": True}, "passed": True})
+                    accepted = True
+                    break
+                expected_frames = int(round(
+                    dur * int(self.render_cfg.get("fps", 25))))
+                min_frames = max(2, expected_frames - 2)
+                min_dur = max(0.3, dur * 0.5)
+                result = self.qc.analyze(dest, dur, min_frames=min_frames,
+                                         min_duration_seconds=min_dur)
+                print(f"  QC: {'PASS' if result.passed else 'FAIL'} "
+                      f"{result.summary()}")
+                if result.passed:
+                    chunk_paths.append(dest)
+                    chunk_results.append({
+                        "file": os.path.relpath(dest, BASE_DIR),
+                        "attempts": attempts, "qc": result.metrics,
+                        "passed": True})
+                    accepted = True
+                    break
+                # QC failed -> re-submit this segment with fresh seeds.
+                print("  QC FAILED: " + "; ".join(result.reasons) +
+                      " - re-shooting with new seeds")
+                values = self._scene_values(scene, scene_idx, duration=dur,
+                                            chunk_idx=c,
+                                            chunk_total=num_chunks)
+                job["pid"] = self.comfy.submit(
+                    apply_knobs(self.template, self.knobs, values))
+                job["attempts"] += 1
+            if not accepted:
+                # exhausted attempts: keep the last file if it exists
+                chunk_paths.append("")
+                chunk_results.append({
+                    "file": "", "attempts": job["attempts"],
+                    "qc": {"unchecked": True}, "passed": False})
+
+        # 3) Release leftover RAM/VRAM once, after the whole scene's queue.
+        self._clean_memory("scene")
+
+        scene_path = self._stitch_chunks(scene_idx, chunk_paths
+                                         if chunk_paths else [])
+        passed_count = sum(1 for r in chunk_results if r.get("passed"))
+        all_passed = bool(chunk_paths) and passed_count == len(chunk_results)
+        agg = QCResult(passed=all_passed, metrics={
+            "chunked": True, "batch": True, "num_chunks": num_chunks,
             "chunks_passed": passed_count,
             "chunk_seconds": segment_seconds,
             "segments": [r["qc"] for r in chunk_results],

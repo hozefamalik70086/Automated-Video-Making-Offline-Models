@@ -204,6 +204,18 @@ Knobs (things the director changes per scene) live in `workflow_knobs.json`:
   high resolution never OOM/hang (expect roughly 1–5 min per 1s segment on a
   mid-range GPU). The cap is enforced in code even if `chunk_seconds` is set
   higher, so long 30/60 s scenes can never OOM an 8–16 GB GPU.
+- **Batch mode (`render.batch`, default `true`).** When a chunked scene splits
+  into several independent segments (i.e. `chain_frames` is off), the director
+  submits **all** segment workflows into ComfyUI's queue up-front instead of
+  submit → wait → submit. ComfyUI then keeps the LTX model loaded and renders
+  the whole queue back‑to‑back — no per‑segment submit/wait/reload round‑trip
+  and no repeated model reload, so a tight‑memory machine (LTX ~22 GB on a
+  12.8 GB card) finishes a chunked scene far faster and never stalls waiting
+  between segments. Any QC‑failed segment is re‑submitted individually, and
+  memory is freed once at scene end. Bat‑submission needs independent segments,
+  so it is auto‑disabled when `render.chain_frames` is `true` (frame chaining
+  depends on the previous segment's output and therefore must run
+  sequentially).
 - Without chunking, one ComfyUI prompt runs the whole image+video scene; expect
   roughly 1–5 min per 5s scene on a mid-range GPU — long durations/high FPS
   risk GPU OOM.
@@ -214,10 +226,15 @@ Knobs (things the director changes per scene) live in `workflow_knobs.json`:
   `comfyui.free_between_scenes` (default `true`) and
   `comfyui.free_between_segments` (default `false` — freeing between every 1s
   segment forces the I2V model to reload each time, which is slower; enable it
-  only if a single scene still OOMs). Each cleanup prints the live
-  `VRAM/RAM free` figures so you can watch pressure in the console. If you
-  still see high RAM/VRAM with chunked 1s segments, also run ComfyUI Desktop in
-  `--lowvram` mode (Settings → ComfyUI → extra launch args).
+  only if a single scene still OOMs). **Adaptive safety net:** even when
+  `free_between_segments` is off, if free system RAM drops below
+  `comfyui.min_free_ram_gb` (default `6`) the director still unloads ComfyUI's
+  models — this stops a long chunked scene (many 1s segments keeping the LTX +
+  12B encoder resident) from exhausting RAM and freezing mid-scene. Python GC
+  always runs between segments regardless of the toggles. Each cleanup prints
+  the live `VRAM/RAM free` figures so you can watch pressure in the console. If
+  you still see high RAM/VRAM with chunked 1s segments, also run ComfyUI
+  Desktop in `--lowvram` mode (Settings → ComfyUI → extra launch args).
 - The final stitch re-encodes clips (H.264) to guarantee concatenation works;
   audio from LTX is currently dropped in the stitch (`-an`) for robustness.
 - **Dialogue → audio:** each scene's `dialogue` (from `custom_story.txt`

@@ -28,8 +28,8 @@
     "video_length": 60
   },
   "render": {
-    "video_width": 640,
-    "video_height": 480,
+    "video_width": 600,
+    "video_height": 912,
     "fps": 25,
     "image_width": 1280,
     "image_height": 720,
@@ -43,7 +43,8 @@
     "chunked": true,
     "chunk_seconds": 1,
     "max_segment_seconds": 1,
-    "chain_frames": true
+    "batch": true,
+    "chain_frames": false
   },
   "qc": {
     "enabled": false,

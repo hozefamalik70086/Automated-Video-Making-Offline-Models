@@ -686,6 +686,68 @@ def test_render_scene_chunked() -> None:
           qc_result.passed is True, repr(qc_result.reasons))
 
 
+def test_render_scene_batch() -> None:
+    section("director: batch mode submits all segments to the queue at once")
+    import director as director_mod
+    cfg = base_config()
+    cfg["story"]["seconds_per_scene"] = 3
+    cfg["render"]["chunked"] = True
+    cfg["render"]["chunk_seconds"] = 1.0
+    cfg["render"]["chain_frames"] = False
+    cfg["render"]["batch"] = True
+    cfg["qc"]["enabled"] = True
+    d = director_mod.Director(cfg)
+    d.chars = type("FakeLib", (), {"enabled": False})()
+
+    submitted = []
+    waited = []
+    downloaded = []
+    qc_passed = [bool]
+
+    class BatchComfy:
+        def submit(self, wf):
+            submitted.append(1)
+            return f"pid-{len(submitted)}"
+
+        def wait(self, pid, timeout=3600):
+            waited.append(pid)
+
+        def download(self, filename, dest, subfolder="", ftype="output"):
+            downloaded.append(filename)
+
+    d.comfy = BatchComfy()
+
+    def fake_find(pid):
+        return {"filename": f"{pid}.mp4", "subfolder": "", "type": "output"}
+
+    def fake_stitch(scene_idx, chunk_paths):
+        return f"output/scene_{scene_idx:02d}.mp4"
+
+    def fake_qc(path, expected_duration, min_frames=None,
+                min_duration_seconds=None):
+        return QCResult(passed=True, metrics={"motion_std": 1.0})
+
+    d._find_output = fake_find
+    d._stitch_chunks = fake_stitch
+    d.qc.analyze = fake_qc
+
+    path, attempts, qc_result, locked = d.render_scene(
+        {"image_prompt": "p", "video_prompt": "v"}, 2)
+
+    check("all 3 segments submitted up-front at once",
+          len(submitted) == 3, repr(submitted))
+    check("each segment was waited for (downloaded)",
+          len(waited) == 3, repr(waited))
+    check("all 3 clips downloaded", len(downloaded) == 3,
+          repr(downloaded))
+    check("stitched scene path returned",
+          path == "output/scene_02.mp4", repr(path))
+    check("attempts = 3 (one per segment)", attempts == 3, str(attempts))
+    check("aggregate qc marks batch",
+          qc_result.metrics.get("batch") is True,
+          repr(qc_result.metrics))
+
+
 def test_render_scene_chunked_fallback_to_single() -> None:
     section("director: chunking off -> single-shot render")
     import director as director_mod
@@ -793,6 +855,7 @@ def test_memory_cleanup_between_segments() -> None:
     cfg["render"]["chunked"] = True
     cfg["render"]["chunk_seconds"] = 1.0
     cfg["render"]["chain_frames"] = False
+    cfg["render"]["batch"] = False          # exercise the sequential path
     cfg["comfyui"]["free_between_segments"] = True
     cfg["comfyui"]["free_between_scenes"] = True
     d = director_mod.Director(cfg)
@@ -844,6 +907,62 @@ def test_memory_cleanup_between_segments() -> None:
     d2._clean_memory("scene")
     check("scene cleanup runs by default", free_calls[0] == 1,
           str(free_calls[0]))
+
+
+def test_segment_adaptive_free_on_low_ram() -> None:
+    section("director: adaptive cleanup frees on low RAM even with toggle off")
+    import director as director_mod
+    cfg = base_config()
+    # free_between_segments stays OFF (default), but free RAM is low -> must
+    # still unload models to avoid a mid-scene freeze.
+    cfg["comfyui"]["free_between_segments"] = False
+    cfg["comfyui"]["min_free_ram_gb"] = 6.0
+
+    free_calls = [0]
+
+    class LowRamComfy:
+        def free_memory(self, _unload_models=True, _free_memory=True):
+            free_calls[0] += 1
+            return True
+
+        def memory_summary(self):
+            return "VRAM 8.0/12.0 GB free; RAM 3/31 GB free"
+
+        def free_ram_gb(self):
+            return 3.0  # below the 6 GB floor
+
+    d = director_mod.Director(cfg)
+    d.comfy = LowRamComfy()
+    d._clean_memory("segment")
+    check("segment cleanup forced when free RAM below threshold",
+          free_calls[0] == 1, str(free_calls[0]))
+
+    # A sufficiently free system must NOT free (fast path, no reload).
+    class HighRamComfy(LowRamComfy):
+        def free_ram_gb(self):
+            return 20.0
+
+    free_calls[0] = 0
+    d.comfy = HighRamComfy()
+    d._clean_memory("segment")
+    check("segment cleanup NOT forced when RAM is healthy",
+          free_calls[0] == 0, str(free_calls[0]))
+
+    # A client with no free_ram_gb method (offline test fake) must not free
+    # and must not raise.
+    class NoRamComfy:
+        def free_memory(self, _unload_models=True, _free_memory=True):
+            free_calls[0] += 1
+            return True
+
+        def memory_summary(self):
+            return "VRAM 8.0/12.0 GB"
+
+    free_calls[0] = 0
+    d.comfy = NoRamComfy()
+    d._clean_memory("segment")
+    check("segment cleanup skipped when client has no RAM probe",
+          free_calls[0] == 0, str(free_calls[0]))
 
 
 # --------------------------------------------------------------------------- #
@@ -935,10 +1054,12 @@ def main() -> None:
     test_apply_chain_image()
     test_extract_last_frame()
     test_render_scene_chunked()
+    test_render_scene_batch()
     test_render_scene_chunked_fallback_to_single()
     test_effective_scene_seconds_video_length()
     test_segment_cap_prevents_oom()
     test_memory_cleanup_between_segments()
+    test_segment_adaptive_free_on_low_ram()
     test_narrate_voice_selection()
     print(f"\n{'='*60}\nPASS: {PASS}   FAIL: {FAIL}")
     if FAILURES:

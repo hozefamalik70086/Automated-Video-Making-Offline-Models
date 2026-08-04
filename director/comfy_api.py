@@ -96,6 +96,18 @@ class ComfyUI:
         return "; ".join(bits) if bits else None
 
     # ------------------------------------------------------------- submit
+    def free_ram_gb(self) -> Optional[float]:
+        """Current free system RAM in GB (from /system_stats), or None when
+        the server does not report it / is unreachable."""
+        try:
+            stats = self.system_stats()
+        except Exception:  # noqa: BLE001
+            return None
+        syst = stats.get("system") or {}
+        rfree = syst.get("ram_free") or 0
+        return float(rfree) / GB if rfree else None
+
+    # ------------------------------------------------------------- submit
     def submit(self, workflow: dict) -> str:
         """POST an API-format workflow; returns the prompt_id."""
         payload = {"prompt": workflow, "client_id": self.client_id}
