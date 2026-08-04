@@ -367,6 +367,15 @@ class Director:
         """Number of segments for a scene of this length."""
         return max(1, int(math.ceil(total_seconds / self._segment_seconds())))
 
+    def _scene_batchable(self, total_seconds: float) -> bool:
+        """True when this scene can use batch-mode (all segments submitted
+        up-front).  Disabled when ``chain_frames`` is active because each
+        segment depends on the previous one's last frame."""
+        num_chunks = max(1, int(math.ceil(total_seconds / self._segment_seconds())))
+        return (bool(self.render_cfg.get("batch", True))
+                and num_chunks > 1
+                and not bool(self.render_cfg.get("chain_frames", True)))
+
     def _free_ram_gb(self) -> Optional[float]:
         """Free system RAM (GB) per ComfyUI /system_stats, or None if unknown
         / the client has no such method (guards offline unit-test fakes)."""
@@ -382,23 +391,23 @@ class Director:
 
         ``stage`` is 'segment' or 'scene'. Controlled by the ``comfyui``
         config section:
-          * free_between_scenes  (default True)  - unload everything at scene
-            boundaries so RAM/VRAM cannot accumulate across a long run (the
-            LTX fp8 + 12B text encoder are both heavy).
-          * free_between_segments (default False) - unload between every 1s
-            segment. Disabled by default because reloading the I2V model for
-            each tiny segment slows chunked runs.
-          * min_free_ram_gb (default 6.0) - SAFETY NET: even when
-            free_between_segments is OFF, if free system RAM drops below this
-            we STILL unload ComfyUI's models. Without this, a long chunked
-            scene (many 1s segments keeping LTX + 12B encoder resident)
-            exhausts RAM and the whole machine freezes mid-scene (observed
-            stalling at ~segment 10-12 of 12). The adaptive free only fires
-            when RAM is genuinely tight, so healthy runs stay fast.
-          * gc_collect (default True)              - forces Python GC so this
-            process releases any large downloaded-file buffers. Runs
-            regardless of the free toggles above.
-        Never crashes the pipeline - every step is best-effort."""
+            * free_between_scenes  (default True)  - unload everything at scene
+              boundaries so RAM/VRAM cannot accumulate across a long run (the
+              LTX fp8 + 12B text encoder are both heavy).
+            * free_between_segments (default False) - unload between every 1s
+              segment. Disabled by default because reloading the I2V model for
+              each tiny segment slows chunked runs.
+            * min_free_ram_gb (default 6.0) - SAFETY NET: even when
+              free_between_segments is OFF, if free system RAM drops below this
+              we STILL unload ComfyUI's models. Without this, a long chunked
+              scene (many 1s segments keeping LTX + 12B encoder resident)
+              exhausts RAM and the whole machine freezes mid-scene (observed
+              stalling at ~segment 10-12 of 12). The adaptive free only fires
+              when RAM is genuinely tight, so healthy runs stay fast.
+            * gc_collect (default True)              - forces Python GC so this
+              process releases any large downloaded-file buffers. Runs
+              regardless of the free toggles above.
+          Never crashes the pipeline - every step is best-effort."""
         conf = self.cfg.get("comfyui", {})
         force = (bool(conf.get("free_between_scenes", True))
                  if stage == "scene"
@@ -435,7 +444,57 @@ class Director:
         except Exception:  # noqa: BLE001
             pass
 
-    def render_scene(self, scene: dict, scene_idx: int) -> tuple:
+    def _pre_submit_all_scenes(self, scenes: list, base_idx: int,
+                               scene_count: Optional[int] = None
+                               ) -> tuple[dict, int]:
+        """Pre-submit ALL segment workflows across ALL scenes into ComfyUI's
+        queue in one pass so the GPU keeps the same model loaded and renders
+        them back-to-back.  Returns (jobs, total) where ``jobs`` maps
+        ``{scene_idx: [{idx, dur, pid, attempts}, …]}`` and ``total`` is the
+        total number of queued segments across all scenes.
+
+        Scenes that are not batchable (single-shot, chain_frames) are left
+        as ``None`` in the dict so ``render_scene`` handles them individually.
+        """
+        segment_seconds = self._segment_seconds()
+        chunked = bool(self.render_cfg.get("chunked", False))
+        jobs: dict = {}
+        total = 0
+
+        for i, scene in enumerate(scenes):
+            idx = base_idx + i
+            total_seconds = self._effective_scene_seconds()
+
+            if not chunked or total_seconds <= segment_seconds + 1e-6:
+                # Single-shot — will be submitted on-demand by render_scene.
+                jobs[idx] = None
+                continue
+
+            if not self._scene_batchable(total_seconds):
+                # chain_frames or batch disabled — sequential per-scene.
+                jobs[idx] = None
+                continue
+
+            num_chunks = max(1, int(math.ceil(total_seconds / segment_seconds)))
+            scene_jobs: list = []
+            for c in range(num_chunks):
+                start = c * segment_seconds
+                dur = min(segment_seconds, total_seconds - start)
+                values = self._scene_values(scene, idx, duration=dur,
+                                            chunk_idx=c, chunk_total=num_chunks)
+                wf = apply_knobs(self.template, self.knobs, values)
+                prompt_id = self.comfy.submit(wf)
+                print(f"  [chunk] queued scene {idx+1} seg {c+1}/{num_chunks} "
+                      f"({start:.2f}s–{start+dur:.2f}s) -> {prompt_id}")
+                scene_jobs.append({"idx": c, "dur": dur, "pid": prompt_id,
+                                   "attempts": 1})
+                total += 1
+            jobs[idx] = scene_jobs
+
+        return jobs, total
+
+    def render_scene(self, scene: dict, scene_idx: int,
+                     pre_submitted: Optional[dict] = None) -> tuple:
         """Render one scene with QC retry loop.
 
         With ``render.chunked`` enabled, a scene longer than the effective
@@ -447,6 +506,11 @@ class Director:
         ``chain_frames`` makes each segment start from the previous segment's
         last frame so the joined shot looks continuous instead of restarted.
         The scene duration comes from ``_effective_scene_seconds()``.
+
+        *pre_submitted* is an optional dict from ``_pre_submit_all_scenes``
+        mapping ``{scene_idx: [jobs]}``.  When present and this scene has
+        batchable jobs, they are passed to ``_render_scene_batch`` so the
+        submission phase is skipped (cross-scene mega-batch).
 
         Returns (video_path, attempts, qc_result, locked_prompts).
         """
@@ -470,8 +534,10 @@ class Director:
                      num_chunks > 1 and
                      not bool(self.render_cfg.get("chain_frames", True)))
         if use_batch:
+            pre = (pre_submitted or {}).get(scene_idx)
             return self._render_scene_batch(scene, scene_idx, total_seconds,
-                                            num_chunks, segment_seconds)
+                                            num_chunks, segment_seconds,
+                                            pre_submitted=pre)
 
         # ---- sequential chunked path: N segments, joined after creation ----
         fps = int(self.render_cfg.get("fps", 25))
@@ -525,7 +591,8 @@ class Director:
 
     def _render_scene_batch(self, scene: dict, scene_idx: int,
                             total_seconds: float, num_chunks: int,
-                            segment_seconds: float) -> tuple:
+                            segment_seconds: float,
+                            pre_submitted: Optional[list] = None) -> tuple:
         """Batch-render a chunked scene by submitting ALL segments into
         ComfyUI's queue up-front, then downloading each as ComfyUI finishes.
 
@@ -535,26 +602,36 @@ class Director:
         per-segment model reload, so a tight-memory machine doesn't stall and
         the render is far faster. Memory is only freed once, at scene end.
 
+        When *pre_submitted* is provided (list of job dicts from
+        ``_pre_submit_all_scenes``), the submission phase is skipped and the
+        existing prompt_ids are used instead — this enables cross-scene
+        mega-batch where ALL segments across ALL scenes are queued at once.
+
         Returns (video_path, attempts, qc_result, locked_prompts).
         """
         max_attempts = int(self.qc_cfg.get("max_attempts", 3))
         qc_enabled = bool(self.qc_cfg.get("enabled", True))
-        print(f"\n[chunk] BATCH mode: submitting {num_chunks} segments to "
-              f"the ComfyUI queue up-front ({segment_seconds:g}s each)")
 
-        # 1) Submit every segment's workflow now, collecting prompt_ids.
-        jobs: list[dict] = []
-        for c in range(num_chunks):
-            start = c * segment_seconds
-            dur = min(segment_seconds, total_seconds - start)
-            values = self._scene_values(scene, scene_idx, duration=dur,
-                                        chunk_idx=c, chunk_total=num_chunks)
-            wf = apply_knobs(self.template, self.knobs, values)
-            prompt_id = self.comfy.submit(wf)
-            print(f"  [chunk] queued segment {c + 1}/{num_chunks} "
-                  f"({start:.2f}s–{start + dur:.2f}s) -> {prompt_id}")
-            jobs.append({"idx": c, "dur": dur, "pid": prompt_id,
-                         "attempts": 1})
+        # 1) Submit or reuse pre-submitted jobs.
+        if pre_submitted is not None:
+            jobs = pre_submitted  # already contain {idx, dur, pid, attempts}
+            print(f"\n[chunk] BATCH mode: using {num_chunks} pre-queued "
+                  f"segments for scene {scene_idx+1} ({segment_seconds:g}s each)")
+        else:
+            print(f"\n[chunk] BATCH mode: submitting {num_chunks} segments to "
+                  f"the ComfyUI queue up-front ({segment_seconds:g}s each)")
+            jobs: list[dict] = []
+            for c in range(num_chunks):
+                start = c * segment_seconds
+                dur = min(segment_seconds, total_seconds - start)
+                values = self._scene_values(scene, scene_idx, duration=dur,
+                                            chunk_idx=c, chunk_total=num_chunks)
+                wf = apply_knobs(self.template, self.knobs, values)
+                prompt_id = self.comfy.submit(wf)
+                print(f"  [chunk] queued segment {c + 1}/{num_chunks} "
+                      f"({start:.2f}s–{start + dur:.2f}s) -> {prompt_id}")
+                jobs.append({"idx": c, "dur": dur, "pid": prompt_id,
+                             "attempts": 1})
 
         # 2) Wait for + download each in queue order; retry failures.
         chunk_paths: list = []
@@ -767,9 +844,10 @@ class Director:
         try:
             import imageio.v2 as imageio
             last = None
-            with imageio.get_reader(video_path, "ffmpeg") as rdr:
-                for frame in rdr:
-                    last = frame
+            reader = imageio.get_reader(video_path, format="ffmpeg")  # type: ignore[arg-type]
+            for frame in reader:  # type: ignore[assignment]
+                last = frame
+            reader.close()
             if last is None:
                 return None
             imageio.imwrite(png, last)
@@ -926,11 +1004,37 @@ class Director:
 
         results = []
         manual_review = bool(self.cfg["director"].get("manual_review", False))
+
+        # ---- cross-scene mega-batch: submit ALL segments up-front ----
+        # When render.batch is enabled and scenes are chunked, pre-submit
+        # every segment of every scene into ComfyUI's queue in one pass.
+        # This keeps the GPU model loaded once and avoids per-scene submit/
+        # wait/reload round-trips, so a tight-memory machine doesn't stall.
+        batch_enabled = bool(self.render_cfg.get("batch", True))
+        chain_frames = bool(self.render_cfg.get("chain_frames", True))
+        segment_seconds = self._segment_seconds()
+        total_seconds_global = self._effective_scene_seconds()
+        chunked_global = bool(self.render_cfg.get("chunked", False))
+        can_mega_batch = (
+            batch_enabled
+            and not chain_frames
+            and chunked_global
+            and total_seconds_global > segment_seconds + 1e-6
+            and len(scenes) > 1
+        )
+        pre_submitted = None
+        if can_mega_batch:
+            pre_submitted, total_queued = self._pre_submit_all_scenes(
+                scenes, base_idx)
+            print(f"\n[chunk] MEGA-BATCH: {total_queued} segments across "
+                  f"{len(scenes)} scenes all queued in ComfyUI's queue")
+
         for i, scene in enumerate(scenes):
             idx = base_idx + i
             print(f"\n{'='*60}\nSCENE {idx+1}: {scene['video_prompt'][:60]}…\n"
                   f"{'='*60}")
-            path, attempts, qc_result, locked = self.render_scene(scene, idx)
+            path, attempts, qc_result, locked = self.render_scene(
+                scene, idx, pre_submitted=pre_submitted)
             passed = qc_result is not None and qc_result.passed
             locked_img, locked_vid = (locked if locked
                                       else (scene["image_prompt"],
@@ -953,8 +1057,11 @@ class Director:
                       "or Ctrl+C to abort…")
             # Unload cached models between scenes: the biggest single source of
             # RAM/VRAM pressure across a whole run (LTX fp8 + 12B text
-            # encoder staying resident in ComfyUI).
-            self._clean_memory("scene")
+            # encoder staying resident in ComfyUI).  Skip when mega-batch is
+            # active — all segments are already queued and freeing models here
+            # would force ComfyUI to reload them for the next scene's segments.
+            if not can_mega_batch:
+                self._clean_memory("scene")
 
         report = {
             "story_title": title,
@@ -1021,6 +1128,29 @@ def main(argv=None) -> None:
                              "scene as one long clip instead)")
     args = parser.parse_args(argv)
 
+    # ---- single-instance guard: refuse to run if another director is alive ----
+    pid_file = os.path.join(BASE_DIR, ".director.pid")
+    my_pid = os.getpid()
+    if os.path.exists(pid_file):
+        try:
+            with open(pid_file, encoding="utf-8") as _pf:
+                old_pid = int(_pf.read().strip())
+            # Check if the old process is still alive.
+            os.kill(old_pid, 0)  # raises OSError if dead
+            if old_pid != my_pid:
+                print(f"!! Another director is already running (PID {old_pid}). "
+                      f"Stop it first or delete {pid_file}")
+                sys.exit(1)
+        except (OSError, ValueError):
+            # Old process is dead or PID file is corrupt — safe to proceed.
+            pass
+    # Write our PID so future launches know we're alive.
+    try:
+        with open(pid_file, "w", encoding="utf-8") as _pf:
+            _pf.write(str(my_pid))
+    except Exception:  # noqa: BLE001
+        pass
+
     config = load_json(args.config)
     if args.no_characters:
         config.setdefault("characters", {})["enabled"] = False
@@ -1034,7 +1164,17 @@ def main(argv=None) -> None:
         print("\n" + ("ALL CHECKS PASSED" if not problems
                       else "\n".join("- " + p for p in problems)))
         return
-    director.run(only_scene=args.scene, scene_count=args.scene_count)
+    try:
+        director.run(only_scene=args.scene, scene_count=args.scene_count)
+    finally:
+        # Remove PID file on exit so the next run isn't blocked.
+        try:
+            if os.path.exists(pid_file):
+                with open(pid_file, encoding="utf-8") as _pf:
+                    if int(_pf.read().strip()) == my_pid:
+                        os.remove(pid_file)
+        except Exception:  # noqa: BLE001
+            pass
 
 
 if __name__ == "__main__":
